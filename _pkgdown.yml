@@ -1,0 +1,15 @@
+url: https://wcpfcnswo.bluematterscience.com/pkg/
+template:
+  bootstrap: 5
+
+navbar:
+  structure:
+    left:  [homepage, tsd, reference, news]
+    right: [search, github]
+  components:
+    homepage:
+      text: Swordfish MSE Homepage
+      href: https://wcpfcnswo.bluematterscience.com/
+    tsd:
+      text: Trial Specifications Document
+      href: https://wcpfcnswo.bluematterscience.com/tsd/

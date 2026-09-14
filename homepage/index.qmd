@@ -1,0 +1,35 @@
+---
+title: "WCPFC North Pacific Swordfish Management Strategy Evaluation"
+---
+
+This site hosts the materials for the Management Strategy Evaluation (MSE)
+process for North Pacific swordfish (*Xiphias gladius*), managed by the
+[Western and Central Pacific Fisheries Commission
+(WCPFC)](https://www.wcpfc.int).
+
+The MSE tests candidate management procedures against a range of plausible
+operating models to evaluate their performance against management objectives
+under uncertainty.
+
+## Materials
+
+- [Trial Specifications Document](tsd/): the operating models,
+  management procedures, and performance metrics used in the MSE.
+
+
+## Repository Structure
+
+The [`wcpfcNSWO` repository](https://github.com/Blue-Matter/wcpfcNSWO) is
+organised as follows:
+
+| Directory / File | Purpose |
+|------------------------------------|------------------------------------|
+| `R/` | Package functions and objects.  |
+| `analysis/` | Analysis scripts that run the MSE  |
+| `data-raw/` | Stock assessment conditioning model output  |
+| `objects/` | Saved R objects produced by the analysis scripts (`OM/`, `Hist/`, etc.) |
+| `tsd/` | Quarto source for the Trial Specifications Document |
+| `homepage/` | Quarto source for this website |
+
+To reproduce the analysis, download the [`wcpfcNSWO` repository](https://github.com/Blue-Matter/wcpfcNSWO),
+and work through the scripts in `analysis`.

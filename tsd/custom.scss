@@ -1,0 +1,43 @@
+/*-- scss:defaults --*/
+$caption-color: $brand-ink-light !default;
+
+/*-- scss:rules --*/
+
+h1, h2 {
+  color: $brand-ink;
+  border-bottom: 2px solid $brand-navy;
+  padding-bottom: 0.3rem;
+}
+h3, h4 {
+  color: $brand-ink;
+}
+
+.figure-caption,
+caption,
+.table caption,
+figcaption {
+  color: $brand-ink-light;
+  font-size: 0.9em;
+}
+
+a {
+  color: $brand-navy;
+  text-decoration: none;
+  border-bottom: 1px solid rgba($brand-navy, 0.35);
+}
+a:hover {
+  border-bottom-color: $brand-navy;
+}
+
+blockquote {
+  border-left: 3px solid $brand-teal;
+  color: $brand-ink-light;
+}
+
+code {
+  background-color: #f4f5f6;
+  color: $brand-ink;
+}
+pre {
+  border: 1px solid $brand-hairline;
+}

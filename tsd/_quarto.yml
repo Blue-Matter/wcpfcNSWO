@@ -1,0 +1,40 @@
+project:
+  type: book
+  output-dir: _book
+
+book:
+  title: "Trial Specifications Document"
+  subtitle: "North Pacific Swordfish MSE"
+  author:
+    - name: Adrian Hordyk
+      affiliation: Blue Matter Science
+      email: adrian@bluematterscience.com
+  date: today
+  date-format: "D MMMM YYYY"
+  site-url: https://wcpfcnswo.bluematterscience.com/tsd/
+  repo-url: https://github.com/Blue-Matter/wcpfcNSWO
+  navbar:
+    left:
+      - text: "Swordfish MSE Homepage"
+        href: https://wcpfcnswo.bluematterscience.com/
+      - text: "wcpfcNSWO Code"
+        href: https://github.com/Blue-Matter/wcpfcNSWO
+  chapters:
+    - index.qmd
+    - operating-models.qmd
+    - forward-projections.qmd
+    - performance-metrics.qmd
+    - management-procedures.qmd
+    - references.qmd
+
+
+bibliography: references.bib
+
+brand: _blue-matter.yml
+
+format:
+  html:
+    theme:
+    - cosmo
+    code-link: true
+    toc-depth: 3

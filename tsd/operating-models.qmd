@@ -1,0 +1,5 @@
+---
+suppress-bibliography: true
+---
+
+# Operating Models {#sec-operating-models}

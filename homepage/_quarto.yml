@@ -1,0 +1,18 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "WCPFC North Pacific Swordfish MSE"
+  site-url: https://wcpfcnswo.bluematterscience.com/
+  navbar:
+    left:
+      - text: "Trial Specifications Document"
+        href: https://wcpfcnswo.bluematterscience.com/tsd/
+      - text: "wcpfcNSWO Code"
+        href: https://github.com/Blue-Matter/wcpfcNSWO
+
+format:
+  html:
+    theme: cosmo
+    page-layout: full
