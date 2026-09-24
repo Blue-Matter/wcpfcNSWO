@@ -21,4 +21,3 @@ MPStartYear <- 2028
 
 # Path to the SS3 base-case model directory
 ssdir_base <- "../WCNPOSWO-2023/Final Base-case"
-
