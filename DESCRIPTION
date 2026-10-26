@@ -29,6 +29,7 @@ Imports:
 Suggests:
     DLMtool,
     furrr,
+    kableExtra,
     knitr,
     readxl,
     SAMtool,
@@ -37,3 +38,5 @@ Suggests:
 Remotes:
     blue-matter/MSEtool,
     DTUAqua/spict/spict
+Roxygen: list(markdown = TRUE)
+

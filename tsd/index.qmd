@@ -14,6 +14,5 @@ For more information on the North Pacific Swordfish MSE process see the project 
 
 The NSWO MSE is built and maintained by [Blue Matter Science](https://bluematterscience.com) using the [openMSE](https://openMSE.com) framework.
 
-The analysis is fully reproducible: all code, functions, and objects used to build the operating models, candidate management procedures, and performance indicators are available in the associated [GitHub repository](https://github.com/Blue-Matter/wcpfcNSWO).
+The analysis is fully reproducible, and all materials are available in the associated [GitHub repository](https://github.com/Blue-Matter/wcpfcNSWO).
 
-To reproduce the analysis, download the GitHub repository and work through the scripts in the `analysis` directory.

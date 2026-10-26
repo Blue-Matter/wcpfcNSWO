@@ -3,3 +3,161 @@ suppress-bibliography: true
 ---
 
 # Performance Metrics {#sec-performance-metrics}
+
+```{r}
+#| include: false
+library(MSEtool)
+OM <- readRDS("../objects/OM/00.om")
+
+# reference levels, as set in analysis/04-Define-CMPs.R (tuning) and
+# analysis/06-Create-Slick.R (performance metrics)
+Assigned <- function(File, Names) {
+  for (e in parse(File))
+    if (is.call(e) && identical(e[[1]], as.name("<-")) && is.name(e[[2]]) &&
+        as.character(e[[2]]) %in% Names)
+      eval(e, envir = globalenv())
+}
+Assigned("../analysis/04-Define-CMPs.R", c("LRP", "PSafety", "PStatus", "TACChange"))
+Assigned("../analysis/06-Create-Slick.R", c("FTargetSPR", "StabilityThreshold", "NoChangeThreshold", "CatchRefYears"))
+FTargetLabel <- paste0("F$_{", 100 * FTargetSPR, "\\%}$")
+CatchRefLabel <- paste(range(CatchRefYears), collapse = "--")
+
+MPYears <- seq(MPStartYear(OM), by = 1, length.out = max(floor(Years(OM, "P"))) - MPStartYear(OM) + 1)
+Windows <- list(Short  = utils::head(MPYears, 10),
+                Medium = setdiff(MPYears, c(utils::head(MPYears, 10), utils::tail(MPYears, 10))),
+                Long   = utils::tail(MPYears, 10))
+yr_range <- function(x) paste(range(x), collapse = "--")
+
+SlickFile <- "../objects/slick.rds"
+HasSlick  <- file.exists(SlickFile)
+if (HasSlick) slick <- readRDS(SlickFile)
+```
+
+## Management Objectives
+
+The CMPs are evaluated against the following management objectives (@tbl-pm-summary):
+
+1. **Safety:** Maintain spawning biomass above the limit reference point (LRP;  `r LRP`$SB_0$) with at least 80% probability. A simulation in which spawning biomass falls below the LRP in any year of the evaluation period is considered a breach.
+
+2. **Status:** Maintain fishing mortality at or below the target value (`r FTargetLabel`) with at least 50% probability.
+
+3. **Stability:** Changes in the TAC between management periods should be relatively gradual. This is measured by the probability that the TAC changes by no more than `r 100 * StabilityThreshold`% between consecutive management periods, and by the probability of no management change (the TAC changes by no more than `r 100 * NoChangeThreshold`%; the CMPs leave the TAC unchanged when the change would be less than 1%).
+
+4. **Yield:** Maintain catches above the average historical catch level, measured by the probability that the annual catch is at least the mean catch in `r CatchRefLabel`. The mean annual catch is also reported.
+
+The CMPs are tuned in the base case OM to maximise the mean annual catch subject to the Safety objective (probability of at least `r PSafety`) and the Status objective (probability of at least `r PStatus`; @sec-tuning-methodology). The Stability and Yield metrics are not used in the tuning; the trade-off between TAC stability and catch is shown by the variants of each CMP type with different limits on the change in the TAC.
+
+```{r}
+#| echo: false
+#| label: tbl-pm-summary
+#| tbl-cap: "The candidate management objectives and the corresponding performance metrics."
+knitr::kable(
+  data.frame(
+    Category  = c('Safety', 'Status', 'Stability', '', 'Yield', ''),
+    Objective = c('Maintain SSB above the LRP with at least 80% probability',
+                  'Maintain fishing intensity (F) at the target value with at least 50% probability',
+                  'Change in TAC between years should be relatively gradual', '',
+                  'Maintain catches above average historical catch levels', ''),
+    Metric    = c(paste0('Probability that SB > LRP (', 100 * LRP, '% $SB_0$) in every year of the evaluation period'),
+                  paste0('Probability that F $\\leq$ ', FTargetLabel, ' & median ', FTargetLabel, '/F'),
+                  paste0('Probability that the change in TAC between consecutive management periods is $\\leq$ ', 100 * StabilityThreshold, '%'),
+                  paste0('Probability of no management change: probability that the change in TAC between consecutive management periods is $\\leq$ ', 100 * NoChangeThreshold, '%'),
+                  paste0('Probability that the annual catch is $\\geq$ the mean ', CatchRefLabel, ' catch'),
+                  'Mean annual catch (maximized tuning objective)')
+  ),
+  col.names = c('Category', 'Management Objective', 'Performance Metric')
+)
+```
+
+## Primary Performance Metrics
+
+All performance metrics are calculated over the `r length(MPYears)` years in which the CMPs set the TAC (`r yr_range(MPYears)`), for each OM and CMP. The following notation is used:
+
+- $s = 1, \ldots, S$ indexes the simulations and $y \in \mathcal{Y}$ the $N_Y$ = `r length(MPYears)` years;
+- $B_{s,y}$ is the annual spawning biomass relative to $SB_0$;
+- $F_{s,y}$ is the annual apical fishing mortality;
+- $C_{s,y}$ is the annual catch (total removals of all fleets, in t);
+- $\text{TAC}_{s,c}$ is the TAC set in management cycle $c = 1, \ldots, N_C$, and $\Delta_{s,c} = \lvert \text{TAC}_{s,c} - \text{TAC}_{s,c-1} \rvert / \text{TAC}_{s,c-1}$ is the relative change in the TAC;
+- $\mathrm{I}(\cdot)$ is 1 if the condition is true and 0 otherwise.
+ 
+**Safety**: the probability that spawning biomass remains above the LRP in every year:
+
+$$
+P_{\text{Safety}} = \frac{1}{S} \sum_{s} \mathrm{I}\left(\min_{y \in \mathcal{Y}} B_{s,y} > `r LRP`\right)
+$$
+
+**Status**: the probability that fishing mortality is at or below the F target, and the median ratio of the F target to fishing mortality:
+
+$$
+P_{\text{Status}} = \frac{1}{S N_Y} \sum_{s} \sum_{y} \mathrm{I}\left(F_{s,y} \leq F_{\text{target}}\right)
+$$
+
+$$
+\frac{F_{\text{target}}}{F} = \frac{1}{S} \sum_{s} \operatorname*{median}_{y} \left(\frac{F_{\text{target}}}{F_{s,y}}\right)
+$$
+
+where $F_{\text{target}}$ is `r FTargetLabel`, the apical fishing mortality that reduces the female spawning potential ratio to `r 100 * FTargetSPR`%. 
+
+**Stability**: the probability that the TAC changes by no more than `r 100 * StabilityThreshold`% between management cycles, and the probability of no management change, i.e. that the TAC changes by no more than `r 100 * NoChangeThreshold`%:
+
+$$
+P_{\text{Stability}} = \frac{1}{S N_C} \sum_{s} \sum_{c} \mathrm{I}\left(\Delta_{s,c} \leq `r StabilityThreshold`\right)
+$$
+
+$$
+P_{\text{No change}} = \frac{1}{S N_C} \sum_{s} \sum_{c} \mathrm{I}\left(\Delta_{s,c} \leq `r NoChangeThreshold`\right)
+$$
+
+**Yield**: the probability that the annual catch is at least the mean historical catch in `r CatchRefLabel` ($\bar{C}_{\text{ref}}$, in the OM), and the mean annual catch:
+
+$$
+P_{\text{Yield}} = \frac{1}{S N_Y} \sum_{s} \sum_{y} \mathrm{I}\left(C_{s,y} \geq \bar{C}_{\text{ref}}\right)
+$$
+
+$$
+\bar{C} = \frac{1}{S N_Y} \sum_{s} \sum_{y} C_{s,y}
+$$
+
+## Secondary Performance Metrics {#sec-secondary-pms}
+
+**Average TAC variability**: the mean absolute relative change in the TAC between management cycles:
+
+$$
+\text{AAVY} = \frac{1}{S N_C} \sum_{s} \sum_{c} \Delta_{s,c}
+$$
+
+**Kobe green quadrant**: the probability that the stock is not overfished and overfishing is not occurring:
+
+$$
+P_{\text{Kobe}} = \frac{1}{S N_Y} \sum_{s} \sum_{y} \mathrm{I}\left(\frac{SB_{s,y}}{SB_{\text{MSY}}} > 1 \ \text{and} \ \frac{F_{s,y}}{F_{\text{MSY}}} < 1\right)
+$$
+
+## Summary of All Performance Metrics
+
+Safety (no breach within the window), mean catch, and $SB/SB_0$ are also calculated for three time windows:
+
+1. Short: the first 10 years (`r yr_range(Windows$Short)`);
+2. Medium: the second 10 years (`r yr_range(Windows$Medium)`);
+3. Long: the last 10 years (`r yr_range(Windows$Long)`).
+
+All the performance metrics reported for every CMP and OM combination are listed in @tbl-pm-secondary.
+
+```{r}
+#| echo: false
+#| label: tbl-pm-secondary
+#| tbl-cap: "Performance metrics computed for every CMP and OM combination."
+#| eval: !expr HasSlick
+bp <- slick@Boxplot
+knitr::kable(
+  data.frame(Label = Slick::Label(bp), Description = Slick::Description(bp)),
+  col.names = c('Metric', 'Description'),
+  row.names = FALSE
+)
+```
+
+```{r}
+#| echo: false
+#| results: asis
+if (!HasSlick)
+  cat("*The table of performance metrics will be added once the results are available.*")
+```

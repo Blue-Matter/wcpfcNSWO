@@ -1,143 +1,54 @@
 # Import the operating models from SS3 Output
 
-
-# ---- Setup ----
-
-library(MSEtool)
 source('analysis/00-Specifications.R')
 
+# ---- Import Operating Models, re-running SS3 if specified ----
+OM_DF$Import <- FALSE
 
-## ---- Paths ----
-ssdir_base
+OM_DF$Import[c(1,2,3,5,8,9,10)] <- TRUE
 
-sens_dir  <- here::here('data-raw', 'assessment', 'Sensitivities')
-sens_xlsx <- file.path(sens_dir, 'Sensitivity analysis_SWO.xlsx')
+for (i in seq_len(nrow(OM_DF))) {
 
-om_dir      <- here::here('objects', 'OM')
-sens_om_dir <- file.path(om_dir, 'Sensitivities')
+  OMName <- OM_DF$OM[i]
+  cli::cli_h1('OM {OMName}')
 
-if (!dir.exists(sens_om_dir)) dir.create(sens_om_dir, recursive = TRUE)
+  dir <- OM_DF$Path[i]
 
+  ## ---- Re-run SS3 if specified ----
+  # (earlier version had a bug in the calculation of SBiomass)
 
-# ---- Import Base-Case Operating Model ----
+  OM_DF$ReRunSS[i] <- FALSE # see comments below. Not a quick fix
+  if (OM_DF$ReRunSS[i]) {
+    # doesn't run with latest SS3 executable
+    # out of scope to fix this - at this stage at least
+    r4ss::run(dir = dir,
+              exe = 'C:/Users/Admin/Documents/GitHub/wcpfcNSWO/ss3.exe',
+              skipfinished = FALSE,
+              verbose = TRUE)
+  }
 
-OM_Base <- MSEtool::ImportSS(
-  SSDir       = ssdir_base,
-  Name        = Name,
-  nSim        = nSim,
-  pYear       = pYear,
-  Region      = Region,
-  StockName   = StockName,
-  CommonName  = 'Swordfish',
-  Species     = Species,
-  Interval    = Interval,
-  DataLag     = DataLag,
-  MPStartYear = MPStartYear
-)
+  ## ---- Import SS3 Output ----
+  if (!OM_DF$Import[i]) next
 
-Hist <- Simulate(OM_Base)
+  valid <- union(names(formals(MSEtool::ImportSS)),
+                 names(formals(r4ss::SS_output)))
 
-MSEtool::Save(OM_Base, file.path(om_dir, 'Base.om'), overwrite = TRUE)
+  RepList <- MSEtool::ImportSSReport(dir, silent = TRUE)
 
-
-# ---- Build Sensitivity Run Manifest ----
-
-## ---- Read run table from xlsx ----
-
-# Main table: RUN (1-19) / NAME / DESCRIPTION, with category header rows
-# and a blank spacer row interspersed (RUN, NAME and DESCRIPTION all
-# blank/non-numeric on those rows)
-main_table <- readxl::read_excel(sens_xlsx, range = "B3:F28",
-                                 col_names = c('run', 'x1', 'name', 'x2', 'description'),
-                                 col_types = 'text') |>
-  dplyr::select(run, name, description)
-
-# Forward-fill category headers (rows where NAME and DESCRIPTION are both
-# blank) onto the data rows that follow them, then drop the header/spacer
-# rows themselves
-main_table <- main_table |>
-  dplyr::mutate(category = ifelse(is.na(name) & is.na(description), run, NA_character_)) |>
-  tidyr::fill(category) |>
-  dplyr::filter(!is.na(name))
-
-# Run 18 ("Single CPUE scenario") has six sub-variants (18a-18f) listed in a
-# separate lookup table (RUN / DESCRIPTION only) rather than the main table
-run18_table <- readxl::read_excel(sens_xlsx, range = "B30:D35",
-                                  col_names = c('run', 'x1', 'description'),
-                                  col_types = 'text') |>
-  dplyr::select(run, description) |>
-  dplyr::mutate(name     = main_table$name[main_table$run == '18'],
-                category = main_table$category[main_table$run == '18'])
-
-sensitivity_manifest <- main_table |>
-  dplyr::filter(run != '18') |>
-  dplyr::bind_rows(run18_table) |>
-  dplyr::mutate(run_num = as.integer(sub('[a-z]$', '', run))) |>
-  dplyr::arrange(run_num, run) |>
-  dplyr::select(-run_num)
+  args <- utils::modifyList(OM_Specs, list(SSDir = RepList,
+                                           InterimAdvice = MakeInterimAdvice(RepList[[1]], RealCatch, IntYrs),
+                                           LengthUnits = 'cm',
+                                           WeightUnits = 'kg',
+                                           R0Units = 1000,
+                                           CatchUnits = 'Biomass'))
 
 
-## ---- Match runs to SS3 directories ----
+  OM <- do.call(MSEtool::ImportSS, args)
+  MSEtool::Save(OM, file.path('objects/OM/', paste0(OMName, '_all_fleets.om')), overwrite = TRUE)
 
-run_dirs <- list.dirs(sens_dir, recursive = FALSE)
-run_ids  <- sub('^([0-9]+[a-z]?)_.*', '\\1', basename(run_dirs))
+  # Combine all fleets into one to improve run time
+  OM_Combined <- MSEtool::CombineFleets(OM)
 
-dir_lookup <- data.frame(run = run_ids, run_dir = run_dirs, stringsAsFactors = FALSE)
+  MSEtool::Save(OM_Combined, file.path('objects/OM', paste0(OMName, '.om')), overwrite = TRUE)
 
-sensitivity_manifest <- sensitivity_manifest |>
-  dplyr::left_join(dir_lookup, by = 'run')
-
-# Every row in the xlsx table must resolve to an SS3 directory, and every
-# SS3 directory must be described by a row in the xlsx table
-missing_dirs <- sensitivity_manifest$run[is.na(sensitivity_manifest$run_dir)]
-if (length(missing_dirs) > 0) {
-  stop('No SS3 directory found for sensitivity run(s): ',
-       paste(missing_dirs, collapse = ', '))
 }
-
-unmatched_dirs <- dir_lookup$run_dir[!dir_lookup$run %in% sensitivity_manifest$run]
-if (length(unmatched_dirs) > 0) {
-  stop('SS3 directory(ies) do not match any row in the sensitivity table: ',
-       paste(unmatched_dirs, collapse = ', '))
-}
-
-
-
-
-# ---- Import Sensitivity Operating Models ----
-
-for (i in seq_len(nrow(sensitivity_manifest))) {
-
-  run_i <- sensitivity_manifest[i, ]
-
-  OM_i <- MSEtool::ImportSS(
-    SSDir      = run_i$run_dir,
-    Name       = paste(Name, '-', run_i$description),
-    nSim       = nSim,
-    pYear      = pYear,
-    Agency     = Agency,
-    Author     = Author,
-    Email      = Email,
-    Region     = Region,
-    StockName  = Name,
-    CommonName = 'Swordfish',
-    Species    = Species,
-    Interval   = Interval,
-    DataLag    = DataLag
-  )
-
-  om_filename <- paste0(gsub(' ', '_', basename(run_i$run_dir)), '.om')
-  MSEtool::Save(OM_i, file.path(sens_om_dir, om_filename), overwrite = TRUE)
-}
-
-
-# ---- Save Run Manifest ----
-
-sensitivity_manifest$om_file <- file.path(
-  'Sensitivities',
-  paste0(gsub(' ', '_', basename(sensitivity_manifest$run_dir)), '.om')
-)
-
-write.csv(sensitivity_manifest,
-          file.path(om_dir, 'sensitivity_run_manifest.csv'),
-          row.names = FALSE)

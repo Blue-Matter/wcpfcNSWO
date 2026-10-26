@@ -3,3 +3,306 @@ suppress-bibliography: true
 ---
 
 # Candidate Management Procedures {#sec-cmps}
+
+```{r}
+#| include: false
+library(MSEtool)
+library(ggplot2)
+
+# CMP definitions: 04-Define-CMPs.R uses paths relative to the project root
+owd <- setwd('..')
+source('analysis/04-Define-CMPs.R')
+Assigned <- function(File, Names) {
+  Env <- new.env(parent = globalenv())
+  for (e in parse(File))
+    if (is.call(e) && identical(e[[1]], as.name('<-')) && is.name(e[[2]]) &&
+        as.character(e[[2]]) %in% Names)
+      eval(e, Env)
+  Env
+}
+Env04a <- Assigned('analysis/04a-Select-Configs.R', c('ConfigTACChange', 'Control'))
+Env04b <- Assigned('analysis/04b-Tune-CMPs.R', c('MinCatchGain', 'AlwaysKeep'))
+setwd(owd)
+
+ConfigControl <- Env04a$Control
+TuneCtl       <- MSEtool::TuneControl(Interval = TuneInterval)
+
+Arg <- function(MP, name) eval(formals(CMPs$Fn[[match(MP, CMPs$MP)]])[[name]])
+
+pct <- function(x) paste0(round(100 * x), '%')
+
+# CMP settings described in words
+SettingName <- c(HCR = 'HCR', RecentYears = 'Years averaged for current status',
+                 Smooth = 'Index smoothing', Shape = 'Production function shape (n)')
+SettingValue <- function(x) if (is.logical(x)) ifelse(x, 'yes', 'no') else as.character(x)
+
+ConfigText <- function(MP) {
+  Config <- SelectedConfigs[[MP]]
+  Text <- paste0('HCR ', Config$HCR, ' (ThRP = ', pct(HCRs$ThRP[HCRs$HCR == Config$HCR]), ' $SB_0$)')
+  if (!is.null(Config$RecentYears))
+    Text <- paste0(Text, ', with current status calculated from the index averaged over the most recent ',
+                   if (Config$RecentYears == 1) 'year' else paste(Config$RecentYears, 'years'))
+  if (!is.null(Config$Smooth))
+    Text <- paste0(Text, if (Config$Smooth) ' after loess smoothing' else ' without smoothing')
+  Text
+}
+
+SPShape <- SelectedConfigs$SP$Shape %||% 2
+
+SummaryFile <- file.path('..', 'objects', 'Tune', 'Summary.csv')
+HasTune     <- file.exists(SummaryFile)
+if (HasTune) TuneSummary <- utils::read.csv(SummaryFile)
+```
+
+The MSE currently includes three types of candidate management procedures (CMPs):
+
+1. **Index Rate (IR)**: an index-based CMP that sets the TAC as a catch/index rate multiplied by the current index;
+2. **Index Target (IT)**: an index-based CMP that sets the TAC as a reference catch, reduced when the index falls below the threshold;
+3. **Surplus Production (SP)**: a model-based CMP that fits a surplus production model and sets the TAC from the estimated stock status and $F_{\text{MSY}}$.
+
+Each CMP type uses one of `r nrow(HCRs)` harvest control rules (HCRs; @sec-hcrs), selected for that type together with its other settings (@sec-tuning-methodology). 
+
+The variants of each type differ in the limit on the change in the TAC between management cycles (`r paste(pct(TACChange), collapse = ', ')`), for a total of `r nrow(CMPs)` CMPs, which show the trade-off between TAC stability and catch. 
+
+Each CMP is named by its type, HCR, and TAC change limit; e.g., *IR_H2_20* is the Index Rate CMP with HCR 2 and a 20% limit on the change in the TAC.
+
+All CMPs set a single TAC for the total catch (removals, in t) of all fleets. The CMPs use data aggregated to calendar years: annual catches (summed over the quarters) and annual indices (averaged over the quarters with data).
+
+## Harvest Control Rules {#sec-hcrs}
+
+The candidate HCRs (@tbl-hcrs) were specified in terms of stock status, $SB_{\text{current}}/SB_0$, where $SB_0$ is the equilibrium unfished spawning biomass, and fishing mortality. Below the limit reference point (LRP), fishing mortality is reduced to a minimum level, $F_{\text{min}}$; between the LRP and the threshold reference point (ThRP), it increases linearly to the target, $F_{\text{TARGET}}$; and above the ThRP it is constant at the target. $F_{X\%}$ is the fishing mortality that reduces the spawning potential ratio to $X\%$.
+
+::: {#tbl-hcrs}
+| HCR | $F_{\text{TARGET}}$ | Control Point 1 (ThRP) | Control Point 2 (LRP) | $F_{\text{min}}$ |
+|-----|-----|-----|-----|-----|
+| 1 | $F_{40\%}$ | 35% $SB_0$ | 17% $SB_0$ | $F_{90\%}$ |
+| 2 | $F_{40\%}$ | 30% $SB_0$ | 17% $SB_0$ | $F_{90\%}$ |
+| 3 | $F_{40\%}$ | 25% $SB_0$ | 17% $SB_0$ | $F_{90\%}$ |
+| 4 | $F_{35\%}$ | 30% $SB_0$ | 17% $SB_0$ | $F_{90\%}$ |
+| 5 | $F_{35\%}$ | 25% $SB_0$ | 17% $SB_0$ | $F_{90\%}$ |
+| 6 | $F_{30\%}$ | 25% $SB_0$ | 17% $SB_0$ | $F_{90\%}$ |
+
+The candidate harvest control rules.
+:::
+
+The CMPs use the shape of these HCRs, but they do not set fishing mortality directly:
+
+- **Stock status is estimated, not known.** The CMPs do not observe spawning biomass, $SB_0$, or fishing mortality. Stock status is estimated from the indices of abundance (Index Rate and Index Target) or from a surplus production model (Surplus Production; @sec-cmps-status), and the control points are applied to this estimate.
+- **The HCR sets a multiplier, not an F.** The output of the HCR is a multiplier on a quantity specific to each CMP type, from which the TAC is calculated: the catch/index rate (Index Rate), a reference catch (Index Target), or a multiple of the $F_{\text{MSY}}$ estimated by the surplus production model (Surplus Production). Only the Surplus Production CMPs estimate reference points, and these estimates are uncertain (@sec-cmps-sp).
+- **The level of fishing is set by tuning.** The fishing intensity above the ThRP is set by the tuning parameter (@sec-tuning-methodology). The selected HCR for each CMP type is the one that gives the highest catch when tuned (step 1 in @sec-tuning-methodology).
+- **$F_{\text{min}}$ is a relative reduction.** At and below the LRP, the fishing intensity is reduced to $F_{90\%}/F_{40\%}$ = `r round(FminRatio, 3)` of its level above the ThRP, the ratio of $F_{\text{min}}$ to $F_{\text{TARGET}}$ from the per-recruit analysis of the base case OM in the terminal year of the assessment.
+
+The fishing mortality that results in the OM therefore depends on how well the TAC matches the true state of the stock, and can differ from the fishing intensity intended by the HCR. 
+
+The HCR multiplier for each CMP type is (@fig-hcrs):
+
+- **Index Rate** and **Surplus Production**: the fishing intensity (the catch/index rate, or $F$ relative to the estimated $F_{\text{MSY}}$) is multiplied by `r round(FminRatio, 3)` at and below the LRP, increases linearly to 1 at the ThRP, and is 1 above the ThRP.
+- **Index Target**: the catch is constant above the ThRP, and decreases linearly to `r round(FminRatio, 3)` $\times$ LRP/ThRP of that catch at the LRP (@tbl-it-floor).
+
+The minimum multiplier is lower for the Index Target CMPs because their multiplier applies to a catch rather than to a fishing intensity. Above the ThRP, the Index Target CMPs keep the catch constant rather than the fishing intensity, so the fishing intensity decreases as the stock increases.
+
+```{r}
+#| label: tbl-it-floor
+#| echo: false
+#| tbl-cap: "The HCR multiplier at and below the LRP for each HCR and CMP type."
+knitr::kable(
+  data.frame(HCR = paste('HCR', HCRs$HCR),
+             ThRP = pct(HCRs$ThRP),
+             IRSP = round(FminRatio, 3),
+             IT   = round(FminRatio * LRP / HCRs$ThRP, 3)),
+  col.names = c('HCR', 'ThRP', 'Index Rate and Surplus Production', 'Index Target'),
+  row.names = FALSE
+)
+```
+
+```{r}
+#| label: fig-hcrs
+#| echo: false
+#| fig-width: 9
+#| fig-height: 4
+#| fig-cap: "The harvest control rules used by the CMPs, for each threshold reference point (ThRP), as a function of estimated stock status. The dashed line shows the LRP. The multiplier applies to the fishing intensity (Index Rate and Surplus Production) or to the catch (Index Target). The minimum multiplier of the Index Target CMPs is lower and depends on the ThRP, because it also accounts for the lower biomass at the LRP."
+HCRCurve <- function(ThRP, Rate1, Type) {
+  x <- seq(0, 0.6, length.out = 400)
+  data.frame(x = x, Type = Type, HCR = paste0('HCR ', match(ThRP, HCRs$ThRP), ' (ThRP = ', pct(ThRP), ')'),
+             y = vapply(x, \(xi) MSEtool::HockeyStickHCR(1, Est = xi, Ref = 1,
+                                                          ControlPointsIndex = c(LRP, ThRP),
+                                                          ControlPointsRate = c(Rate1, 1)), numeric(1)))
+}
+HCRDF <- do.call(rbind, lapply(HCRs$ThRP, \(ThRP) rbind(
+  HCRCurve(ThRP, FminRatio, 'Index Rate and Surplus Production'),
+  HCRCurve(ThRP, FminRatio * LRP / ThRP, 'Index Target')
+)))
+
+ggplot(HCRDF, aes(x, y, colour = HCR)) +
+  geom_vline(xintercept = LRP, linetype = 2, colour = 'darkgray') +
+  geom_line(linewidth = 0.9) +
+  facet_wrap(~Type) +
+  expand_limits(y = c(0, 1.05)) +
+  labs(x = expression(Estimated~SB/SB[0]), y = 'Multiplier', colour = NULL) +
+  theme_bw() +
+  theme(legend.position = 'bottom')
+```
+
+## Estimated Stock Status {#sec-cmps-status}
+
+The index-based CMPs estimate stock status from the two Japanese longline indices (S2 and S4; @sec-om-conditioning). Each index is expressed relative to its level at $SB_0$, $I_{0,j}$, calculated from the mean index over `r paste(range(IndexSB0Years), collapse = '--')` and the mean $SB/SB_0$ over the same years in the Base Case OM (`r round(DepCalib, 3)`):
+
+$$
+I_{0,j} = \frac{\bar{I}_{j}}{\overline{SB/SB_0}}
+$$
+
+giving $I_0$ = `r paste(signif(IndexSB0, 3), collapse = ' and ')` for S2 and S4 respectively. 
+
+The current status of each index, $S_j$, is the index averaged over the most recent years, after optional loess smoothing (the number of years and the smoothing are CMP settings; @sec-tuning-methodology). 
+
+The estimated stock status is the mean of the two indices' status relative to their $I_0$:
+
+$$
+x = \frac{1}{2}\sum_{j=1}^{2} \frac{S_j}{I_{0,j}}
+$$
+
+The Surplus Production CMPs estimate stock status as the estimated biomass relative to carrying capacity ($B/K$) at the start of the year the TAC applies. The control points are specified in units of $B/B_{\text{MSY}}$ by dividing the LRP and ThRP by $B_{\text{MSY}}/K$, which depends on the shape of the production function (@sec-cmps-sp).
+
+## Index Rate {#sec-cmps-indexrate}
+
+The Index Rate CMPs set the TAC as a catch/index rate multiplied by the current index. Each index is calibrated into its own catch/index rate, $\hat{r}_j$: the mean total catch over the last `r Arg('IR', 'CalibYears')` historical years divided by the mean of index $j$ over the same years. The trial TAC is:
+
+$$
+\text{TrialTAC} = \frac{1}{2}\sum_{j=1}^{2} S_j \times m \times \hat{r}_j \times \theta(x)
+$$
+
+where $m$ is the tuning parameter and $\theta(x)$ is the HCR multiplier (@fig-hcrs):
+
+$$
+\theta(x) =
+\begin{cases}
+\phi & x \le \text{LRP} \\[4pt]
+\phi + (1 - \phi)\dfrac{x - \text{LRP}}{\text{ThRP} - \text{LRP}} & \text{LRP} < x < \text{ThRP} \\[4pt]
+1 & x \ge \text{ThRP}
+\end{cases}
+$$
+
+with $\phi = F_{\text{min}}/F_{\text{TARGET}}$ = `r round(FminRatio, 3)`. Because the catch/index rate is calibrated to the recent catch, $m$ = 1 corresponds to the recent catch/index ratio.
+
+The Index Rate CMPs use `r ConfigText('IR')` (@sec-tuning-methodology).
+
+## Index Target {#sec-cmps-indextarget}
+
+The Index Target CMPs set the TAC as a reference catch, the mean total catch over the last `r Arg('IT', 'CalibYears')` historical years ($\bar{C}$), scaled by the tuning parameter and the HCR:
+
+$$
+\text{TrialTAC} = m \times \bar{C} \times \theta_C(x)
+$$
+
+where $\theta_C(x)$ has the same shape as $\theta(x)$, with $\phi$ = `r round(FminRatio, 3)` $\times$ LRP/ThRP (@fig-hcrs). The TAC is therefore constant above the ThRP, so the catch does not increase when the stock is above the ThRP.
+
+The Index Target CMPs use `r ConfigText('IT')` (@sec-tuning-methodology).
+
+## Surplus Production {#sec-cmps-sp}
+
+The Surplus Production CMPs fit a Schaefer surplus production model [@pella1969] to the annual catch and the four Japanese longline indices (S1--S4), each with its own catchability. $F_{\text{MSY}}$ and MSY are estimated, and the stock is assumed to be unfished at the start of the catch series (`r min(floor(Years(Hist@OM, 'H')))`).
+
+In each management cycle, the model is fitted to the available data and projected to the start of the year the TAC applies, assuming the catch in the intervening years is the TAC in force. The fishing mortality is:
+
+$$
+F = m \times \hat{F}_{\text{MSY}} \times \theta\!\left(\hat{B}/\hat{K}\right)
+$$
+
+where $m$ is the tuning parameter and $\theta$ is the HCR multiplier (@fig-hcrs). The TAC is the mean annual catch when the model is projected at $F$ over the `r Interval(Hist@OM)`-year management cycle. If the model fit fails or does not converge, the previous TAC is kept.
+
+The Surplus Production CMPs use `r ConfigText('SP')` (@sec-tuning-methodology).
+
+::: {.callout-warning title="Model convergence"}
+In the projections, the surplus production model failed to converge in 46--60% of the management cycles, depending on the OM, so the previous TAC was kept in these cycles. In 10--20% of the simulations, the model did not converge in any management cycle, so the TAC remained at its initial level throughout the projection period.
+
+The results for the Surplus Production CMPs are therefore largely determined by how the TAC is set when the model fails, rather than by the model estimates, and should not be considered further without additional analysis of the model fits.
+:::
+
+## TAC Change Limits {#sec-cmps-tac-change}
+
+For all CMPs, the proportional change from the previous TAC is limited to `r paste(pct(TACChange), collapse = ', ')`, both up and down, and changes smaller than 1% leave the TAC unchanged:
+
+$$
+\text{TAC} = \text{TAC}_{\text{prev}} \times \min\left(\max\left(\frac{\text{TrialTAC}}{\text{TAC}_{\text{prev}}},\ 1 - \delta\right),\ 1 + \delta\right)
+$$
+
+where $\delta$ is the TAC change limit and $\text{TAC}_{\text{prev}}$ is the TAC in force.
+
+## Tuning Methodology {#sec-tuning-methodology}
+
+Each CMP has a single tuning parameter, $m$, that scales the target fishing intensity: the catch/index rate (Index Rate), the reference catch (Index Target), or $F$ relative to $\hat{F}_{\text{MSY}}$ (Surplus Production). 
+
+The CMPs are tuned for the Base Case OM to maximise the mean annual catch over `r MPStartYear(Hist@OM)`--`r max(floor(Years(Hist@OM, 'P')))`, subject to the Safety and Status objectives (@sec-performance-metrics):
+
+- **Safety**: the probability that spawning biomass remains above the LRP in every year is at least `r PSafety`;
+- **Status**: the probability that $F \leq F_{40\%}$ is at least `r PStatus`.
+
+The tuning is done in two steps.
+
+### Step 1: CMP Settings
+
+The HCR and the other settings of each CMP type were selected from a set of candidate values (@tbl-config-candidates):
+
+1. Each configuration was projected at `r ConfigControl$nGridConfig` values of $m$ over `r paste(TuneInterval, collapse = '--')`, using the first `r ConfigControl$nSimConfig` simulations, and the catch at the largest value of $m$ that meets both constraints was interpolated.
+2. The `r ConfigControl$nRefine` configurations with the highest catch were then fully tuned (Step 2) on all simulations, and the configuration with the highest catch was selected.
+
+The selected HCR and settings were then used for all CMPs of that type.
+
+The settings include the HCR (@tbl-hcrs), the number of recent years the index is averaged over to calculate current status, whether the index is smoothed (loess) before calculating its status, and the shape parameter of the surplus production model. The calibration period of the Index Rate and Index Target CMPs was not included, because it only scales the catch/index rate or the reference catch, which is also scaled by $m$.
+
+```{r}
+#| label: tbl-config-candidates
+#| echo: false
+#| tbl-cap: "The candidate values of the CMP settings compared in step 1, and the selected values."
+ConfigDF <- do.call(rbind, lapply(names(ConfigCandidates), \(mp) {
+  data.frame(CMP = c(IR = 'Index Rate', IT = 'Index Target', SP = 'Surplus Production')[[mp]],
+             Setting = unname(SettingName[names(ConfigCandidates[[mp]])]),
+             Candidates = vapply(ConfigCandidates[[mp]], \(x) paste(vapply(x, SettingValue, ''), collapse = ', '),
+                                 character(1)),
+             Selected = vapply(names(ConfigCandidates[[mp]]), \(nm) {
+               v <- SelectedConfigs[[mp]][[nm]]
+               if (is.null(v)) '--' else SettingValue(v)
+             }, character(1)))
+}))
+# one group of rows per CMP type
+Groups <- rle(ConfigDF$CMP)
+Tab <- knitr::kable(ConfigDF[, c('Setting', 'Candidates', 'Selected')], row.names = FALSE,
+                    col.names = c('Setting', 'Candidate values', 'Selected')) |>
+  kableExtra::kable_styling(full_width = FALSE)
+Start <- cumsum(c(1, head(Groups$lengths, -1)))
+for (g in seq_along(Groups$values))
+  Tab <- kableExtra::pack_rows(Tab, Groups$values[g], Start[g], Start[g] + Groups$lengths[g] - 1)
+Tab
+```
+
+
+
+### Step 2: Tuning Parameter
+
+$m$ was then tuned for each of the `r nrow(CMPs)` CMPs. It was first evaluated on a grid of `r TuneCtl$nGrid` log-spaced values over `r paste(TuneInterval, collapse = '--')`, which was extended if necessary, and then refined towards the largest value that meets both constraints (or the value with the highest catch, if that is lower), until the range of $m$ is within `r pct(TuneCtl$TolTune)` or the binding constraint is within `r 100 * TuneCtl$TolPM`% of its minimum. 
+
+For each CMP type, the smallest TAC change limit (`r pct(min(TACChange))`) gives the most stable TAC, and is always retained. A larger limit is retained only if it increases the mean catch by at least `r pct(Env04b$MinCatchGain)` compared with the next smaller retained limit, so the retained CMPs show the trade-off between TAC stability and catch. The `r pct(Env04b$AlwaysKeep)` variants are also retained, to show the effect of a looser limit (@tbl-tuning).
+
+```{r}
+#| label: tbl-tuning
+#| echo: false
+#| eval: !expr HasTune
+#| tbl-cap: "The tuned value of the tuning parameter (m) for each CMP, and the mean annual catch, Safety (probability that SB > LRP in every year), and Status (probability that F <= F40%) in the base case OM, for the retained CMPs and those not retained."
+TuneTab <- TuneSummary
+Labels <- c(Name = 'CMP', ThRP = 'ThRP', TACChange = 'TAC change', tunepar = 'm',
+            MeanCatch = 'Mean catch (t)', Safety = 'Safety', Status = 'Status')
+Cols <- intersect(names(Labels), names(TuneTab))
+if (!is.null(TuneTab$MeanCatch)) TuneTab$MeanCatch <- round(TuneTab$MeanCatch)
+
+# retained CMPs first, one group of rows each for retained and not retained
+TuneTab <- TuneTab[order(!TuneTab$Keep), ]
+nKeep   <- sum(TuneTab$Keep)
+Tab <- knitr::kable(TuneTab[, Cols], digits = 2, row.names = FALSE, format.args = list(big.mark = ','),
+                    col.names = unname(Labels[Cols])) |>
+  kableExtra::kable_styling(full_width = FALSE)
+if (nKeep > 0)
+  Tab <- kableExtra::pack_rows(Tab, 'Retained', 1, nKeep)
+if (nKeep < nrow(TuneTab))
+  Tab <- kableExtra::pack_rows(Tab, 'Not Retained', nKeep + 1, nrow(TuneTab))
+Tab
+```
