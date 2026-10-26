@@ -1,0 +1,45 @@
+# wcpfcNSWO R Package
+
+`wcpfcNSWO` is an R package supporting the Management Strategy
+Evaluation (MSE) for North Pacific swordfish, managed by the Western and
+Central Pacific Fisheries Commission (WCPFC). It provides the operating
+models, management procedures, performance metrics, and all related data
+and code used to evaluate the candidate management procedures against a
+range of plausible operating models for the stock and fishery.
+
+See the [project homepage](https://wcpfcnswo.bluematterscience.com/) for
+an overview of the MSE materials, and the [Trial Specifications
+Document](https://wcpfcnswo.bluematterscience.com/tsd/) for full details
+of the operating models, management procedures, and performance metrics
+used in the MSE.
+
+## Installation
+
+You can install the `wcpfcNSWO` package from its [GitHub
+repository](https://github.com/Blue-Matter/wcpfcNSWO) with:
+
+``` r
+
+# install.packages("pak")
+pak::pak("Blue-Matter/wcpfcNSWO")
+```
+
+# Package index
+
+## All functions
+
+- [`Calc_FTarget_FMSY()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/Calc_FTarget_FMSY.md)
+  : F Target Relative to FMSY
+- [`Calc_PM_Stats()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/Calc_PM_Stats.md)
+  : Per-Simulation Performance Indicators
+- [`Extract_MSE_Timeseries()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/Extract_MSE_Timeseries.md)
+  : Annual Time Series from an MSE
+- [`ListSS3Runs()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/ListSS3Runs.md)
+  : Create a data frame with details of SS3 Models
+- [`PM_SafetyNoBreach()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/PM_SafetyNoBreach.md)
+  : Probability Spawning Biomass Remains Above the Limit Reference Point
+- [`PM_StatusF()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/PM_StatusF.md)
+  : Probability Fishing Mortality is at or Below the F Target
+- [`PM_Window_Years()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/PM_Window_Years.md)
+  : Years for a Performance Metric Window
+
