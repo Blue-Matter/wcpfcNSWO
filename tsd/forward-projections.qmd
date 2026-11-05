@@ -101,7 +101,7 @@ where $\sigma_R$ is the recruitment deviation standard deviation, $\rho$ is the 
 ```{r}
 #| include: false
 # sigma_R and rho of each included OM, from its historical recruitment deviations
-RecRuns <- wcpfcNSWO::ListSS3Runs(SSDir_Base = '../../WCNPOSWO-2023/Final Base-case')
+RecRuns <- wcpfcNSWO::ListSS3Runs(SSDir_Base = '../SS3/Base-case')
 RecRuns <- RecRuns[RecRuns$Include & file.exists(file.path('../objects/Hist', paste0(RecRuns$OM, '.hist'))), ]
 RecDevTab <- do.call(rbind, lapply(seq_len(nrow(RecRuns)), \(i) {
   SRR_i <- readRDS(file.path('../objects/Hist', paste0(RecRuns$OM[i], '.hist')))@OM@Stock$Female@SRR
