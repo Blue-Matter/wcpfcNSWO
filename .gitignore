@@ -19,3 +19,13 @@ data-raw/assessment/*
 
 /.quarto/
 **/*.quarto_ipynb
+
+# SS3: track input files only
+SS3/**/*
+!SS3/**/
+!SS3/**/*.dat
+!SS3/**/*.ctl
+!SS3/**/starter.ss
+!SS3/**/forecast.ss
+!SS3/**/ss_v3.30.20.par
+!SS3/SS3_Run_Summary.csv
