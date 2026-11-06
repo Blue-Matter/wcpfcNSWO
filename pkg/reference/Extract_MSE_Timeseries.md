@@ -4,7 +4,8 @@ Per-simulation annual time series for the historical and projection
 periods: spawning biomass relative to the equilibrium unfished spawning
 biomass SB0 (`SB_SB0`; SB0 is constant over years) and to SBMSY
 (`SB_SBMSY`), fishing mortality relative to FMSY (`F_FMSY`) and, if
-`FTarget_FMSY` is supplied, to the F target (`F_FTarget`), and catch
+`FTarget_FMSY` is supplied, to each F target (`F_<name>`, e.g. `F_F40`,
+for a named list; `F_FTarget` for a single F target), and catch
 (`Yield`, removals summed over stocks and fleets).
 
 ## Usage
@@ -25,10 +26,12 @@ Extract_MSE_Timeseries(MSE, Stock = "Female", FTarget_FMSY = NULL)
 
 - FTarget_FMSY:
 
-  Numeric. The F target relative to FMSY, for each simulation or a
-  single value (see
-  [`Calc_FTarget_FMSY()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/Calc_FTarget_FMSY.md)).
-  Default `NULL` (no `F_FTarget`).
+  The F target relative to FMSY, for each simulation or a single value
+  (see
+  [`Calc_FTarget_FMSY()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/Calc_FTarget_FMSY.md)):
+  a numeric vector (one F target, `F_FTarget`) or a named list of them
+  (e.g. `list(F40 = ..., F35 = ...)`, `F_F40`, `F_F35`). Default `NULL`
+  (no F relative to an F target).
 
 ## Value
 

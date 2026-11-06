@@ -28,10 +28,14 @@ pak::pak("Blue-Matter/wcpfcNSWO")
 
 ## All functions
 
+- [`AddEffortCreep()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/AddEffortCreep.md)
+  : Create an SS3 run with effort creep in the indices of abundance
 - [`Calc_FTarget_FMSY()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/Calc_FTarget_FMSY.md)
   : F Target Relative to FMSY
 - [`Calc_PM_Stats()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/Calc_PM_Stats.md)
   : Per-Simulation Performance Indicators
+- [`Calc_SP_Convergence()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/Calc_SP_Convergence.md)
+  : Convergence of the Surplus Production MPs
 - [`Extract_MSE_Timeseries()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/Extract_MSE_Timeseries.md)
   : Annual Time Series from an MSE
 - [`ListSS3Runs()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/ListSS3Runs.md)
@@ -42,4 +46,7 @@ pak::pak("Blue-Matter/wcpfcNSWO")
   : Probability Fishing Mortality is at or Below the F Target
 - [`PM_Window_Years()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/PM_Window_Years.md)
   : Years for a Performance Metric Window
+- [`StoreObservedIndices()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/StoreObservedIndices.md)
+  [`ApplyObservedIndices()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/StoreObservedIndices.md)
+  : Use the observed indices in an OM conditioned on adjusted indices
 

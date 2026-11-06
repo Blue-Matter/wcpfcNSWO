@@ -16,6 +16,7 @@ Calc_PM_Stats(
   StabilityThreshold = 0.1,
   NoChangeThreshold = 0.01,
   FTarget_FMSY = NULL,
+  MPFTarget = NULL,
   CatchRefYears = 2008:2010,
   TS = Extract_MSE_Timeseries(MSE, FTarget_FMSY = FTarget_FMSY)
 )
@@ -44,15 +45,24 @@ Calc_PM_Stats(
 
 - FTarget_FMSY:
 
-  Numeric. The F target relative to FMSY (see
-  [`Calc_FTarget_FMSY()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/Calc_FTarget_FMSY.md)),
+  The F target(s) relative to FMSY (see
+  [`Calc_FTarget_FMSY()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/Calc_FTarget_FMSY.md)
+  and
+  [`Extract_MSE_Timeseries()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/Extract_MSE_Timeseries.md)),
   used for the default `TS`. Default `NULL` (no `Status` or
   `FTarget_F`).
 
+- MPFTarget:
+
+  Optional named character vector: the name of the F target in
+  `FTarget_FMSY` of each MP (e.g. `c(IR_H1 = 'F40')`), for `Status` and
+  `FTarget_F`.
+
 - CatchRefYears:
 
-  Numeric. Historical years of the reference catch for `Yield_Hist`.
-  Default `2008:2010`.
+  Historical years of the reference catch: a numeric vector
+  (`Yield_Hist`) or a named list of them, one PI per element (e.g.
+  `list(Yield_Hist = 2008:2010, Yield_Recent = 2016:2021)`).
 
 - TS:
 
@@ -70,7 +80,13 @@ A `data.frame` with columns `PI`, `MP`, `Sim`, and `Value`.
   i.e. a simulation that falls below the LRP in any year is a breach.
 
 - `Status`: probability that F \<= F target (proportion of years), and
-  `FTarget_F`: median F target / F. Only if `TS` has `F_FTarget`.
+  `FTarget_F`: median F target / F, with the F target of each MP
+  (`MPFTarget`), or the single F target in `TS` (`F_FTarget`).
+
+- `Status_<name>`, `FTarget_F_<name>` (e.g. `Status_F40`): the same for
+  each F target in `TS` (`F_<name>`; see
+  [`Extract_MSE_Timeseries()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/Extract_MSE_Timeseries.md)),
+  for every MP.
 
 - `Stability`: probability that the TAC changes by no more than
   `StabilityThreshold` between management cycles.
@@ -78,8 +94,9 @@ A `data.frame` with columns `PI`, `MP`, `Sim`, and `Value`.
 - `NoChange`: probability of no management change, i.e. that the TAC
   changes by no more than `NoChangeThreshold` between management cycles.
 
-- `Yield_Hist`: probability that the annual catch is at least the mean
-  catch in `CatchRefYears` (proportion of years).
+- `Yield_Hist` (and the other names of `CatchRefYears`): probability
+  that the annual catch is at least the mean historical catch in the
+  reference years (proportion of years).
 
 and other PIs:
 
