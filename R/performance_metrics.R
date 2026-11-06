@@ -52,17 +52,18 @@ Calc_FTarget_FMSY <- function(Hist, SPR = 0.4, Stock = 'Female') {
 #' spawning biomass relative to the equilibrium unfished spawning biomass SB0
 #' (`SB_SB0`; SB0 is constant over years) and to SBMSY (`SB_SBMSY`), fishing
 #' mortality relative to FMSY (`F_FMSY`) and, if `FTarget_FMSY` is supplied, to
-#' the F target
-#' (`F_FTarget`), and catch (`Yield`, removals summed over stocks and fleets).
+#' each F target (`F_<name>`, e.g. `F_F40`, for a named list; `F_FTarget` for
+#' a single F target), and catch (`Yield`, removals summed over stocks and fleets).
 #'
 #' Ratios are averaged over the seasons of each calendar year (fishing
 #' mortality is an annual rate in each season) and catch is summed.
 #'
 #' @param MSE An `mse` object.
 #' @param Stock Character. Name of the spawning stock. Default `'Female'`.
-#' @param FTarget_FMSY Numeric. The F target relative to FMSY, for each
-#'   simulation or a single value (see [Calc_FTarget_FMSY()]). Default `NULL`
-#'   (no `F_FTarget`).
+#' @param FTarget_FMSY The F target relative to FMSY, for each simulation or a
+#'   single value (see [Calc_FTarget_FMSY()]): a numeric vector (one F target,
+#'   `F_FTarget`) or a named list of them (e.g. `list(F40 = ..., F35 = ...)`,
+#'   `F_F40`, `F_F35`). Default `NULL` (no F relative to an F target).
 #'
 #' @returns A `data.frame` with columns `Sim`, `Year`, `Period`, `MP`,
 #'   `Value`, and `Variable`. Historical rows have `MP = 'Historical'`.
@@ -82,18 +83,20 @@ Extract_MSE_Timeseries <- function(MSE, Stock = 'Female', FTarget_FMSY = NULL) {
   Catch <- MSEtool::Removals(MSE, df = TRUE, Reduce = FALSE)
 
   FFMSY <- Annual(FFMSY, 'F_FMSY', mean)
-  FFTarget <- NULL
-  if (!is.null(FTarget_FMSY)) {
-    FFTarget <- FFMSY
-    FFTarget$Value    <- FFMSY$Value / rep_len(FTarget_FMSY, max(FFMSY$Sim))[FFMSY$Sim]
-    FFTarget$Variable <- 'F_FTarget'
-  }
+  if (!is.null(FTarget_FMSY) && !is.list(FTarget_FMSY))
+    FTarget_FMSY <- list(FTarget = FTarget_FMSY)
+  FFTarget <- lapply(names(FTarget_FMSY), \(nm) {
+    out <- FFMSY
+    out$Value    <- FFMSY$Value / rep_len(FTarget_FMSY[[nm]], max(FFMSY$Sim))[FFMSY$Sim]
+    out$Variable <- paste0('F_', nm)
+    out
+  })
 
-  rbind(Annual(SB0[SB0$Stock %in% Stock, ], 'SB_SB0', mean),
-        Annual(SBMSY[SBMSY$Stock %in% Stock, ], 'SB_SBMSY', mean),
-        FFMSY,
-        FFTarget,
-        Annual(Catch, 'Yield', sum))
+  do.call(rbind, c(list(Annual(SB0[SB0$Stock %in% Stock, ], 'SB_SB0', mean),
+                        Annual(SBMSY[SBMSY$Stock %in% Stock, ], 'SB_SBMSY', mean),
+                        FFMSY),
+                   FFTarget,
+                   list(Annual(Catch, 'Yield', sum))))
 }
 
 #' Per-Simulation Performance Indicators
@@ -107,13 +110,18 @@ Extract_MSE_Timeseries <- function(MSE, Stock = 'Female', FTarget_FMSY = NULL) {
 #' - `Safety`, `Safety_*`: probability that SB > `Lim` SB0 in every year,
 #'   i.e. a simulation that falls below the LRP in any year is a breach.
 #' - `Status`: probability that F <= F target (proportion of years), and
-#'   `FTarget_F`: median F target / F. Only if `TS` has `F_FTarget`.
+#'   `FTarget_F`: median F target / F, with the F target of each MP
+#'   (`MPFTarget`), or the single F target in `TS` (`F_FTarget`).
+#' - `Status_<name>`, `FTarget_F_<name>` (e.g. `Status_F40`): the same for
+#'   each F target in `TS` (`F_<name>`; see [Extract_MSE_Timeseries()]), for
+#'   every MP.
 #' - `Stability`: probability that the TAC changes by no more than
 #'   `StabilityThreshold` between management cycles.
 #' - `NoChange`: probability of no management change, i.e. that the TAC
 #'   changes by no more than `NoChangeThreshold` between management cycles.
-#' - `Yield_Hist`: probability that the annual catch is at least the mean
-#'   catch in `CatchRefYears` (proportion of years).
+#' - `Yield_Hist` (and the other names of `CatchRefYears`): probability that
+#'   the annual catch is at least the mean historical catch in the reference
+#'   years (proportion of years).
 #'
 #' and other PIs:
 #'
@@ -131,21 +139,27 @@ Extract_MSE_Timeseries <- function(MSE, Stock = 'Female', FTarget_FMSY = NULL) {
 #' @param NoChangeThreshold Numeric. Maximum TAC change counted as no
 #'   management change for `NoChange`. Default `0.01` (the CMPs leave the TAC
 #'   unchanged when the change would be less than 1%).
-#' @param FTarget_FMSY Numeric. The F target relative to FMSY (see
-#'   [Calc_FTarget_FMSY()]), used for the default `TS`. Default `NULL` (no
-#'   `Status` or `FTarget_F`).
-#' @param CatchRefYears Numeric. Historical years of the reference catch for
-#'   `Yield_Hist`. Default `2008:2010`.
+#' @param FTarget_FMSY The F target(s) relative to FMSY (see
+#'   [Calc_FTarget_FMSY()] and [Extract_MSE_Timeseries()]), used for the
+#'   default `TS`. Default `NULL` (no `Status` or `FTarget_F`).
+#' @param MPFTarget Optional named character vector: the name of the F target
+#'   in `FTarget_FMSY` of each MP (e.g. `c(IR_H1 = 'F40')`), for `Status` and
+#'   `FTarget_F`.
+#' @param CatchRefYears Historical years of the reference catch: a numeric
+#'   vector (`Yield_Hist`) or a named list of them, one PI per element (e.g.
+#'   `list(Yield_Hist = 2008:2010, Yield_Recent = 2016:2021)`).
 #' @param TS The output of [Extract_MSE_Timeseries()] for `MSE`, if already
 #'   calculated.
 #'
 #' @returns A `data.frame` with columns `PI`, `MP`, `Sim`, and `Value`.
 #' @export
 Calc_PM_Stats <- function(MSE, Lim = 0.17, StabilityThreshold = 0.1, NoChangeThreshold = 0.01,
-                          FTarget_FMSY = NULL, CatchRefYears = 2008:2010,
+                          FTarget_FMSY = NULL, MPFTarget = NULL, CatchRefYears = 2008:2010,
                           TS = Extract_MSE_Timeseries(MSE, FTarget_FMSY = FTarget_FMSY)) {
-  CatchRef <- mean(TS$Value[TS$Period == 'Historical' & TS$Variable == 'Yield' &
-                              TS$Year %in% CatchRefYears])
+  if (!is.list(CatchRefYears)) CatchRefYears <- list(Yield_Hist = CatchRefYears)
+  CatchRef <- vapply(CatchRefYears, \(yrs)
+    mean(TS$Value[TS$Period == 'Historical' & TS$Variable == 'Yield' & TS$Year %in% yrs]),
+    numeric(1))
   TS <- TS[TS$Period == 'Projection', ]
 
   PerSim <- function(Variable, FUN, Window = 'all') {
@@ -173,16 +187,41 @@ Calc_PM_Stats <- function(MSE, Lim = 0.17, StabilityThreshold = 0.1, NoChangeThr
     Add(if (w == 'All') 'Safety' else paste0('Safety_', w),
         PerSim('SB_SB0', \(x) as.numeric(all(x > Lim)), Windows[[w]]))
 
-  if ('F_FTarget' %in% TS$Variable) {
-    Add('Status', PerSim('F_FTarget', \(x) mean(x <= 1)))
-    Add('FTarget_F', PerSim('F_FTarget', \(x) stats::median(1 / x)))
+  StatusFUN    <- \(x) mean(x <= 1)
+  FTargetFFUN  <- \(x) stats::median(1 / x)
+  FTargetNames <- setdiff(sub('^F_', '', grep('^F_', unique(TS$Variable), value = TRUE)),
+                          c('FMSY', 'FTarget'))
+
+  # F target of each MP
+  if (!is.null(MPFTarget)) {
+    MPFTarget <- MPFTarget[intersect(names(MPFTarget), unique(TS$MP))]
+    if (length(setdiff(MPFTarget, FTargetNames)))
+      cli::cli_abort("F target{?s} of `MPFTarget` not in `TS`: {.val {setdiff(MPFTarget, FTargetNames)}}.")
+    OwnF <- do.call(rbind, lapply(names(MPFTarget), \(mp) {
+      d <- TS[TS$Variable == paste0('F_', MPFTarget[[mp]]) & TS$MP == mp, ]
+      d$Variable <- 'F_Own'
+      d
+    }))
+    TS <- rbind(TS, OwnF)
+    Add('Status', PerSim('F_Own', StatusFUN))
+    Add('FTarget_F', PerSim('F_Own', FTargetFFUN))
+  } else if ('F_FTarget' %in% TS$Variable) {
+    Add('Status', PerSim('F_FTarget', StatusFUN))
+    Add('FTarget_F', PerSim('F_FTarget', FTargetFFUN))
+  }
+
+  # every F target
+  for (nm in FTargetNames) {
+    Add(paste0('Status_', nm), PerSim(paste0('F_', nm), StatusFUN))
+    Add(paste0('FTarget_F_', nm), PerSim(paste0('F_', nm), FTargetFFUN))
   }
 
   Add('Stability', FromPM(MSEtool::PM_Stability(MSE, Threshold = StabilityThreshold, Type = 'TAC')@Prob, 1))
 
   Add('NoChange', FromPM(MSEtool::PM_Stability(MSE, Threshold = NoChangeThreshold, Type = 'TAC')@Prob, 1))
 
-  Add('Yield_Hist', PerSim('Yield', \(x) mean(x >= CatchRef)))
+  for (nm in names(CatchRef))
+    Add(nm, PerSim('Yield', \(x) mean(x >= CatchRef[[nm]])))
 
   # ---- Other PIs ----
   for (w in names(Windows)) {
@@ -204,4 +243,29 @@ Calc_PM_Stats <- function(MSE, Lim = 0.17, StabilityThreshold = 0.1, NoChangeThr
   out <- do.call(rbind, Rows)
   rownames(out) <- NULL
   out
+}
+
+#' Convergence of the Surplus Production MPs
+#'
+#' The proportion of management cycles in which the surplus production model
+#' of each MP converged, from [MSEtool::SPEstimates()]. When the fit fails or
+#' does not converge, the advice is set by the `OnFail` rule of
+#' [MSEtool::SurplusProduction()] (by default, the previous TAC is kept).
+#'
+#' @param MSE An `mse` object.
+#'
+#' @returns A `data.frame` with columns `MP`, `nCycles` (management cycles
+#'   over all simulations), and `Converged` (proportion of cycles); no rows if
+#'   no MP fits a surplus production model.
+#' @export
+Calc_SP_Convergence <- function(MSE) {
+  # SPEstimates() errors when no MP fits a surplus production model
+  Est <- tryCatch(MSEtool::SPEstimates(MSE), error = function(e) {
+    if (grepl('estimates found', conditionMessage(e), fixed = TRUE)) NULL else stop(e)
+  })
+  if (!NROW(Est))
+    return(data.frame(MP = character(0), nCycles = integer(0), Converged = numeric(0)))
+  Out <- stats::aggregate(Converged ~ MP, data = Est, FUN = mean)
+  Out$nCycles <- as.vector(table(Est$MP)[Out$MP])
+  Out[c('MP', 'nCycles', 'Converged')]
 }
