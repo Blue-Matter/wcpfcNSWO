@@ -10,6 +10,7 @@ Calc_PM_Stats(
   StabilityThreshold = 0.1,
   NoChangeThreshold = 0.01,
   FTarget_FMSY = NULL,
+  MPFTarget = NULL,
   CatchRefYears = 2008:2010,
   TS = Extract_MSE_Timeseries(MSE, FTarget_FMSY = FTarget_FMSY)
 )
@@ -27,12 +28,17 @@ Default \code{0.1}.}
 management change for \code{NoChange}. Default \code{0.01} (the CMPs leave the TAC
 unchanged when the change would be less than 1\%).}
 
-\item{FTarget_FMSY}{Numeric. The F target relative to FMSY (see
-\code{\link[=Calc_FTarget_FMSY]{Calc_FTarget_FMSY()}}), used for the default \code{TS}. Default \code{NULL} (no
-\code{Status} or \code{FTarget_F}).}
+\item{FTarget_FMSY}{The F target(s) relative to FMSY (see
+\code{\link[=Calc_FTarget_FMSY]{Calc_FTarget_FMSY()}} and \code{\link[=Extract_MSE_Timeseries]{Extract_MSE_Timeseries()}}), used for the
+default \code{TS}. Default \code{NULL} (no \code{Status} or \code{FTarget_F}).}
 
-\item{CatchRefYears}{Numeric. Historical years of the reference catch for
-\code{Yield_Hist}. Default \code{2008:2010}.}
+\item{MPFTarget}{Optional named character vector: the name of the F target
+in \code{FTarget_FMSY} of each MP (e.g. \code{c(IR_H1 = 'F40')}), for \code{Status} and
+\code{FTarget_F}.}
+
+\item{CatchRefYears}{Historical years of the reference catch: a numeric
+vector (\code{Yield_Hist}) or a named list of them, one PI per element (e.g.
+\code{list(Yield_Hist = 2008:2010, Yield_Recent = 2016:2021)}).}
 
 \item{TS}{The output of \code{\link[=Extract_MSE_Timeseries]{Extract_MSE_Timeseries()}} for \code{MSE}, if already
 calculated.}
@@ -52,13 +58,18 @@ middle, and last 10 years). The PIs of the candidate management objectives
 \item \code{Safety}, \verb{Safety_*}: probability that SB > \code{Lim} SB0 in every year,
 i.e. a simulation that falls below the LRP in any year is a breach.
 \item \code{Status}: probability that F <= F target (proportion of years), and
-\code{FTarget_F}: median F target / F. Only if \code{TS} has \code{F_FTarget}.
+\code{FTarget_F}: median F target / F, with the F target of each MP
+(\code{MPFTarget}), or the single F target in \code{TS} (\code{F_FTarget}).
+\item \verb{Status_<name>}, \verb{FTarget_F_<name>} (e.g. \code{Status_F40}): the same for
+each F target in \code{TS} (\verb{F_<name>}; see \code{\link[=Extract_MSE_Timeseries]{Extract_MSE_Timeseries()}}), for
+every MP.
 \item \code{Stability}: probability that the TAC changes by no more than
 \code{StabilityThreshold} between management cycles.
 \item \code{NoChange}: probability of no management change, i.e. that the TAC
 changes by no more than \code{NoChangeThreshold} between management cycles.
-\item \code{Yield_Hist}: probability that the annual catch is at least the mean
-catch in \code{CatchRefYears} (proportion of years).
+\item \code{Yield_Hist} (and the other names of \code{CatchRefYears}): probability that
+the annual catch is at least the mean historical catch in the reference
+years (proportion of years).
 }
 
 and other PIs:

@@ -11,9 +11,10 @@ Extract_MSE_Timeseries(MSE, Stock = "Female", FTarget_FMSY = NULL)
 
 \item{Stock}{Character. Name of the spawning stock. Default \code{'Female'}.}
 
-\item{FTarget_FMSY}{Numeric. The F target relative to FMSY, for each
-simulation or a single value (see \code{\link[=Calc_FTarget_FMSY]{Calc_FTarget_FMSY()}}). Default \code{NULL}
-(no \code{F_FTarget}).}
+\item{FTarget_FMSY}{The F target relative to FMSY, for each simulation or a
+single value (see \code{\link[=Calc_FTarget_FMSY]{Calc_FTarget_FMSY()}}): a numeric vector (one F target,
+\code{F_FTarget}) or a named list of them (e.g. \code{list(F40 = ..., F35 = ...)},
+\code{F_F40}, \code{F_F35}). Default \code{NULL} (no F relative to an F target).}
 }
 \value{
 A \code{data.frame} with columns \code{Sim}, \code{Year}, \code{Period}, \code{MP},
@@ -24,8 +25,8 @@ Per-simulation annual time series for the historical and projection periods:
 spawning biomass relative to the equilibrium unfished spawning biomass SB0
 (\code{SB_SB0}; SB0 is constant over years) and to SBMSY (\code{SB_SBMSY}), fishing
 mortality relative to FMSY (\code{F_FMSY}) and, if \code{FTarget_FMSY} is supplied, to
-the F target
-(\code{F_FTarget}), and catch (\code{Yield}, removals summed over stocks and fleets).
+each F target (\verb{F_<name>}, e.g. \code{F_F40}, for a named list; \code{F_FTarget} for
+a single F target), and catch (\code{Yield}, removals summed over stocks and fleets).
 }
 \details{
 Ratios are averaged over the seasons of each calendar year (fishing

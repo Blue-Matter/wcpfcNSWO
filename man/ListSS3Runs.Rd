@@ -5,12 +5,12 @@
 \title{Create a data frame with details of SS3 Models}
 \usage{
 ListSS3Runs(
-  SSDir_Base = "../WCNPOSWO-2023/Final Base-case",
-  SSDir_Sens = file.path(SSDir_Base, "Sensitivities")
+  SSDir_Base = "SS3/Base-case",
+  SSDir_Sens = file.path(dirname(SSDir_Base), "Sensitivities")
 )
 }
 \arguments{
-\item{SSDir_Base}{character. File path to the base case output}
+\item{SSDir_Base}{character. File path to the base case SS3 run}
 
 \item{SSDir_Sens}{character. File path to the directory containing
 the sensitivities}
@@ -18,8 +18,13 @@ the sensitivities}
 \value{
 a \code{data.frame} with details on available models. \code{Description}
 is the change from the base case in the SS3 input files of each run, and
-\code{Include} is \code{FALSE} for SS3 runs not used as operating models, with the
-reason in \code{Note}.
+\code{Type} is the kind of sensitivity: \code{'Base case'}, \code{'Life history'},
+\code{'Catchability'} (increasing catchability in the indices; effort creep) or
+\code{'Assessment'} (other sensitivities of the 2023 assessment: catch, model
+settings and CPUE indices). The base case and the life-history and
+catchability runs are used as operating models (\code{Include = TRUE}), except
+the runs in \code{Excluded}, with the reason in \code{Note}. \code{Import} is the runs
+imported in \code{01-Construct-OMs.R} (initially the same as \code{Include}).
 }
 \description{
 Used to import OMs into the MSE framework
