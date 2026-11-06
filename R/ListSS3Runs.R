@@ -2,21 +2,31 @@
 #'
 #' Used to import OMs into the MSE framework
 #'
-#' @param SSDir_Base character. File path to the base case output
+#' @param SSDir_Base character. File path to the base case SS3 run
 #' @param SSDir_Sens character. File path to the directory containing
 #' the sensitivities
 #'
 #' @returns a `data.frame` with details on available models. `Description`
 #'   is the change from the base case in the SS3 input files of each run, and
-#'   `Include` is `FALSE` for SS3 runs not used as operating models, with the
-#'   reason in `Note`.
+#'   `Type` is the kind of sensitivity: `'Base case'`, `'Life history'`,
+#'   `'Catchability'` (increasing catchability in the indices; effort creep) or
+#'   `'Assessment'` (other sensitivities of the 2023 assessment: catch, model
+#'   settings and CPUE indices). The base case and the life-history and
+#'   catchability runs are used as operating models (`Include = TRUE`), except
+#'   the runs in `Excluded`, with the reason in `Note`. `Import` is the runs
+#'   imported in `01-Construct-OMs.R` (initially the same as `Include`).
 #' @export
-ListSS3Runs <- function(SSDir_Base = "../WCNPOSWO-2023/Final Base-case",
-                        SSDir_Sens =file.path(SSDir_Base, 'Sensitivities')) {
+ListSS3Runs <- function(SSDir_Base = "SS3/Base-case",
+                        SSDir_Sens = file.path(dirname(SSDir_Base), 'Sensitivities')) {
 
   # changes from the base case in the SS3 input files (control, data, starter) of
-  # each run. The run 1 and 2 folders are named highM and lowM, but M is 10% lower
-  # in run 1 and 10% higher in run 2. The S6 recruitment index is fitted in every run
+  # each run.
+  #
+  # - The run 1 and 2 folders are named highM and lowM, but M is 10% lower
+  #   in run 1 and 10% higher in run 2.
+  #
+  # - The S6 recruitment index is fitted in every run
+
   Descriptions <- c(
     '01'  = 'M 10% lower',
     '02'  = 'M 10% higher',
@@ -41,12 +51,19 @@ ListSS3Runs <- function(SSDir_Base = "../WCNPOSWO-2023/Final Base-case",
     '18d' = 'CPUE: S7 only',
     '18e' = 'CPUE: S8 only',
     '18f' = 'CPUE: S7 and S8 only',
-    '19'  = 'All CPUE (S5 and S8 fitted)'
+    '19'  = 'All CPUE (S5 and S8 fitted)',
+    '20a' = 'Effort creep 1% per year in the indices',
+    '20b' = 'Effort creep 2% per year in the indices'
   )
 
-  # SS3 runs not used as operating models
+  # The operating models explore uncertainty in the life-history parameters and
+  # in the catchability of the indices (effort creep). The other assessment
+  # sensitivities (catch, model settings, CPUE indices) are not used as OMs.
+  LifeHistory  <- c('01', '02', '03', '04', '05', '06', '07', '08', '09', '10')
+  Catchability <- c('20a', '20b')
+
+  # life-history and catchability runs not used as operating models
   Excluded <- c(
-    '03' = 'The control file sets steepness to 0.70, but the starter file initialises the parameters from the base case parameter file (steepness 0.9), so the SS3 output is identical to the base case.',
     '05' = 'The SS3 fit estimates an implausibly large stock (R0 and unfished spawning biomass many orders of magnitude larger than the base case), so the stock is unaffected by the catch.',
     '06' = 'The SS3 fit estimates an implausibly large stock (R0 and unfished spawning biomass many orders of magnitude larger than the base case), so the stock is unaffected by the catch.'
   )
@@ -71,7 +88,7 @@ ListSS3Runs <- function(SSDir_Base = "../WCNPOSWO-2023/Final Base-case",
   model_num <- sprintf("%02d%s", as.integer(num), suffix)
 
   df_Sense <- data.frame(
-    OM       = model_num,
+    OM          = model_num,
     Description = desc,
     Path        = ssdir_sens,
     stringsAsFactors = FALSE
@@ -79,8 +96,11 @@ ListSS3Runs <- function(SSDir_Base = "../WCNPOSWO-2023/Final Base-case",
 
   dplyr::bind_rows(df_BC, df_Sense) |>
     dplyr::mutate(Description = dplyr::coalesce(unname(Descriptions[OM]), Description),
-                  ReRunSS = FALSE,
-                  Import  = TRUE,
-                  Include = !OM %in% names(Excluded),
+                  Type    = dplyr::case_when(OM == '00'           ~ 'Base case',
+                                             OM %in% LifeHistory  ~ 'Life history',
+                                             OM %in% Catchability ~ 'Catchability',
+                                             TRUE                 ~ 'Assessment'),
+                  Include = Type != 'Assessment' & !OM %in% names(Excluded),
+                  Import  = Include,
                   Note    = dplyr::coalesce(unname(Excluded[OM]), ''))
 }
