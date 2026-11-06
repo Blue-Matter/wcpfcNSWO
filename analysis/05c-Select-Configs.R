@@ -1,14 +1,14 @@
-# Select the MP settings not set by tuning (ConfigCandidates in 04-Define-CMPs.R),
-# including the HCR, for each MP: the configuration with the highest catch when
-# tuned to the Safety and Status constraints. The selected settings are used for
-# all CMPs of that MP in 04b-Tune-CMPs.R. Selected on the base case OM only
-source('analysis/04-Define-CMPs.R')
+# Select the MP settings not set by tuning or by the HCR (ConfigCandidates in
+# 05b-Define-CMPs.R) for each MP: the configuration with the highest catch when
+# tuned to the Safety and Status constraints. Selected on the base case OM, with
+# the HCR, index set, and TAC change limit of ConfigCMP, and used for all CMPs
+# of that MP in 05d-Tune-CMPs.R. Copy ConfigsFile to every machine used for tuning
+source('analysis/05b-Define-CMPs.R')
 
 HistFile <- normalizePath('objects/Hist/00.hist')
 
-ConfigMPs       <- names(ConfigCandidates)  # MPs to select settings for
-ConfigTACChange <- 0.2                      # TAC change limit of the CMP used for the selection
-nWorkers        <- 12                       # each worker needs ~8 GB of RAM to project an MP
+ConfigMPs <- 'IT' # names(ConfigCandidates)  # MPs to select settings for
+nWorkers  <- 12                       # each worker needs ~8 GB of RAM to project an MP
 
 Control <- MSEtool::TuneControl(Interval    = TuneInterval,
                                 nGridConfig = 5,
@@ -26,13 +26,14 @@ MSEtool::SetupParallel(workers = nWorkers)
 
 for (mp in ConfigMPs) {
   cli::cli_h1('Configurations: {mp}')
-  i <- which(CMPs$MP == mp & CMPs$TACChange == ConfigTACChange)
+  i <- which(CMPs$MP == mp & CMPs$HCR == ConfigCMP$HCR & CMPs$IndexSet == ConfigCMP$IndexSet &
+               CMPs$TACChange == ConfigCMP$TACChange)
   Cand <- Candidates(mp)
-  Args <- lapply(Cand, \(x) ConfigArgs(mp, x))
+  Args <- lapply(Cand, \(x) ConfigArgs(mp, ConfigCMP$HCR, x))
 
   Tuned <- MSEtool::TuneMP(Hist, CMPs$Fn[[i]],
                            Objective   = Objective,
-                           Constraints = Constraints,
+                           Constraints = TuneConstraints(CMPs$FTargetSPR[i]),
                            Configs     = Args,
                            Control     = Control,
                            parallel    = TRUE)

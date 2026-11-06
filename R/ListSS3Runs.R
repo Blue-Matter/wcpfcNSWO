@@ -14,7 +14,7 @@
 #'   settings and CPUE indices). The base case and the life-history and
 #'   catchability runs are used as operating models (`Include = TRUE`), except
 #'   the runs in `Excluded`, with the reason in `Note`. `Import` is the runs
-#'   imported in `01-Construct-OMs.R` (initially the same as `Include`).
+#'   imported in `02-Construct-OMs.R` (initially the same as `Include`).
 #' @export
 ListSS3Runs <- function(SSDir_Base = "SS3/Base-case",
                         SSDir_Sens = file.path(dirname(SSDir_Base), 'Sensitivities')) {

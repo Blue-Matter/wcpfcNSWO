@@ -9,16 +9,16 @@ suppress-bibliography: true
 library(MSEtool)
 OM <- readRDS("../objects/OM/00.om")
 
-# reference levels, as set in analysis/04-Define-CMPs.R (tuning) and
-# analysis/06-Create-Slick.R (performance metrics)
+# reference levels, as set in analysis/05b-Define-CMPs.R (tuning) and
+# analysis/07-Create-Slick.R (performance metrics)
 Assigned <- function(File, Names) {
   for (e in parse(File))
     if (is.call(e) && identical(e[[1]], as.name("<-")) && is.name(e[[2]]) &&
         as.character(e[[2]]) %in% Names)
       eval(e, envir = globalenv())
 }
-Assigned("../analysis/04-Define-CMPs.R", c("LRP", "PSafety", "PStatus", "TACChange"))
-Assigned("../analysis/06-Create-Slick.R", c("FTargetSPR", "StabilityThreshold", "NoChangeThreshold", "CatchRefYears"))
+Assigned("../analysis/05b-Define-CMPs.R", c("LRP", "PSafety", "PStatus", "TACChange"))
+Assigned("../analysis/07-Create-Slick.R", c("FTargetSPR", "StabilityThreshold", "NoChangeThreshold", "CatchRefYears"))
 FTargetLabel <- paste0("F$_{", 100 * FTargetSPR, "\\%}$")
 CatchRefLabel <- paste(range(CatchRefYears), collapse = "--")
 

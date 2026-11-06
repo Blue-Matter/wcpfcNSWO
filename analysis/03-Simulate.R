@@ -2,7 +2,7 @@
 library(wcpfcNSWO)
 
 OM_DF <- ListSS3Runs() |>
-  dplyr::mutate(Simulate  = TRUE,
+  dplyr::mutate(Simulate  = Include,
                 AllFleets = FALSE)
 
 
@@ -26,6 +26,9 @@ for (i in seq_len(nrow(OM_DF))) {
   OM <- readRDS(file)
 
   Hist <- MSEtool::Simulate(OM)
+
+  # observed indices for OMs conditioned on adjusted indices (e.g. effort creep)
+  Hist <- ApplyObservedIndices(Hist)
 
   file <- if (OM_DF$AllFleets[i]) {
     file.path('objects/Hist', paste0(OMName, "_all_fleets.hist"))

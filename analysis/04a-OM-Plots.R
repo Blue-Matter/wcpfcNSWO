@@ -5,18 +5,18 @@
 library(MSEtool)
 library(wcpfcNSWO)
 library(ggplot2)
-here::i_am('analysis/03-OM-Plots.R')
+here::i_am('analysis/04a-OM-Plots.R')
 
 LRP <- 0.17 # SB / SB0 (equilibrium unfished)
 
 RunDF <- ListSS3Runs(
-  SSDir_Base = here::here('..', 'WCNPOSWO-2023', 'Final Base-case')) |>
+  SSDir_Base = here::here('SS3', 'Base-case')) |>
   dplyr::mutate(HistFile = here::here('objects', 'Hist', paste0(OM, '.hist')),
                 HasHist  = file.exists(HistFile))
 
-# SS3 runs considered as OMs (with an OM, or excluded with a reason), and the
-# OMs included in the MSE
-SS3Runs <- RunDF[RunDF$HasHist | nzchar(RunDF$Note), ]
+# SS3 runs considered as OMs (life-history and catchability runs, including
+# those excluded with a reason), and the OMs included in the MSE
+SS3Runs <- RunDF[RunDF$Type != 'Assessment', ]
 OM_DF   <- RunDF[RunDF$HasHist & RunDF$Include, ]
 
 HistList <- lapply(OM_DF$HistFile, readRDS) |> stats::setNames(OM_DF$OM)
@@ -50,8 +50,7 @@ ss3_par <- function(om, col, digits = 2) round(SS3Pars[[col]][SS3Pars$OM == om],
 
 # ---- ss3_runs_table ----
 # short reasons for the excluded runs (explained in full in the TSD text)
-ExcludedReason <- c('03' = 'Output identical to base case',
-                    '05' = 'Implausibly large stock',
+ExcludedReason <- c('05' = 'Implausibly large stock',
                     '06' = 'Implausibly large stock')
 
 knitr::kable(
@@ -102,11 +101,29 @@ LifeHistory <- purrr::imap_dfr(HistList, function(Hist, om) {
         AtAge(Stock@Maturity@MeanAtAge, 'Maturity-at-age'))
 })
 
+# most OMs share the base-case curve in a panel (e.g. steepness and catchability OMs in all
+# of them): draw only the curves that differ from the base case, with the base case in black
+BaseLabel <- OM_Label[['00']]
+BaseLH    <- LifeHistory[LifeHistory$OM == BaseLabel, c('Variable', 'Age', 'Value')]
+names(BaseLH)[3] <- 'Base'
+LifeHistory <- LifeHistory |>
+  dplyr::left_join(BaseLH, by = c('Variable', 'Age')) |>
+  dplyr::group_by(Variable, OM) |>
+  dplyr::filter(OM == BaseLabel | any(abs(Value - Base) > 1e-6 * pmax(1, abs(Base)))) |>
+  dplyr::ungroup()
+LH_OMs    <- unique(LifeHistory$OM)
+LH_Colour <- stats::setNames(c('black', grDevices::palette.colors(length(LH_OMs), 'Okabe-Ito')[-1]),
+                             c(BaseLabel, setdiff(LH_OMs, BaseLabel)))
+LifeHistory$OM <- factor(LifeHistory$OM, levels = names(LH_Colour))
+
 ggplot(LifeHistory, aes(x = Age, y = Value, colour = OM)) +
-  geom_line() +
+  geom_line(aes(linewidth = OM == BaseLabel)) +
+  scale_colour_manual(values = LH_Colour) +
+  scale_linewidth_manual(values = c(`TRUE` = 1.1, `FALSE` = 0.6), guide = 'none') +
   facet_wrap(~Variable, scales = 'free_y', ncol = 1) +
   expand_limits(y = 0) +
-  labs(x = 'Age (years)', y = NULL, colour = 'OM') +
+  labs(x = 'Age (years)', y = NULL, colour = 'OM',
+       caption = 'OMs not shown in a panel are identical to the base case') +
   theme_bw() +
   theme(legend.position = 'right')
 
@@ -124,8 +141,11 @@ OMCatch      <- colMeans(tapply(OMLandings$Value, list(OMLandings$Sim, floor(OML
 CatchDiff    <- max(abs(OMCatch[names(DataCatch)] / DataCatch - 1))
 
 # ---- index_table ----
-# SS3 lambdas from the base case control file; S6 is a recruitment index
+# S6 is a recruitment index
 Survey     <- BaseHist@Data[[1]][[1]]@Survey
+BaseRep    <- suppressMessages(MSEtool::ImportSSReport(RunDF$Path[RunDF$OM == '00'], silent = TRUE))[[1]]
+LikeFleet  <- BaseRep$likelihoods_by_fleet
+SurvLambda <- unlist(LikeFleet[LikeFleet$Label == 'Surv_lambda', Survey@Name])
 IndexYear  <- floor(as.numeric(rownames(Survey@Value)))
 IndexYears <- vapply(seq_along(Survey@Name), \(i) {
   paste(range(IndexYear[!is.na(Survey@Value[, i])]), collapse = '--')
@@ -135,15 +155,16 @@ knitr::kable(
   data.frame(Index  = Survey@Name,
              Years  = IndexYears,
              Units  = Survey@Units,
-             Lambda = c(1, 1, 1, 1, 0, 1, 1, 0),
-             CMPs   = c('SP', 'IR, IT, SP', 'SP', 'IR, IT, SP', '', '', '', '')),
-  col.names = c('Index', 'Years', 'Units', 'SS3 lambda', 'Used by CMPs'),
+             Lambda = unname(SurvLambda)),
+  col.names = c('Index', 'Years', 'Units', 'SS3 lambda'),
   row.names = FALSE
 )
 
 # ---- index_fits ----
-MSEtool::PlotIndexFit(BaseHist, 'Survey', nsim = 0, ribbon = TRUE,
-                      Fleets = c('S2_JPN_WCNPO_OSDWCOLL_late_Area1', 'S4_JPN_WCNPO_OSDWLL_late_Area2')) +
+# all indices used by the CMPs (IndexSets in 05b-Define-CMPs.R); S5 and S8 are not fitted in SS3
+CMPIndices <- c('S2_JPN_WCNPO_OSDWCOLL_late_Area1', 'S4_JPN_WCNPO_OSDWLL_late_Area2',
+                'S5_TWN_WCNPO_DWLL_late', 'S8_US_WCNPO_LL_shallow_late')
+MSEtool::PlotIndexFit(BaseHist, 'Survey', nsim = 0, ribbon = TRUE, Fleets = CMPIndices) +
   labs(y = 'Index (relative)')
 
 # ---- stock_status_calc ----
@@ -201,12 +222,99 @@ Trajectories <- purrr::imap_dfr(HistList, function(Hist, om) {
 TrajVars <- c('SB/SB[0]', 'SB/SB[MSY]', 'F/F[MSY]')
 Trajectories$Variable <- factor(Trajectories$Variable, levels = TrajVars)
 
+# SB/SB0 in the first year and the terminal year, for the TSD text
+FirstYear <- min(Trajectories$Year)
+first_sb  <- function(om, digits = 2) {
+  round(Trajectories$Value[Trajectories$OM == OM_Label[[om]] & Trajectories$Year == FirstYear &
+                             Trajectories$Variable == 'SB/SB[0]'], digits)
+}
+term_sb <- function(om, digits = 2) round(StockStatus$SB_SB0[StockStatus$OM == om], digits)
+
 RefLines <- data.frame(Variable = factor(TrajVars, levels = TrajVars), Value = c(LRP, 1, 1))
 
-ggplot(Trajectories, aes(x = Year, y = Value, colour = OM)) +
-  geom_hline(data = RefLines, aes(yintercept = Value), linetype = 2, colour = 'darkgray') +
-  geom_line() +
-  facet_wrap(~Variable, scales = 'free_y', ncol = 1, labeller = label_parsed) +
+# one figure per source of uncertainty, each comparing its OMs with the base case (black)
+TrajGroups <- c('01' = 'Natural mortality',
+                '02' = 'Natural mortality',
+                '03' = 'Steepness',
+                '04' = 'Steepness',
+                '07' = 'Growth',
+                '08' = 'Maturity',
+                '09' = 'Maturity',
+                '10' = 'Maturity',
+                '20a' = 'Catchability',
+                '20b' = 'Catchability')
+
+Missing <- setdiff(setdiff(names(HistList), '00'), names(TrajGroups))
+if (length(Missing)) stop('Add OM(s) ', paste(Missing, collapse = ', '), ' to TrajGroups')
+TrajGroups <- TrajGroups[names(TrajGroups) %in% names(HistList)]
+
+# colours for the base case and the OMs of a group
+GroupColours <- function(Group) {
+  OMs <- c('00', names(TrajGroups)[TrajGroups == Group])
+  stats::setNames(c('black', grDevices::palette.colors(length(OMs), 'Okabe-Ito')[-1]),
+                  unname(OM_Label[OMs]))
+}
+
+PlotTrajectories <- function(Group) {
+  Colour <- GroupColours(Group)
+  DF     <- Trajectories[Trajectories$OM %in% names(Colour), ]
+  DF$OM  <- factor(DF$OM, levels = names(Colour))
+
+  ggplot(DF, aes(x = Year, y = Value, colour = OM)) +
+    geom_hline(data = RefLines, aes(yintercept = Value), linetype = 2, colour = 'darkgray') +
+    geom_line(aes(linewidth = OM == names(Colour)[1])) +
+    scale_colour_manual(values = Colour) +
+    scale_linewidth_manual(values = c(`TRUE` = 1, `FALSE` = 0.7), guide = 'none') +
+    facet_wrap(~Variable, scales = 'free_y', nrow = 1, labeller = label_parsed) +
+    expand_limits(y = c(0,1)) +
+    ggplot2::scale_x_continuous(expand = c(0, 0)) +
+    ggplot2::scale_y_continuous(expand = c(0, 0)) +
+    labs(x = 'Year', y = NULL, colour = NULL) +
+    theme_bw() +
+    theme(legend.position = 'bottom') +
+    guides(colour = guide_legend(ncol = 2))
+}
+
+# ---- trajectories_m ----
+PlotTrajectories('Natural mortality')
+
+# ---- trajectories_h ----
+PlotTrajectories('Steepness')
+
+# ---- trajectories_growth ----
+PlotTrajectories('Growth')
+
+# ---- trajectories_maturity ----
+PlotTrajectories('Maturity')
+
+# ---- trajectories_q ----
+PlotTrajectories('Catchability')
+
+# ---- creep_indices ----
+# the indices each effort creep run was conditioned on: the observed indices in the base
+# case, and in 20a and 20b the observed indices deflated for an assumed annual increase
+# in catchability (equal to the observed value in the first year of each index).
+# Fitted indices only (lambda > 0 in the base case)
+CreepOMs   <- c('00', names(TrajGroups)[TrajGroups == 'Catchability'])
+CreepIndex <- purrr::map_dfr(CreepOMs, function(om) {
+  Rep <- MSEtool::ImportSSReport(RunDF$Path[RunDF$OM == om], silent = TRUE)[[1]]
+  data.frame(OM = OM_Label[[om]], Index = Rep$cpue$Fleet_name, Year = Rep$cpue$Yr,
+             Obs = Rep$cpue$Obs)
+})
+FittedIndex <- names(SurvLambda)[SurvLambda > 0]
+CreepIndex  <- CreepIndex[CreepIndex$Index %in% FittedIndex, ]
+CreepColour <- GroupColours('Catchability')
+CreepIndex$OM <- factor(CreepIndex$OM, levels = names(CreepColour))
+
+ggplot(CreepIndex, aes(x = Year, y = Obs, colour = OM)) +
+  geom_line(aes(linewidth = OM == names(CreepColour)[1])) +
+  scale_colour_manual(values = CreepColour) +
+  scale_linewidth_manual(values = c(`TRUE` = 1, `FALSE` = 0.7), guide = 'none') +
+  facet_wrap(~Index, scales = 'free_y', ncol = 2) +
   expand_limits(y = 0) +
-  labs(x = 'Year', y = NULL, colour = 'OM') +
-  theme_bw()
+  ggplot2::scale_x_continuous(expand = c(0, 0)) +
+  ggplot2::scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
+  labs(x = 'Year', y = 'Index', colour = NULL) +
+  theme_bw() +
+  theme(legend.position = 'bottom') +
+  guides(colour = guide_legend(ncol = 1))

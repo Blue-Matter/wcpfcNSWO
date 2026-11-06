@@ -2,10 +2,10 @@
 library(wcpfcNSWO)
 
 # ---- SS3 Output / Operating Models ----
-# Path to the SS3 base-case model directory
-# from https://github.com/noaa-pifsc/WCNPOSWO-2023
-SSDir_Base <- "../WCNPOSWO-2023/Final Base-case"
-SSDir_Sens <- file.path(SSDir_Base, 'Sensitivities')
+# SS3 runs from https://github.com/noaa-pifsc/WCNPOSWO-2023, re-run with the
+# latest SS3 executable (analysis/01a-Setup-SS3.R and 01b-Run-SS3.R)
+SSDir_Base <- "SS3/Base-case"
+SSDir_Sens <- "SS3/Sensitivities"
 OM_DF      <- ListSS3Runs(SSDir_Base, SSDir_Sens)
 
 
@@ -27,7 +27,7 @@ pYear       <- length(c(IntYrs, ProjYrs))
 
 # ---- Interim Advice ----
 # All catches and TACs in biomass (t); OMs are imported with CatchUnits = 'Biomass'.
-# Calculated for each OM in 01-Construct-OMs.R, as the SS3 catch biomass differs among runs
+# Calculated for each OM in 02-Construct-OMs.R, as the SS3 catch biomass differs among runs
 
 ## Real data: Michelle's email 24 Sept 2026 (F3 and F9 in numbers of fish, F19 in t)
 RealCatch <- data.frame(Year  = rep(2022:2025, each = 3),
@@ -54,7 +54,7 @@ MakeInterimAdvice <- function(replist, RealCatch, IntYrs) {
   MeanWeight <- SSCatch |>
     dplyr::filter(Yr > replist$endyr - 5, Fleet_Name %in% NumberFleets) |>
     dplyr::group_by(Fleet = Fleet_Name) |>
-    dplyr::summarise(MeanWeight = sum(kill_bio) / sum(kill_num), .groups = 'drop')
+    dplyr::summarise(MeanWeight = sum(dead_bio) / sum(dead_num), .groups = 'drop')
 
   RealCatch <- RealCatch |>
     dplyr::left_join(MeanWeight, by = 'Fleet') |>
@@ -72,7 +72,7 @@ MakeInterimAdvice <- function(replist, RealCatch, IntYrs) {
   ## Observed catches (t): SS3 + real data
   observed <- SSCatch |>
     dplyr::group_by(Year = Yr, Fleet = Fleet_Name) |>
-    dplyr::summarise(Catch = sum(kill_bio), .groups = 'drop') |>
+    dplyr::summarise(Catch = sum(dead_bio), .groups = 'drop') |>
     # years in the SS data with no catch record for a fleet = zero catch
     tidyr::complete(Year = seq(min(Year), max(Year)), Fleet = FleetNames,
                     fill = list(Catch = 0)) |>

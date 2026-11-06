@@ -24,7 +24,7 @@ is the change from the base case in the SS3 input files of each run, and
 settings and CPUE indices). The base case and the life-history and
 catchability runs are used as operating models (\code{Include = TRUE}), except
 the runs in \code{Excluded}, with the reason in \code{Note}. \code{Import} is the runs
-imported in \code{01-Construct-OMs.R} (initially the same as \code{Include}).
+imported in \code{02-Construct-OMs.R} (initially the same as \code{Include}).
 }
 \description{
 Used to import OMs into the MSE framework
