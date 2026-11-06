@@ -4,7 +4,7 @@
 # units of SB/SB0.
 #
 # Calibrated on the historical years, IndexSB0 gave a CMP status of only ~0.77 x
-# OM SB/SB0 in the projection (all HCRs; analysis/04-Check-Projection.R): the
+# OM SB/SB0 in the projection (all HCRs): the
 # projected indices sit lower relative to SB/SB0 than the historical indices, as
 # SB grows faster than the biomass the indices track. So IndexSB0 is calibrated
 # on a reference projection of the base case OM with a constant catch (MSEtool
