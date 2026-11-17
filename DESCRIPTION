@@ -16,7 +16,7 @@ Description: Operating models, management procedures, and analysis tools
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
-Config/roxygen2/version: 8.1.0
+Config/roxygen2/version: 8.1.1
 URL: https://github.com/Blue-Matter/wcpfcNSWO
 BugReports: https://github.com/Blue-Matter/wcpfcNSWO/issues
 Depends:
@@ -39,4 +39,3 @@ Remotes:
     blue-matter/MSEtool,
     DTUAqua/spict/spict
 Roxygen: list(markdown = TRUE)
-
