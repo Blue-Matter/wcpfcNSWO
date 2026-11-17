@@ -17,6 +17,7 @@ Calc_PM_Stats(
   NoChangeThreshold = 0.01,
   FTarget_FMSY = NULL,
   MPFTarget = NULL,
+  MPThRP = NULL,
   CatchRefYears = 2008:2010,
   TS = Extract_MSE_Timeseries(MSE, FTarget_FMSY = FTarget_FMSY)
 )
@@ -58,6 +59,11 @@ Calc_PM_Stats(
   `FTarget_FMSY` of each MP (e.g. `c(IR_H1 = 'F40')`), for `Status` and
   `FTarget_F`.
 
+- MPThRP:
+
+  Optional named numeric vector: the threshold reference point (fraction
+  of SB0) of each MP (e.g. `c(IR_H1 = 0.35)`), for `Status_SB`.
+
 - CatchRefYears:
 
   Historical years of the reference catch: a numeric vector
@@ -76,7 +82,11 @@ A `data.frame` with columns `PI`, `MP`, `Sim`, and `Value`.
 
 ## Details
 
-- `Safety`, `Safety_*`: probability that SB \> `Lim` SB0 in every year,
+- `Safety`, `Safety_*`: probability that SB \> `Lim` SB0 in any given
+  year (proportion of years), as specified in Table 1 of the candidate
+  inputs (NC22 Summary Report, Attachment 7).
+
+- `Safety_NoBreach`: probability that SB \> `Lim` SB0 in every year,
   i.e. a simulation that falls below the LRP in any year is a breach.
 
 - `Status`: probability that F \<= F target (proportion of years), and
@@ -87,6 +97,13 @@ A `data.frame` with columns `PI`, `MP`, `Sim`, and `Value`.
   each F target in `TS` (`F_<name>`; see
   [`Extract_MSE_Timeseries()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/Extract_MSE_Timeseries.md)),
   for every MP.
+
+- `Status_SB`: probability that SB \> the threshold reference point of
+  each MP (`MPThRP`, a fraction of SB0) in any given year (proportion of
+  years).
+
+F and SB are the true values in the OM, not the MP's estimates; the F
+target and threshold of each MP are those of its HCR.
 
 - `Stability`: probability that the TAC changes by no more than
   `StabilityThreshold` between management cycles.

@@ -40,6 +40,8 @@ pak::pak("Blue-Matter/wcpfcNSWO")
   : Annual Time Series from an MSE
 - [`ListSS3Runs()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/ListSS3Runs.md)
   : Create a data frame with details of SS3 Models
+- [`PM_SafetyLRP()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/PM_SafetyLRP.md)
+  : Probability Spawning Biomass is Above the Limit Reference Point
 - [`PM_SafetyNoBreach()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/PM_SafetyNoBreach.md)
   : Probability Spawning Biomass Remains Above the Limit Reference Point
 - [`PM_StatusF()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/PM_StatusF.md)
