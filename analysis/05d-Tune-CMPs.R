@@ -12,7 +12,7 @@ source('analysis/05b-Define-CMPs.R')
 
 HistFile <- normalizePath('objects/Hist/00.hist')
 
-nBatch    <- 3         # number of batches (machines)
+nBatch    <- 2         # number of batches (machines)
 Batch     <- 2         # batch tuned on this machine; NULL for all CMPs
 Overwrite <- FALSE     # re-tune CMPs with a current saved result
 DryRun    <- FALSE     # only estimate the number of projections and run time
