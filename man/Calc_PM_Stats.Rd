@@ -11,6 +11,7 @@ Calc_PM_Stats(
   NoChangeThreshold = 0.01,
   FTarget_FMSY = NULL,
   MPFTarget = NULL,
+  MPThRP = NULL,
   CatchRefYears = 2008:2010,
   TS = Extract_MSE_Timeseries(MSE, FTarget_FMSY = FTarget_FMSY)
 )
@@ -36,6 +37,9 @@ default \code{TS}. Default \code{NULL} (no \code{Status} or \code{FTarget_F}).}
 in \code{FTarget_FMSY} of each MP (e.g. \code{c(IR_H1 = 'F40')}), for \code{Status} and
 \code{FTarget_F}.}
 
+\item{MPThRP}{Optional named numeric vector: the threshold reference point
+(fraction of SB0) of each MP (e.g. \code{c(IR_H1 = 0.35)}), for \code{Status_SB}.}
+
 \item{CatchRefYears}{Historical years of the reference catch: a numeric
 vector (\code{Yield_Hist}) or a named list of them, one PI per element (e.g.
 \code{list(Yield_Hist = 2008:2010, Yield_Recent = 2016:2021)}).}
@@ -55,14 +59,24 @@ middle, and last 10 years). The PIs of the candidate management objectives
 }
 \details{
 \itemize{
-\item \code{Safety}, \verb{Safety_*}: probability that SB > \code{Lim} SB0 in every year,
-i.e. a simulation that falls below the LRP in any year is a breach.
+\item \code{Safety}, \verb{Safety_*}: probability that SB > \code{Lim} SB0 in any given year
+(proportion of years), as specified in Table 1 of the candidate inputs
+(NC22 Summary Report, Attachment 7).
+\item \code{Safety_NoBreach}: probability that SB > \code{Lim} SB0 in every year, i.e. a
+simulation that falls below the LRP in any year is a breach.
 \item \code{Status}: probability that F <= F target (proportion of years), and
 \code{FTarget_F}: median F target / F, with the F target of each MP
 (\code{MPFTarget}), or the single F target in \code{TS} (\code{F_FTarget}).
 \item \verb{Status_<name>}, \verb{FTarget_F_<name>} (e.g. \code{Status_F40}): the same for
 each F target in \code{TS} (\verb{F_<name>}; see \code{\link[=Extract_MSE_Timeseries]{Extract_MSE_Timeseries()}}), for
 every MP.
+\item \code{Status_SB}: probability that SB > the threshold reference point of each
+MP (\code{MPThRP}, a fraction of SB0) in any given year (proportion of years).
+}
+
+F and SB are the true values in the OM, not the MP's estimates; the F
+target and threshold of each MP are those of its HCR.
+\itemize{
 \item \code{Stability}: probability that the TAC changes by no more than
 \code{StabilityThreshold} between management cycles.
 \item \code{NoChange}: probability of no management change, i.e. that the TAC
