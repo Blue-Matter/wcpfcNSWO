@@ -7,7 +7,7 @@ source('analysis/05b-Define-CMPs.R')
 
 HistFile <- normalizePath('objects/Hist/00.hist')
 
-ConfigMPs <- 'IT' # names(ConfigCandidates)  # MPs to select settings for
+ConfigMPs <- names(ConfigCandidates)  # MPs to select settings for
 nWorkers  <- 12                       # each worker needs ~8 GB of RAM to project an MP
 
 Control <- MSEtool::TuneControl(Interval    = TuneInterval,
