@@ -1,3 +1,36 @@
+#' Probability Spawning Biomass is Above the Limit Reference Point
+#'
+#' Performance metric for the Safety objective, as specified in Table 1 of the
+#' candidate inputs (NC22 Summary Report, Attachment 7): the probability that
+#' spawning biomass is above a limit reference point, `Lim` of the equilibrium
+#' unfished spawning biomass SB0, in any given year, over all simulations and
+#' the years in which the MP is active. See [PM_SafetyNoBreach()] for the
+#' probability of no breach in any year.
+#'
+#' Spawning biomass is averaged over the seasons of each calendar year.
+#'
+#' @inheritParams PM_SafetyNoBreach
+#'
+#' @returns A `pm` object (see [MSEtool::NewPM()]).
+#' @export
+PM_SafetyLRP <- function(object, Lim = 0.17, Years = NULL, Stock = 'Female') {
+  Years <- Years %||% PM_Window_Years(object)
+  df <- MSEtool::SB_SB0(object, type = 'Equilibrium', df = TRUE, Reduce = FALSE)
+  df <- df[df$Period == 'Projection' & df$Stock %in% Stock, ]
+  df$Year <- floor(df$Year)
+  df <- df[df$Year %in% Years, ]
+  df <- stats::aggregate(Value ~ Sim + Stock + MP + Year, data = df, FUN = mean)
+
+  MSEtool::NewPM(df,
+                 Name    = 'Safety',
+                 Caption = paste0('P(SB > ', Lim, ' SB0)'),
+                 Ref     = Lim,
+                 Op      = `>`,
+                 Years   = Years,
+                 OM      = object@OM)
+}
+class(PM_SafetyLRP) <- 'pm'
+
 #' Probability Spawning Biomass Remains Above the Limit Reference Point
 #'
 #' Performance metric for the Safety objective: the probability that spawning
