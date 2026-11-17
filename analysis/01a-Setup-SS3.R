@@ -72,8 +72,7 @@ for (dir in Runs$Dir) {
   ParToCtl(dir)
 }
 
-# ---- Forecast ----
-# Turn off forecast
+# ---- Turn off Forecast ----
 for (dir in Runs$Dir) {
   file <- file.path(dir, 'forecast.ss')
   fc   <- readLines(file)

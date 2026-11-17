@@ -32,7 +32,7 @@ AnnualMean <- function(df) {
 
 # ---- ss3_runs_calc ----
 SS3Pars <- purrr::map_dfr(seq_len(nrow(SS3Runs)), function(i) {
-  Rep <- MSEtool::ImportSSReport(SS3Runs$Path[i], silent = TRUE)[[1]]
+  Rep <- suppressMessages(MSEtool::ImportSSReport(SS3Runs$Path[i], silent = TRUE))[[1]]
   Par <- function(Label) Rep$parameters$Value[Rep$parameters$Label == Label]
   M   <- Rep$Natural_Mortality
   M   <- M[M$Sex == 1 & M$Yr == Rep$endyr & M$Seas == 1, ]
@@ -129,7 +129,7 @@ ggplot(LifeHistory, aes(x = Age, y = Value, colour = OM)) +
 
 # ---- catch_data ----
 MSEtool::PlotLandings(MSEtool::Data(BaseHist)[[1]][[1]],
-                      byFleet = FALSE, AggregateYear = TRUE) +
+                      byFleet = FALSE, AggregateYear = TRUE, IncCV = FALSE) +
   labs(y = 'Catch (t)')
 
 # ---- catch_check ----
@@ -297,7 +297,7 @@ PlotTrajectories('Catchability')
 # Fitted indices only (lambda > 0 in the base case)
 CreepOMs   <- c('00', names(TrajGroups)[TrajGroups == 'Catchability'])
 CreepIndex <- purrr::map_dfr(CreepOMs, function(om) {
-  Rep <- MSEtool::ImportSSReport(RunDF$Path[RunDF$OM == om], silent = TRUE)[[1]]
+  Rep <- suppressMessages(MSEtool::ImportSSReport(RunDF$Path[RunDF$OM == om], silent = TRUE))[[1]]
   data.frame(OM = OM_Label[[om]], Index = Rep$cpue$Fleet_name, Year = Rep$cpue$Yr,
              Obs = Rep$cpue$Obs)
 })

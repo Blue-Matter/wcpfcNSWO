@@ -8,10 +8,12 @@ FigDir  <- 'analysis/figures/Slick'
 # Reference levels of the candidate management objectives
 source('analysis/00a-PM-Specifications.R')
 
-# CMPs in the Slick object (NULL for all CMPs tuned by 05d-Tune-CMPs.R)
-SelectedCMPs <- NULL
-
 TunedCMPs       <- readRDS(file.path(TuneDir, 'TunedCMPs.rds'))
+
+# CMPs in the Slick object (NULL for all CMPs tuned by 05d-Tune-CMPs.R): the
+# 36 CMPs with all the indices (JPN + US + TWN; CMPIndexSets in 05b-Define-CMPs.R)
+SelectedIndexSet <- 'All'
+SelectedCMPs     <- grep(paste0('_', SelectedIndexSet, '_'), names(TunedCMPs), value = TRUE)
 TuneSummary     <- utils::read.csv(file.path(TuneDir, 'Summary.csv'))
 ConfigsFile     <- file.path(TuneDir, 'Configs.rds')
 SelectedConfigs <- if (file.exists(ConfigsFile)) readRDS(ConfigsFile) else list()
@@ -28,6 +30,7 @@ MPInfo <- TuneSummary[match(MP_all, TuneSummary$Name), ]
 MPInfo$FTarget <- paste0('F', round(100 * MPInfo$FTargetSPR))
 MPInfo$Group   <- paste(MPInfo$MP, MPInfo$IndexSet, sep = '_')
 MPFTarget      <- stats::setNames(MPInfo$FTarget, MP_all)
+MPThRP         <- stats::setNames(MPInfo$ThRP, MP_all)
 
 # CMPs are saved in groups (MP and index set) by 06-Run-Projections.R
 Groups <- split(MP_all, factor(MPInfo$Group, unique(MPInfo$Group)))
@@ -55,13 +58,16 @@ ConfigLabel <- vapply(names(MP_Type), \(mp) {
 }, character(1))
 
 MP_Code  <- MP_all
-MP_Label <- sprintf('%s HCR%d %s %d%%', MPInfo$MP, MPInfo$HCR, IndexSetLabel[MPInfo$IndexSet],
-                    round(100 * MPInfo$TACChange))
+# (the index set is in the label only if the CMPs have more than one)
+MP_Label <- if (length(unique(MPInfo$IndexSet)) > 1) {
+  sprintf('%s HCR%d %s %d%%', MPInfo$MP, MPInfo$HCR, IndexSetLabel[MPInfo$IndexSet], round(100 * MPInfo$TACChange))
+} else {
+  sprintf('%s HCR%d %d%%', MPInfo$MP, MPInfo$HCR, round(100 * MPInfo$TACChange))
+}
 MP_Description <- sprintf(
-  '%s HCR %d: F target = %s, ThRP = %d%% SB0 and LRP = %d%% SB0, with TAC changes limited to %d%% between management cycles. Indices: %s%s.%s Tuned in the base case OM to maximise mean catch subject to P(SB > LRP in every year) >= %.2g and P(F <= %s) >= %.2g (tunepar = %.3g).',
+  '%s HCR %d: F target = %s%%, ThRP = %d%% SB0 and LRP = %d%% SB0, with TAC changes limited to %d%% between management cycles. Indices: %s%s.%s Tuned in the base case OM to maximise mean catch subject to P(SB > LRP) >= %.2g and P(F <= %s%%) >= %.2g (tunepar = %.3g).',
   MP_TypeDescription[MPInfo$MP], MPInfo$HCR, MPInfo$FTarget, round(100 * MPInfo$ThRP), round(100 * LRP),
-  round(100 * MPInfo$TACChange), IndexSetDescription[MPInfo$IndexSet],
-  ifelse(MPInfo$MP == 'SP', ', and the early Japanese longline CPUE (S1 and S3)', ''),
+  round(100 * MPInfo$TACChange), IndexSetDescription[MPInfo$IndexSet], '',
   ConfigLabel[MPInfo$MP], PI_Min[['Safety']], MPInfo$FTarget, PI_Min[['Status']], MPInfo$tunepar)
 
 # ---- OMs with MSE results ----
@@ -78,7 +84,7 @@ nOM <- nrow(OM_Design)
 # Candidate management objectives (Table 1): Safety, Status, Stability,
 # probability of no management change, and Yield
 StatusNames <- names(StatusFTargetSPR)
-Table1_Codes <- c('Safety', 'Status', 'FTarget_F', 'Stability', 'NoChange', names(CatchRefYears))
+Table1_Codes <- c('Safety', 'Status', 'FTarget_F', 'Status_SB', 'Stability', 'NoChange', names(CatchRefYears))
 
 PM_Codes <- c(Table1_Codes,
               paste0('Status_', StatusNames),
@@ -92,6 +98,7 @@ PM_Codes <- c(Table1_Codes,
               'Safety_Short',
               'Safety_Medium',
               'Safety_Long',
+              'Safety_NoBreach',
 
               'Depletion_All',
               'Depletion_Short',
@@ -113,6 +120,7 @@ PM_Label <- c(
   Safety           = 'Probability SB > LRP',
   Status           = 'Probability F <= F target (of the HCR)',
   FTarget_F        = 'F target (of the HCR) / F',
+  Status_SB        = 'Probability SB > ThRP (of the HCR)',
   Stability        = paste0('Catch stability (TAC change <= ', 100 * StabilityThreshold, '%)'),
   NoChange         = 'Probability of no management change',
   stats::setNames(paste0('Probability catch >= ', YearsLabel, ' catch'), names(CatchRefYears)),
@@ -127,6 +135,7 @@ PM_Label <- c(
   Safety_Short     = 'Probability SB > LRP (years 1-10)',
   Safety_Medium    = 'Probability SB > LRP (years 11-20)',
   Safety_Long      = 'Probability SB > LRP (years 21-30)',
+  Safety_NoBreach  = 'Probability SB > LRP in every year',
 
   Depletion_All    = 'SB/SB0 (all years)',
   Depletion_Short  = 'SB/SB0 (years 1-10)',
@@ -143,13 +152,14 @@ PM_Label <- c(
   Rel_Yield        = 'Relative mean catch'
 )
 
-Safety_Description <- paste0('Probability that spawning biomass remains above the limit reference point (LRP; ', 100 * LRP,
-                             '% SB0) in every year')
+Safety_Description <- paste0('Probability that spawning biomass is above the limit reference point (LRP; ', 100 * LRP,
+                             '% SB0) in any given year')
 
 PM_Description <- c(
-  Safety           = paste0(Safety_Description, ' of the projection period: a simulation that falls below the LRP in any year is a breach.'),
+  Safety           = paste0(Safety_Description, ' of the projection period (proportion of years).'),
   Status           = 'Probability that fishing mortality is at or below the F target of the HCR of the CMP (F40%, F35%, or F30%), over all projection years.',
   FTarget_F        = 'Median ratio of the F target of the HCR of the CMP to fishing mortality over the projection years; values above 1 mean F is below the target.',
+  Status_SB        = 'Probability that spawning biomass is above the threshold reference point of the HCR of the CMP (ThRP; 35%, 30%, or 25% SB0) in any given year of the projection period.',
   Stability        = paste0('Probability that the TAC changes by no more than ', 100 * StabilityThreshold, '% between consecutive management cycles.'),
   NoChange         = paste0('Probability of no management change: the probability that the TAC changes by no more than ', 100 * NoChangeThreshold, '% between consecutive management cycles.'),
   stats::setNames(paste0('Probability that the annual catch is at least the mean historical catch in ', YearsLabel,
@@ -169,6 +179,8 @@ PM_Description <- c(
   Safety_Short     = paste0(Safety_Description, ' of the first 10 projection years (short-term).'),
   Safety_Medium    = paste0(Safety_Description, ' of the middle 10 projection years (medium-term).'),
   Safety_Long      = paste0(Safety_Description, ' of the final 10 projection years (long-term).'),
+  Safety_NoBreach  = paste0('Probability that spawning biomass remains above the LRP (', 100 * LRP,
+                            '% SB0) in every year of the projection period: a simulation that falls below the LRP in any year is a breach.'),
 
   Depletion_All    = 'Mean spawning biomass relative to the equilibrium unfished spawning biomass (SB/SB0) over all projection years.',
   Depletion_Short  = 'Mean SB/SB0 over the first 10 projection years (short-term).',
@@ -223,7 +235,7 @@ for (i in seq_len(nOM)) {
     TS    <- Extract_MSE_Timeseries(MSE, FTarget_FMSY = FTarget_FMSY)
     Stats <- Calc_PM_Stats(MSE, Lim = LRP, StabilityThreshold = StabilityThreshold,
                            NoChangeThreshold = NoChangeThreshold, MPFTarget = MPFTarget,
-                           CatchRefYears = CatchRefYears, TS = TS)
+                           MPThRP = MPThRP, CatchRefYears = CatchRefYears, TS = TS)
     Stats <- Stats[Stats$MP %in% Groups[[g]], ]
 
     if (is.null(PM_Value)) {
@@ -274,29 +286,48 @@ Slick::Factors(OMs_obj) <- data.frame(
 Slick::Design(OMs_obj) <- data.frame(OM = OM_Design$OM)
 rownames(Slick::Design(OMs_obj)) <- OM_Design$OM_Name
 
-Slick::Preset(OMs_obj) <- c(
-  if ('00' %in% OM_Design$OM) list(`Base Case` = list(match('00', OM_Design$OM))),
-  list(All = list(seq_len(nOM)))
-)
+# Preset buttons (rows of Design): the base case (the default, the first
+# preset), each group of sensitivity OMs with the base case, and all OMs. The
+# app shows at most 8 OM presets
+OM_Groups <- c('01' = 'Natural mortality', '02' = 'Natural mortality',
+               '03' = 'Steepness', '04' = 'Steepness',
+               '07' = 'Growth',
+               '08' = 'Maturity', '09' = 'Maturity', '10' = 'Maturity',
+               '20a' = 'Effort creep', '20b' = 'Effort creep')
+Missing <- setdiff(OM_Design$OM, c('00', names(OM_Groups)))
+if (length(Missing))
+  cli::cli_abort("Add OM{?s} {.val {Missing}} to {.var OM_Groups}.")
+Base <- match('00', OM_Design$OM)
+GroupRows <- lapply(split(names(OM_Groups), factor(OM_Groups, unique(OM_Groups))),
+                    \(oms) c(Base, which(OM_Design$OM %in% oms)))
+GroupRows <- GroupRows[lengths(GroupRows) > 1]
+Slick::Preset(OMs_obj) <- c(list(`Base Case` = Base), GroupRows, list(All = seq_len(nOM)))
+if (length(Slick::Preset(OMs_obj)) > 8)
+  cli::cli_abort("The Slick app shows at most 8 OM presets.")
 
 # ---- MPs ----
 MPs_obj <- Slick::MPs(Code = MP_Code, Label = MP_Label, Description = MP_Description)
 
+# Preset buttons: all CMPs, each MP family, each TAC change limit, and each F
+# target (HCRs 1-3, 4-5, 6). The app shows at most 10 MP presets
 Slick::Preset(MPs_obj) <- c(
   list(All = seq_len(nMP)),
-  split(seq_len(nMP), MP_Type[MPInfo$MP]),
-  split(seq_len(nMP), paste('HCR', MPInfo$HCR)),
-  split(seq_len(nMP), paste('F target', MPInfo$FTarget)),
-  split(seq_len(nMP), paste('Indices:', IndexSetLabel[MPInfo$IndexSet])),
-  split(seq_len(nMP), paste0(round(100 * MPInfo$TACChange), '% TAC change'))
+  split(seq_len(nMP), factor(MP_Type[MPInfo$MP], MP_Type)),
+  split(seq_len(nMP), paste0(round(100 * MPInfo$TACChange), '% TAC cap')),
+  split(seq_len(nMP), factor(paste0(MPInfo$FTarget, '%'), unique(paste0(MPInfo$FTarget, '%')[order(MPInfo$HCR)])))
 )
+if (length(unique(MPInfo$IndexSet)) > 1)
+  Slick::Preset(MPs_obj) <- c(Slick::Preset(MPs_obj),
+                              split(seq_len(nMP), paste('Indices:', IndexSetLabel[MPInfo$IndexSet])))
+if (length(Slick::Preset(MPs_obj)) > 10)
+  cli::cli_abort("The Slick app shows at most 10 MP presets.")
 
 # ---- Boxplot / Quilt ----
 Boxplot_obj <- Slick::Boxplot(Code = PM_Codes, Label = unname(PM_Label[PM_Codes]),
                               Description = unname(PM_Description[PM_Codes]),
                               Value = PM_Value)
 
-Prob01_Codes <- c('Safety', 'Safety_Short', 'Safety_Medium', 'Safety_Long', 'Status',
+Prob01_Codes <- c('Safety', 'Safety_Short', 'Safety_Medium', 'Safety_Long', 'Safety_NoBreach', 'Status', 'Status_SB',
                   paste0('Status_', StatusNames), 'Stability', 'NoChange', names(CatchRefYears),
                   'Kobe_Green')
 
@@ -313,11 +344,11 @@ Quilt_obj <- Slick::Quilt(Code = Quilt_Codes, Label = unname(PM_Label[Quilt_Code
                           Value = PM_Value[, , , Quilt_Codes, drop = FALSE],
                           MinValue = Quilt_MinValue, MaxValue = Quilt_MaxValue)
 
-non_windowed_PM <- c('Depletion_Min', 'AAVY', 'Stability')
+non_windowed_PM <- c('Depletion_Min', 'AAVY', 'Stability', 'Safety_NoBreach')
 
 WindowPreset <- function(Codes, Keep) {
   list(Summary    = match(intersect(Headline_Codes, Codes), Codes),
-       Status     = match(intersect(c('Status', 'FTarget_F', paste0('Status_', StatusNames),
+       Status     = match(intersect(c('Status', 'FTarget_F', 'Status_SB', paste0('Status_', StatusNames),
                                       paste0('FTarget_F_', StatusNames)), Codes), Codes),
        All        = seq_along(Codes),
        ShortTerm  = match(c(grep('_Short$',  Codes, value = TRUE), intersect(Keep, Codes)), Codes),
@@ -379,9 +410,11 @@ Kobe_obj <- Slick::Kobe(Code = c('SB_SBMSY', 'F_FMSY'),
 Introduction <- paste0("
 Preliminary results of the management strategy evaluation (MSE) for North Pacific swordfish, developed for the Northern Committee of the Western and Central Pacific Fisheries Commission (WCPFC).
 
-The operating models (OMs) are conditioned on the base case and sensitivity runs of the 2023 ISC stock assessment. The candidate management procedures (CMPs) are two index-based MPs (Index Rate and Index Target) and a model-based MP (Surplus Production), each with the six candidate harvest control rules (HCRs) of the Northern Committee (NC22 Summary Report, Attachment 7): F target = F40% with a threshold reference point (ThRP) of 35%, 30%, or 25% SB0 (HCRs 1-3), F35% with a ThRP of 30% or 25% SB0 (HCRs 4-5), and F30% with a ThRP of 25% SB0 (HCR 6), where SB0 is the equilibrium unfished spawning biomass. Below the limit reference point (LRP = 17% SB0), fishing is reduced to Fmin = F90%. Each CMP uses one of four sets of indices of abundance: the Japanese late longline CPUE (JPN), with the US shallow-set longline CPUE (JPN + US), with the Taiwanese longline CPUE (JPN + TWN), or all three (JPN + US + TWN). The TAC change between management cycles is limited to 10% or 20%. Each CMP was tuned in the base case OM to maximise mean catch subject to the Safety (probability of at least ", PI_Min[['Safety']], ") and Status (probability of at least ", PI_Min[['Status']], " that F is at or below the F target of its HCR) objectives.
+The operating models (OMs) are conditioned on the base case and sensitivity runs of the 2023 ISC stock assessment. The candidate management procedures (CMPs) are two index-based MPs (Index Rate and Index Target) and a model-based MP (Surplus Production), each with the six candidate harvest control rules (HCRs) of the Northern Committee (NC22 Summary Report, Attachment 7): F target = F40% with a threshold reference point (ThRP) of 35%, 30%, or 25% SB0 (HCRs 1-3), F35% with a ThRP of 30% or 25% SB0 (HCRs 4-5), and F30% with a ThRP of 25% SB0 (HCR 6), where SB0 is the equilibrium unfished spawning biomass. Below the limit reference point (LRP = 17% SB0), fishing is reduced to Fmin = F90%. The CMPs use the indices of abundance of all three fleets: the Japanese late longline CPUE (Areas 1 and 2), the US shallow-set longline CPUE, and the Taiwanese longline CPUE (JPN + US + TWN). CMPs with the Japanese CPUE alone, or with the US or the Taiwanese CPUE, were also evaluated; their performance differed little from the CMPs shown here. The TAC change between management cycles is limited to 10% or 20%. Each CMP was tuned in the base case OM to maximise mean catch subject to the Safety (probability of at least ", PI_Min[['Safety']], " that spawning biomass is above the LRP) and Status (probability of at least ", PI_Min[['Status']], " that F is at or below the F target of its HCR) objectives; the Status objective limited the catch of every CMP.
 
-The performance indicators of the candidate management objectives are: Safety, the probability that spawning biomass remains above the LRP in every year of the projection period; Status, the probability that F is at or below the F target of the HCR (Status is also reported against each candidate target reference point, F40%, F35%, and F30%); Stability, the probability that the TAC changes by no more than 10% between management cycles; the probability of no management change (the TAC changes by no more than 1% between management cycles); and Yield, the probability that the annual catch is at least the mean 2008-2010 catch, and the mean 2016-2021 catch.
+Preset buttons select the CMPs of each MP type, TAC change limit (cap), and F target, and the OMs of each group of sensitivities (with the base case). The base case OM is selected by default.
+
+The performance indicators of the candidate management objectives are: Safety, the probability that spawning biomass is above the LRP in any given year of the projection period (the probability that it remains above the LRP in every year is also reported); Status, the probability that F is at or below the F target of the HCR (Status is also reported against each candidate target reference point, F40%, F35%, and F30%), and the probability that spawning biomass is above the threshold reference point of the HCR; Stability, the probability that the TAC changes by no more than 10% between management cycles; the probability of no management change (the TAC changes by no more than 1% between management cycles); and Yield, the probability that the annual catch is at least the mean 2008-2010 catch, and the mean 2016-2021 catch.
 
 **These results are preliminary and do not necessarily reflect the views of the WCPFC or its members.**
 ")
@@ -451,7 +484,7 @@ Quilt_Primary_Codes  <- intersect(Headline_Codes, Quilt_Codes)
 Quilt_Extended_Codes <- c(Quilt_Primary_Codes,
                           paste0('Status_', StatusNames),
                           'Yield_Short', 'Yield_Medium', 'Yield_Long',
-                          'Safety_Short', 'Safety_Medium', 'Safety_Long',
+                          'Safety_Short', 'Safety_Medium', 'Safety_Long', 'Safety_NoBreach',
                           'Depletion_All', 'Depletion_Long')
 
 Save_Quilt_Table <- function(pi_codes, om_idx, file_stub) {

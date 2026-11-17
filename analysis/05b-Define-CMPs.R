@@ -33,7 +33,7 @@ FTarget_FMSY <- lapply(stats::setNames(FTargetSPRs, FLabel(FTargetSPRs)),
                        \(SPR) Calc_FTarget_FMSY(Hist, SPR = SPR))
 
 # ---- Indices ----
-# Index sets of the index-based MPs (IR, IT): the Japanese late longline CPUE
+# Index sets of all CMPs (IR, IT, SP): the Japanese late longline CPUE
 # (Areas 1 and 2) alone and with the US shallow-set (S8) and/or Taiwanese (S5)
 # longline CPUE. S6 is a recruitment index. S5 and S8 have lambda = 0 in the
 # base case assessment
@@ -45,6 +45,12 @@ IndexSets <- list(JPN    = c('S2_JPN_WCNPO_OSDWCOLL_late_Area1', 'S4_JPN_WCNPO_O
                   All    = c('S2_JPN_WCNPO_OSDWCOLL_late_Area1', 'S4_JPN_WCNPO_OSDWLL_late_Area2',
                              'S5_TWN_WCNPO_DWLL_late', 'S8_US_WCNPO_LL_shallow_late'))
 IndexSetLabel <- c(JPN = 'JPN', JPNUS = 'JPN + US', JPNTWN = 'JPN + TWN', All = 'JPN + US + TWN')
+
+# Index set(s) of the CMPs. All four sets were tested (144 CMPs); the index set
+# made little difference to the performance of the IR and SP CMPs (mean catch
+# within 2% across the sets for 90% of CMP x OM combinations), so only the set
+# with all the indices is kept (36 CMPs)
+CMPIndexSets <- 'All'
 
 MPIndices <- function(MP, IndexSet) IndexSets[[IndexSet]]
 
@@ -111,14 +117,25 @@ dir.create(TuneDir, showWarnings = FALSE)
 # PM_Removals sums catch to calendar years, so its Mean is the mean annual catch
 Objective <- MSEtool::TuneObjective(MSEtool::PM_Removals, Name = 'MeanCatch')
 
-# Candidate management objectives: Safety, P(SB > LRP in every year) >= PSafety,
-# and Status, P(F <= F target of the HCR) >= PStatus
+# Candidate management objectives (Table 1 of the candidate inputs): Safety,
+# P(SB > LRP) in any given year >= PSafety, and Status, P(F <= F target of the
+# HCR) >= PStatus
 TuneConstraints <- function(FTargetSPR) {
   list(
-    MSEtool::TuneConstraint(PM_SafetyNoBreach, Lim = LRP, Min = PSafety, Name = 'Safety'),
+    MSEtool::TuneConstraint(PM_SafetyLRP, Lim = LRP, Min = PSafety, Name = 'Safety'),
     MSEtool::TuneConstraint(PM_StatusF, FTarget_FMSY = FTarget_FMSY[[FLabel(FTargetSPR)]],
                             Min = PStatus, Name = 'Status')
   )
+}
+
+# The CMPs were first tuned with the stricter Safety constraint P(SB > LRP in
+# every year) >= PSafety (PM_SafetyNoBreach). A saved result tuned with it is
+# kept if Status limited the tuning (StatusBound()), as it is then also the
+# result with the PM_SafetyLRP constraint
+TuneConstraintsNoBreach <- function(FTargetSPR) {
+  Cons <- TuneConstraints(FTargetSPR)
+  Cons[[1]] <- MSEtool::TuneConstraint(PM_SafetyNoBreach, Lim = LRP, Min = PSafety, Name = 'Safety')
+  Cons
 }
 
 TuneInterval <- c(0.25, 4)  # initial range of tunepar
@@ -137,17 +154,40 @@ MetricSpec <- function(Metrics) {
                             Args = m$Args, PM = deparse(body(m$PM))))
 }
 TuneSpec <- function(FTargetSPR) MetricSpec(c(list(Objective), TuneConstraints(FTargetSPR)))
+TuneSpecNoBreach <- function(FTargetSPR) MetricSpec(c(list(Objective), TuneConstraintsNoBreach(FTargetSPR)))
 
 # TuneMP records a failed projection as infeasible without the error
 AllFailed <- function(Tuned) all(Tuned@History$FailRate >= 1)
 
+# Status limited the tuning: Status fails at the closest larger tunepar tried,
+# and Safety is not binding at the tuned tunepar (more than 0.01 above
+# PSafety), so a weaker Safety constraint gives the same result
+StatusBound <- function(Tuned) {
+  h   <- Tuned@History[Tuned@History$Stage == 'Tune', ]
+  tp  <- Tuned@Args$tunepar
+  up  <- h[h$x > tp * (1 + 1e-9), ]
+  at  <- h[abs(h$x - tp) <= tp * 1e-9, ]
+  nrow(up) > 0 && nrow(at) > 0 && up$Status[which.min(up$x)] < PStatus &&
+    at$Safety[1] > PSafety + 0.01
+}
+
+# The Safety PI (Calc_PM_Stats()) of the Safety constraint of a saved result
+# that is current: 'Safety', or 'Safety_NoBreach' if tuned with PM_SafetyNoBreach
+TunedSafetyPI <- function(Tuned, i) {
+  if (isTRUE(all.equal(MetricSpec(Tuned@Settings$Metrics), TuneSpec(CMPs$FTargetSPR[i]), tolerance = 1e-8)))
+    'Safety' else 'Safety_NoBreach'
+}
+
 # A saved result is current if its MP settings and tuning specification match
-# those of CMP i. Compared with a numerical tolerance, as values derived from
+# those of CMP i (or it was tuned with PM_SafetyNoBreach and Status limited the
+# tuning). Compared with a numerical tolerance, as values derived from
 # reference points (e.g. FminRatio) can differ in the last digits between machines
 IsCurrent <- function(Tuned, i) {
+  Spec <- MetricSpec(Tuned@Settings$Metrics)
   isTRUE(all.equal(MPSettings(Tuned@MP), MPSettings(CMPs$Fn[[i]]), tolerance = 1e-8)) &&
-    isTRUE(all.equal(MetricSpec(Tuned@Settings$Metrics), TuneSpec(CMPs$FTargetSPR[i]),
-                     tolerance = 1e-8)) &&
+    (isTRUE(all.equal(Spec, TuneSpec(CMPs$FTargetSPR[i]), tolerance = 1e-8)) ||
+       (isTRUE(all.equal(Spec, TuneSpecNoBreach(CMPs$FTargetSPR[i]), tolerance = 1e-8)) &&
+          StatusBound(Tuned))) &&
     !AllFailed(Tuned)
 }
 
@@ -157,7 +197,7 @@ IsCurrent <- function(Tuned, i) {
 # defaults until then. Selected with ConfigCMP
 ConfigCandidates <- list(IR = list(RecentYears = c(1, 3), Smooth = c(TRUE, FALSE)),
                          IT = list(RecentYears = c(1, 3), Smooth = c(TRUE, FALSE)))
-ConfigCMP <- list(HCR = 2, IndexSet = 'JPN', TACChange = 0.1)
+ConfigCMP <- list(HCR = 2, IndexSet = 'All', TACChange = 0.1)
 
 ConfigsFile     <- file.path(TuneDir, 'Configs.rds')
 SelectedConfigs <- if (file.exists(ConfigsFile)) readRDS(ConfigsFile) else list()
@@ -209,8 +249,8 @@ MakeCMP <- function(MP, HCR, IndexSet, TACChange, Config = SelectedConfigs[[MP]]
   do.call(MSEtool::SetMPArgs, c(Base, list(DeltaDown = Delta, DeltaUp = Delta), ConfigArgs(MP, HCR, Config)))
 }
 
-# Each MP with each HCR, index set, and TAC change limit
-CMPs <- expand.grid(MP = c('IR', 'IT', 'SP'), IndexSet = names(IndexSets), HCR = HCRs$HCR,
+# Each MP with each HCR, index set in CMPIndexSets, and TAC change limit
+CMPs <- expand.grid(MP = c('IR', 'IT', 'SP'), IndexSet = CMPIndexSets, HCR = HCRs$HCR,
                     TACChange = TACChange, stringsAsFactors = FALSE)
 CMPs <- CMPs[order(CMPs$TACChange, CMPs$HCR, match(CMPs$IndexSet, names(IndexSets)),
                    match(CMPs$MP, c('IR', 'IT', 'SP'))), ]

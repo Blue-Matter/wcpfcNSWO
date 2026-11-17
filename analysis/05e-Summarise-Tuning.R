@@ -20,6 +20,9 @@ Summary <- CMPs[IsDone, c('Name', 'MP', 'HCR', 'FTargetSPR', 'ThRP', 'IndexSet',
 Summary$tunepar    <- vapply(Tuned[IsDone], \(x) x@Args$tunepar, numeric(1))
 Summary$TuneStatus <- vapply(Tuned[IsDone], \(x) x@Status, character(1))
 Summary[[Objective$Name]] <- vapply(Tuned[IsDone], \(x) x@Objective, numeric(1))
+# PI of the Safety constraint: 'Safety' (PM_SafetyLRP), or 'Safety_NoBreach' for
+# results tuned with PM_SafetyNoBreach and kept (see IsCurrent())
+Summary$SafetyPI <- vapply(which(IsDone), \(i) TunedSafetyPI(Tuned[[i]], i), character(1))
 for (nm in c('Safety', 'Status'))
   Summary[[nm]] <- vapply(Tuned[IsDone], \(x) {
     Tab <- MSEtool::TuneTable(x, 'Constraints')

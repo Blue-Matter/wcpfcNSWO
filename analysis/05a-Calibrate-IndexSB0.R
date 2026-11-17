@@ -3,14 +3,6 @@
 # the projection, where the HCR operates, and the HCR control points are in
 # units of SB/SB0.
 #
-# Calibrated on the historical years, IndexSB0 gave a CMP status of only ~0.77 x
-# OM SB/SB0 in the projection (all HCRs): the
-# projected indices sit lower relative to SB/SB0 than the historical indices, as
-# SB grows faster than the biomass the indices track. So IndexSB0 is calibrated
-# on a reference projection of the base case OM with a constant catch (MSEtool
-# CurrentCatch), which does not depend on any CMP or its tuning:
-#
-#   IndexSB0_j = median over sims of [mean index_j / mean SB/SB0], CalibYears
 #
 # Calculated once, from the base case OM, and used, as MP arguments, with every
 # OM. Saved to objects/IndexSB0.rds, read by 05b-Define-CMPs.R

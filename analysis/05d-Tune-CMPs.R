@@ -1,5 +1,5 @@
 # Tune the candidate management procedures for the base case OM: maximise
-# catch subject to the Safety (P(SB > LRP in every year) >= PSafety) and
+# catch subject to the Safety (P(SB > LRP) in any given year >= PSafety) and
 # Status (P(F <= F target of the HCR) >= PStatus) constraints. Run
 # 05c-Select-Configs.R first to select the MP settings not set by tuning
 #
@@ -12,11 +12,12 @@ source('analysis/05b-Define-CMPs.R')
 
 HistFile <- normalizePath('objects/Hist/00.hist')
 
-nBatch    <- 2         # number of batches (machines)
-Batch     <- 1         # batch tuned on this machine; NULL for all CMPs
+nBatch    <- 3         # number of batches (machines)
+Batch     <- 2         # batch tuned on this machine; NULL for all CMPs
 Overwrite <- FALSE     # re-tune CMPs with a current saved result
 DryRun    <- FALSE     # only estimate the number of projections and run time
-nWorkers  <- 10        # CMPs are tuned in parallel, one per worker; each needs ~8-10 GB of RAM
+nWorkers  <- 10        # number of CMPs tuned at once, one per worker (each tuning runs sequentially
+                       # in its worker); set by RAM (~8-10 GB per worker) and physical cores
 
 Control <- MSEtool::TuneControl(Interval = TuneInterval, DryRun = DryRun)
 
