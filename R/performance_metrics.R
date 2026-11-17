@@ -107,14 +107,22 @@ Extract_MSE_Timeseries <- function(MSE, Stock = 'Female', FTarget_FMSY = NULL) {
 #' middle, and last 10 years). The PIs of the candidate management objectives
 #' (Table 1 of the MSE specifications):
 #'
-#' - `Safety`, `Safety_*`: probability that SB > `Lim` SB0 in every year,
-#'   i.e. a simulation that falls below the LRP in any year is a breach.
+#' - `Safety`, `Safety_*`: probability that SB > `Lim` SB0 in any given year
+#'   (proportion of years), as specified in Table 1 of the candidate inputs
+#'   (NC22 Summary Report, Attachment 7).
+#' - `Safety_NoBreach`: probability that SB > `Lim` SB0 in every year, i.e. a
+#'   simulation that falls below the LRP in any year is a breach.
 #' - `Status`: probability that F <= F target (proportion of years), and
 #'   `FTarget_F`: median F target / F, with the F target of each MP
 #'   (`MPFTarget`), or the single F target in `TS` (`F_FTarget`).
 #' - `Status_<name>`, `FTarget_F_<name>` (e.g. `Status_F40`): the same for
 #'   each F target in `TS` (`F_<name>`; see [Extract_MSE_Timeseries()]), for
 #'   every MP.
+#' - `Status_SB`: probability that SB > the threshold reference point of each
+#'   MP (`MPThRP`, a fraction of SB0) in any given year (proportion of years).
+#'
+#' F and SB are the true values in the OM, not the MP's estimates; the F
+#' target and threshold of each MP are those of its HCR.
 #' - `Stability`: probability that the TAC changes by no more than
 #'   `StabilityThreshold` between management cycles.
 #' - `NoChange`: probability of no management change, i.e. that the TAC
@@ -145,6 +153,8 @@ Extract_MSE_Timeseries <- function(MSE, Stock = 'Female', FTarget_FMSY = NULL) {
 #' @param MPFTarget Optional named character vector: the name of the F target
 #'   in `FTarget_FMSY` of each MP (e.g. `c(IR_H1 = 'F40')`), for `Status` and
 #'   `FTarget_F`.
+#' @param MPThRP Optional named numeric vector: the threshold reference point
+#'   (fraction of SB0) of each MP (e.g. `c(IR_H1 = 0.35)`), for `Status_SB`.
 #' @param CatchRefYears Historical years of the reference catch: a numeric
 #'   vector (`Yield_Hist`) or a named list of them, one PI per element (e.g.
 #'   `list(Yield_Hist = 2008:2010, Yield_Recent = 2016:2021)`).
@@ -154,7 +164,7 @@ Extract_MSE_Timeseries <- function(MSE, Stock = 'Female', FTarget_FMSY = NULL) {
 #' @returns A `data.frame` with columns `PI`, `MP`, `Sim`, and `Value`.
 #' @export
 Calc_PM_Stats <- function(MSE, Lim = 0.17, StabilityThreshold = 0.1, NoChangeThreshold = 0.01,
-                          FTarget_FMSY = NULL, MPFTarget = NULL, CatchRefYears = 2008:2010,
+                          FTarget_FMSY = NULL, MPFTarget = NULL, MPThRP = NULL, CatchRefYears = 2008:2010,
                           TS = Extract_MSE_Timeseries(MSE, FTarget_FMSY = FTarget_FMSY)) {
   if (!is.list(CatchRefYears)) CatchRefYears <- list(Yield_Hist = CatchRefYears)
   CatchRef <- vapply(CatchRefYears, \(yrs)
@@ -185,7 +195,8 @@ Calc_PM_Stats <- function(MSE, Lim = 0.17, StabilityThreshold = 0.1, NoChangeThr
   Windows <- c(All = 'all', Short = 'short', Medium = 'medium', Long = 'long')
   for (w in names(Windows))
     Add(if (w == 'All') 'Safety' else paste0('Safety_', w),
-        PerSim('SB_SB0', \(x) as.numeric(all(x > Lim)), Windows[[w]]))
+        PerSim('SB_SB0', \(x) mean(x > Lim), Windows[[w]]))
+  Add('Safety_NoBreach', PerSim('SB_SB0', \(x) as.numeric(all(x > Lim))))
 
   StatusFUN    <- \(x) mean(x <= 1)
   FTargetFFUN  <- \(x) stats::median(1 / x)
@@ -214,6 +225,14 @@ Calc_PM_Stats <- function(MSE, Lim = 0.17, StabilityThreshold = 0.1, NoChangeThr
   for (nm in FTargetNames) {
     Add(paste0('Status_', nm), PerSim(paste0('F_', nm), StatusFUN))
     Add(paste0('FTarget_F_', nm), PerSim(paste0('F_', nm), FTargetFFUN))
+  }
+
+  # SB above the threshold reference point of each MP
+  if (!is.null(MPThRP)) {
+    MPThRP <- MPThRP[intersect(names(MPThRP), unique(TS$MP))]
+    d <- TS[TS$Variable == 'SB_SB0' & TS$MP %in% names(MPThRP) & TS$Year %in% Years, ]
+    d$Value <- as.numeric(d$Value > MPThRP[d$MP])
+    Add('Status_SB', stats::aggregate(Value ~ Sim + MP, data = d, FUN = mean))
   }
 
   Add('Stability', FromPM(MSEtool::PM_Stability(MSE, Threshold = StabilityThreshold, Type = 'TAC')@Prob, 1))
