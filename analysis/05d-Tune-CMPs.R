@@ -16,7 +16,7 @@ nBatch    <- 2         # number of batches (machines)
 Batch     <- 2         # batch tuned on this machine; NULL for all CMPs
 Overwrite <- FALSE     # re-tune CMPs with a current saved result
 DryRun    <- FALSE     # only estimate the number of projections and run time
-nWorkers  <- 10        # number of CMPs tuned at once, one per worker (each tuning runs sequentially
+nWorkers  <- 9        # number of CMPs tuned at once, one per worker (each tuning runs sequentially
                        # in its worker); set by RAM (~8-10 GB per worker) and physical cores
 
 Control <- MSEtool::TuneControl(Interval = TuneInterval, DryRun = DryRun)
