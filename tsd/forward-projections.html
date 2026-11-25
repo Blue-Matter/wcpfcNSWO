@@ -170,6 +170,12 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./results.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Presentation of Results</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./references.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">References</span></a>
   </div>
@@ -303,7 +309,7 @@ Table&nbsp;3.1: The management interval and data lag used in the North Pacific s
 <div class="cell">
 <div id="tbl-interim-advice" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure"><figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-interim-advice-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;3.2: The mean, CV, and maximum of the total catch (t, all fleets) in the initial projection years for the base case OM. The total catch combines reported catches (fixed) and assumed catches (random) of the individual fleets.
+Table&nbsp;3.2: The mean, CV, and maximum of the total catch (t, all fleets) in the initial projection years for the Base Case OM. The total catch combines reported catches (fixed) and assumed catches (random) of the individual fleets.
 </figcaption><div aria-describedby="tbl-interim-advice-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
 <table class="cell caption-top table table-sm table-striped small">
@@ -330,7 +336,7 @@ Table&nbsp;3.2: The mean, CV, and maximum of the total catch (t, all fleets) in 
 <td style="text-align: left;">2024</td>
 <td style="text-align: right;">10,479</td>
 <td style="text-align: right;">0.060</td>
-<td style="text-align: right;">13,275</td>
+<td style="text-align: right;">13,276</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">2025</td>
@@ -342,13 +348,13 @@ Table&nbsp;3.2: The mean, CV, and maximum of the total catch (t, all fleets) in 
 <td style="text-align: left;">2026</td>
 <td style="text-align: right;">10,744</td>
 <td style="text-align: right;">0.065</td>
-<td style="text-align: right;">16,437</td>
+<td style="text-align: right;">16,438</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">2027</td>
 <td style="text-align: right;">10,744</td>
 <td style="text-align: right;">0.065</td>
-<td style="text-align: right;">16,437</td>
+<td style="text-align: right;">16,438</td>
 </tr>
 </tbody>
 </table>
@@ -368,7 +374,7 @@ Table&nbsp;3.2: The mean, CV, and maximum of the total catch (t, all fleets) in 
 </div>
 <div class="callout-body-container callout-body">
 <p>As shown in <a href="#tbl-mgmt-schedule" class="quarto-xref">Table&nbsp;<span>3.1</span></a>, the 2028 TAC is calculated in 2027 using data up to 2025. The simulated catch and index data for 2022–2025 are therefore used by the CMPs to calculate the 2028 TAC.</p>
-<p>When the real data for these years become available, they can replace the simulated values without requiring any change to the MSE framework (although the CMPs may need to be re-tuned; see <a href="management-procedures.html#sec-tuning-methodology" class="quarto-xref"><span>Section 5.7</span></a>).</p>
+<p>When the real data for these years become available, they can replace the simulated values without requiring any change to the MSE framework (although the CMPs may need to be re-tuned; see <a href="management-procedures.html#sec-tuning-methodology" class="quarto-xref"><span>Section 5.6</span></a>).</p>
 </div>
 </div>
 </section><section id="recruitment-deviations" class="level2" data-number="3.3"><h2 data-number="3.3" class="anchored" data-anchor-id="recruitment-deviations">
@@ -384,80 +390,76 @@ x_y = \rho\, x_{y-1} + \varepsilon_y \sqrt{1-\rho^2}
 \text{RecDev}_y = \exp(x_y)
 \]</span></p>
 <p>where <span class="math inline">\(\sigma_R\)</span> is the recruitment deviation standard deviation, <span class="math inline">\(\rho\)</span> is the lag-1 autocorrelation, and <span class="math inline">\(\mu = -0.5\sigma_R^2(1-\rho)/\sqrt{1-\rho^2}\)</span> is a bias-correction term so that <span class="math inline">\(E[\text{RecDev}_y] = 1\)</span> on the natural scale. Deviations are truncated at <span class="math inline">\(\pm 3\sigma_R\)</span> (on the log scale).</p>
-<p><span class="math inline">\(\sigma_R\)</span> and <span class="math inline">\(\rho\)</span> are calculated for each OM from its historical recruitment deviations, estimated in the corresponding SS3 run, where <span class="math inline">\(\sigma_R\)</span> is the standard deviation and <span class="math inline">\(\rho\)</span> the lag-1 autocorrelation of the log recruitment deviations (<a href="#tbl-recdev-pars" class="quarto-xref">Table&nbsp;<span>3.3</span></a>).</p>
-<p>Only the years in which the recruitment deviations are informed by the data are used (1996–2020), because the deviations in the early and final years are shrunk toward zero and would underestimate the variability.</p>
-<p>The resulting <span class="math inline">\(\sigma_R\)</span> (0.17 in the base case) is lower than the value assumed in the assessment (0.42), so the projected recruitment is less variable than the assessment’s prior assumption.</p>
+<p><span class="math inline">\(\sigma_R\)</span> and <span class="math inline">\(\rho\)</span> are calculated for each OM from the recruitment deviations estimated in the corresponding SS3 run (<a href="#tbl-recdev-pars" class="quarto-xref">Table&nbsp;<span>3.3</span></a>).</p>
+<p><span class="math inline">\(\sigma_R\)</span> is calculated from the main-period recruitment deviations (1985–2021). In the assessment, the recruitment deviations are estimated with a penalty that shrinks them toward zero, with a fixed standard deviation (the penalty <span class="math inline">\(\sigma_R\)</span>) of 0.42 that sets how strongly the deviations are shrunk. Deviations that are poorly informed by the data are shrunk more, so the standard deviation of the estimated deviations underestimates the variability of recruitment. Following <span class="citation" data-cites="methot2011">Methot and Taylor (2011)</span>, <span class="math inline">\(\sigma_R\)</span> is therefore corrected for this shrinkage by adding the mean of the squared standard errors of the estimated deviations to their variance: <span class="math inline">\(\sigma_R = \sqrt{\operatorname{var}(\hat{\varepsilon}) + \overline{\text{SE}^2}}\)</span>. In the Base Case, the correction increases <span class="math inline">\(\sigma_R\)</span> from 0.18 (the standard deviation of the estimated deviations) to 0.25.</p>
+<p><span class="math inline">\(\rho\)</span> is the lag-1 autocorrelation of the log recruitment deviations in the years in which they are fully informed by the data, i.e., the years with full bias adjustment in the assessment (1996–2020).</p>
 <div class="cell">
 <div id="tbl-recdev-pars" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure"><figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-recdev-pars-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;3.3: The standard deviation (<span class="math inline">\(\sigma_R\)</span>) and lag-1 autocorrelation (<span class="math inline">\(\rho\)</span>) of the recruitment deviations used in the projections for each OM, calculated from the historical recruitment deviations estimated in the corresponding SS3 run, and the <span class="math inline">\(\sigma_R\)</span> assumed in the assessment.
+Table&nbsp;3.3: The standard deviation (<span class="math inline">\(\sigma_R\)</span>, shrinkage-corrected) and lag-1 autocorrelation (<span class="math inline">\(\rho\)</span>) of the log recruitment deviations used in the projections for each OM.
 </figcaption><div aria-describedby="tbl-recdev-pars-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
 <table class="cell caption-top table table-sm table-striped small">
-<colgroup>
-<col style="width: 40%">
-<col style="width: 12%">
-<col style="width: 12%">
-<col style="width: 8%">
-<col style="width: 25%">
-</colgroup>
 <thead><tr class="header">
 <th style="text-align: left;">OM</th>
-<th style="text-align: left;">Years</th>
 <th style="text-align: right;"><span class="math inline">\(\sigma_R\)</span></th>
 <th style="text-align: right;"><span class="math inline">\(\rho\)</span></th>
-<th style="text-align: right;">Assessment <span class="math inline">\(\sigma_R\)</span>
-</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">00: Base Case</td>
-<td style="text-align: left;">1996–2020</td>
-<td style="text-align: right;">0.17</td>
+<td style="text-align: right;">0.25</td>
 <td style="text-align: right;">0.35</td>
-<td style="text-align: right;">0.42</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">01: M 10% lower</td>
-<td style="text-align: left;">1996–2020</td>
-<td style="text-align: right;">0.17</td>
+<td style="text-align: right;">0.25</td>
 <td style="text-align: right;">0.35</td>
-<td style="text-align: right;">0.42</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">02: M 10% higher</td>
-<td style="text-align: left;">1996–2020</td>
-<td style="text-align: right;">0.17</td>
+<td style="text-align: right;">0.25</td>
 <td style="text-align: right;">0.34</td>
-<td style="text-align: right;">0.42</td>
 </tr>
 <tr class="even">
+<td style="text-align: left;">03: Steepness 0.70</td>
+<td style="text-align: right;">0.26</td>
+<td style="text-align: right;">0.38</td>
+</tr>
+<tr class="odd">
 <td style="text-align: left;">04: Steepness 0.81</td>
-<td style="text-align: left;">1996–2020</td>
-<td style="text-align: right;">0.17</td>
+<td style="text-align: right;">0.25</td>
 <td style="text-align: right;">0.36</td>
-<td style="text-align: right;">0.42</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">07: Growth from Sun et al.&nbsp;(2002)</td>
-<td style="text-align: left;">1996–2020</td>
-<td style="text-align: right;">0.18</td>
-<td style="text-align: right;">0.34</td>
-<td style="text-align: right;">0.42</td>
 </tr>
 <tr class="even">
+<td style="text-align: left;">07: Growth from Sun et al.&nbsp;(2002)</td>
+<td style="text-align: right;">0.26</td>
+<td style="text-align: right;">0.34</td>
+</tr>
+<tr class="odd">
 <td style="text-align: left;">08: L50 10% higher</td>
-<td style="text-align: left;">1996–2020</td>
-<td style="text-align: right;">0.17</td>
+<td style="text-align: right;">0.25</td>
 <td style="text-align: right;">0.35</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">09: L50 10% lower</td>
+<td style="text-align: right;">0.25</td>
+<td style="text-align: right;">0.35</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">10: L50 from Wang et al.&nbsp;(2003)</td>
+<td style="text-align: right;">0.25</td>
+<td style="text-align: right;">0.35</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">20a: Effort creep 1% per year in the indices</td>
+<td style="text-align: right;">0.26</td>
 <td style="text-align: right;">0.42</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">09: L50 10% lower</td>
-<td style="text-align: left;">1996–2020</td>
-<td style="text-align: right;">0.17</td>
-<td style="text-align: right;">0.35</td>
-<td style="text-align: right;">0.42</td>
+<td style="text-align: left;">20b: Effort creep 2% per year in the indices</td>
+<td style="text-align: right;">0.28</td>
+<td style="text-align: right;">0.51</td>
 </tr>
 </tbody>
 </table>
@@ -469,9 +471,9 @@ Table&nbsp;3.3: The standard deviation (<span class="math inline">\(\sigma_R\)</
 </section><section id="observation-error-for-simulated-data" class="level2" data-number="3.4"><h2 data-number="3.4" class="anchored" data-anchor-id="observation-error-for-simulated-data">
 <span class="header-section-number">3.4</span> Observation Error for Simulated Data</h2>
 <p>The data used by the CMPs (catches and CPUE indices) are simulated from the OM with multiplicative observation error.</p>
-<p>For catch, the observation error is conditioned on the historical fit between the OM catch and the catch data. The catch in the OMs matches the catch data closely (<a href="operating-models.html#sec-om-conditioning" class="quarto-xref"><span>Section 2.1</span></a>), so the catch data provided to the CMPs match the catches in the OM.</p>
+<p>For catch, the observation error is conditioned on the historical fit between the OM catch and the catch data. The catch in the OMs matches the catch data, so the catch data provided to the CMPs match the catches in the OM (i.e., there is no observation error on the catches).</p>
 <p>For the CPUE indices, the observation error is conditioned on the residuals between the observed index and the corresponding vulnerable abundance in the OM, including the lag-1 autocorrelation of the residuals. The index observation error in the projection period follows the same truncated, autocorrelated log-normal process described above for the recruitment deviations, continuing from the last historical residual. All indices are assumed to be proportional to vulnerable abundance (i.e., no hyperstability or hyperdepletion).</p>
-<p>Indices are simulated in the projection period only if they have data at the end of the historical period. <a href="#tbl-indexobserror" class="quarto-xref">Table&nbsp;<span>3.4</span></a> shows the standard deviation and lag-1 autocorrelation of the observation error for these indices in the base case OM. The conditioned values vary among the OMs, since each OM is conditioned on its own historical fit.</p>
+<p>Indices are simulated in the projection period only if they have data at the end of the historical period. <a href="#tbl-indexobserror" class="quarto-xref">Table&nbsp;<span>3.4</span></a> shows the standard deviation and lag-1 autocorrelation of the observation error for these indices in the Base Case OM. The conditioned values vary among the OMs, since each OM is conditioned on its own historical fit.</p>
 <div class="cell">
 <div id="tbl-indexobserror" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure"><figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-indexobserror-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">

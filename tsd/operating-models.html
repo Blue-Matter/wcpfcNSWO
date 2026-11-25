@@ -44,7 +44,10 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="site_libs/bootstrap/bootstrap-a55b41f70a3cc1b3f7c96c7da63be89b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
 <link href="site_libs/bootstrap/bootstrap-dark-a55b41f70a3cc1b3f7c96c7da63be89b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-a55b41f70a3cc1b3f7c96c7da63be89b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light"><script id="quarto-search-options" type="application/json">{
+<link href="site_libs/bootstrap/bootstrap-a55b41f70a3cc1b3f7c96c7da63be89b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script src="site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
   "collapse-after": 3,
@@ -171,6 +174,12 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./results.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Presentation of Results</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./references.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">References</span></a>
   </div>
@@ -194,8 +203,7 @@ window.Quarto = {
   <li>
 <a href="#sec-om-sensitivities" id="toc-sec-om-sensitivities" class="nav-link" data-scroll-target="#sec-om-sensitivities"><span class="header-section-number">2.2</span> Base Case and Sensitivity OMs</a>
   <ul class="collapse">
-<li><a href="#oms-included-in-the-mse" id="toc-oms-included-in-the-mse" class="nav-link" data-scroll-target="#oms-included-in-the-mse"><span class="header-section-number">2.2.1</span> OMs Included in the MSE</a></li>
-  <li><a href="#estimates-of-stock-status" id="toc-estimates-of-stock-status" class="nav-link" data-scroll-target="#estimates-of-stock-status"><span class="header-section-number">2.2.2</span> Estimates of Stock Status</a></li>
+<li><a href="#effort-creep-oms" id="toc-effort-creep-oms" class="nav-link" data-scroll-target="#effort-creep-oms"><span class="header-section-number">2.2.1</span> Effort Creep OMs</a></li>
   </ul>
 </li>
   </ul></nav>
@@ -219,64 +227,62 @@ window.Quarto = {
 </header><section id="sec-om-conditioning" class="level2" data-number="2.1"><h2 data-number="2.1" class="anchored" data-anchor-id="sec-om-conditioning">
 <span class="header-section-number">2.1</span> OM Conditioning</h2>
 <p>The 2023 ISC stock assessment of North Pacific swordfish, which was fitted with Stock Synthesis 3 (SS3; <span class="citation" data-cites="methot2013">Methot and Wetzel (2013)</span>), was used to generate the operating models (OMs).</p>
-<p>The assessment is a two-sex model with 4 quarterly time steps per year, covering 1975–2021. It includes 19 fishing fleets and 8 CPUE indices (<a href="#fig-assess-data" class="quarto-xref">Figure&nbsp;<span>2.1</span></a>; <a href="#tbl-indices" class="quarto-xref">Table&nbsp;<span>2.1</span></a>). Steepness of the Beverton-Holt stock-recruitment relationship is fixed at 0.9. See the <a href="https://isc.fra.go.jp/pdf/ISC23/ISC23_ANNEX11-Stock_Assessment_Report_for_North_Pacific_Ocean_Swordfish_FINAL.pdf">assessment report</a> for further details on the assessment structure and assumptions.</p>
-<p>The OMs were constructed by importing the SS3 output of each assessment run, available from the <a href="https://github.com/noaa-pifsc/WCNPOSWO-2023">WCNPOSWO-2023 repository</a>, into the North Pacific swordfish MSE framework.</p>
+<p>The assessment is a two-sex model with 4 quarterly time steps per year, covering 1975–2021. It includes 19 fishing fleets and 8 CPUE indices (<a href="#fig-assess-data" class="quarto-xref">Figure&nbsp;<span>2.1</span></a>; <a href="#tbl-indices" class="quarto-xref">Table&nbsp;<span>2.1</span></a>). See the <a href="https://isc.fra.go.jp/pdf/ISC23/ISC23_ANNEX11-Stock_Assessment_Report_for_North_Pacific_Ocean_Swordfish_FINAL.pdf">assessment report</a> for further details on the assessment structure and assumptions.</p>
+<p>The OMs were constructed by importing the SS3 output of each assessment run into the North Pacific swordfish MSE framework. The SS3 input files of the assessment runs are available from the <a href="https://github.com/noaa-pifsc/WCNPOSWO-2023">WCNPOSWO-2023 repository</a>.</p>
+<p>The assessment runs were fitted with SS3 version 3.30.20.00, which has a bug in the calculation of spawning biomass. All runs were therefore re-run with SS3 version 3.30.23.1, using the original input files, and the OMs were constructed from the output of the re-run models. With the bug fixed, the unfished spawning biomass (<span class="math inline">\(SB_0\)</span>) is calculated correctly; in the Base Case, <span class="math inline">\(SB_0\)</span> is 105,070 t, compared with 99,808 t in the original assessment run.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div id="fig-assess-data" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-assess-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="operating-models_files/figure-html/fig-assess-data-1.png" class="img-fluid figure-img" width="672">
+<a href="operating-models_files/figure-html/fig-assess-data-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure&nbsp;2.1: Overview of the data used in the 2023 Base Case stock assessment."><img src="operating-models_files/figure-html/fig-assess-data-1.png" class="img-fluid figure-img" width="672"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-assess-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2.1: Overview of the data used in the 2023 base case stock assessment.
+Figure&nbsp;2.1: Overview of the data used in the 2023 Base Case stock assessment.
 </figcaption></figure>
 </div>
 </div>
 </div>
 <section id="catch-units" class="level3" data-number="2.1.1"><h3 data-number="2.1.1" class="anchored" data-anchor-id="catch-units">
 <span class="header-section-number">2.1.1</span> Catch Units</h3>
-<p>In the assessment, the catch of 8 of the 19 fishing fleets is in numbers of fish (thousands), and the catch of the remaining fleets is in biomass (t). Because the total allowable catch (TAC) management advice produced by the candidate management procedures (CMPs) is in units of biomass (tons), the catch of every fleet was imported in biomass, using the catch biomass predicted by SS3 for the fleets with catch in numbers.</p>
+<p>In the assessment, the catch of 8 of the 19 fishing fleets is in numbers of fish (thousands), and the catch of the remaining fleets is in biomass (t). Because the total allowable catch (TAC) management advice produced by the candidate management procedures (CMPs) is in units of biomass (t), the catch of every fleet was imported in biomass, using the catch biomass predicted by SS3 for the fleets with catch in numbers.</p>
 </section><section id="fleet-structure" class="level3" data-number="2.1.2"><h3 data-number="2.1.2" class="anchored" data-anchor-id="fleet-structure">
 <span class="header-section-number">2.1.2</span> Fleet Structure</h3>
-<p>To reduce run time, the 19 fishing fleets were combined into a single fleet in the operating models. The combined fleet reproduces the historical fishing mortality-at-age of the individual fleets, with selectivity, retention, and weight-at-age weighted by the fishing mortality of each fleet. This results in exactly the same fishery and population dynamics as an operating model that includes the 19 fleet structure. In the projection period, the relative contribution of each fleet (i.e., TAC allocation) is therefore assumed to be fixed at its recent pattern.</p>
+<p>To reduce run time, the 19 fishing fleets were combined into a single fleet in the operating models. The combined fleet reproduces the historical fishing mortality-at-age of the individual fleets, with selectivity, retention, and weight-at-age weighted by the fishing mortality of each fleet. This results in exactly the same fishery and population dynamics as an operating model with the 19 individual fleets. In the projection period, the relative contribution of each fleet (i.e., TAC allocation) is therefore assumed to be fixed at its recent pattern.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div id="fig-catch-data" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-catch-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="operating-models_files/figure-html/fig-catch-data-1.png" class="img-fluid figure-img" width="672">
+<a href="operating-models_files/figure-html/fig-catch-data-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Figure&nbsp;2.2: Total annual catch data in the Base Case OM."><img src="operating-models_files/figure-html/fig-catch-data-1.png" class="img-fluid figure-img" width="672"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-catch-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2.2: Total annual catch data in the base case OM.
+Figure&nbsp;2.2: Total annual catch data in the Base Case OM.
 </figcaption></figure>
 </div>
 </div>
 </div>
 </section><section id="indices-of-abundance" class="level3" data-number="2.1.3"><h3 data-number="2.1.3" class="anchored" data-anchor-id="indices-of-abundance">
 <span class="header-section-number">2.1.3</span> Indices of Abundance</h3>
-<p><a href="#tbl-indices" class="quarto-xref">Table&nbsp;<span>2.1</span></a> lists the CPUE indices in the assessment. The Japanese longline indices (Area 1 and Area 2; both split into an Early and Late phase) were selected to be used by the CMPs.</p>
-<p>The index-based CMPs use the two that continue to the terminal year (S2 and S4; <a href="#fig-index-fits" class="quarto-xref">Figure&nbsp;<span>2.3</span></a>). The surplus production CMPs also use the earlier Japanese longline series (S1 and S3; see <a href="management-procedures.html" class="quarto-xref"><span>Chapter 5</span></a>).</p>
-<p>Two of the indices (S5 and S8) were not fitted in the base case assessment (lambda = 0), and therefore were not included in the data passed to the CMPs.</p>
-<p>S6, an index of recruitment, was also not used by the CMPs. This index has a higher CV than the Japanese longline indices, and as it does not track the adult population it did not provide any additional information that could improve the performance of the CMPs.</p>
+<p><a href="#tbl-indices" class="quarto-xref">Table&nbsp;<span>2.1</span></a> lists the CPUE indices in the assessment. The indices that continue to the terminal year are provided to the CMPs:</p>
+<ul>
+<li>the late-phase Japanese longline indices for Area 1 and Area 2 (S2 and S4);</li>
+<li>the Chinese Taipei distant-water longline index (S5);</li>
+<li>the US shallow-set longline index (S8) (<a href="#fig-index-fits" class="quarto-xref">Figure&nbsp;<span>2.3</span></a>; see <a href="management-procedures.html" class="quarto-xref"><span>Chapter 5</span></a>).</li>
+</ul>
+<p>The early-phase Japanese longline indices (S1 and S3) end in 1993 and are not used by the CMPs.</p>
+<p>S5 and S8 were not fitted in the Base Case assessment (lambda = 0). However, fitting all indices was found to have little effect on the estimated stock status. Therefore S5 and S8 are provided to the CMPs, together with S2 and S4, so that CMPs can be developed that use these indices.</p>
+<p>S6, an index of recruitment, is simulated in the projections and available to the CMPs, but it is not used by them. Using S6 in the CMPs was tested during the MSE development, but it did not improve their performance, largely because it does not track the adult abundance. The indices used by the CMPs are described in <a href="management-procedures.html#sec-cmps-status" class="quarto-xref"><span>Section 5.3</span></a>.</p>
 <div class="cell">
 <div id="tbl-indices" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure"><figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-indices-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;2.1: The CPUE indices in the base case assessment, the years with data, the units, the lambda (weight in the likelihood) in the base case assessment, and the CMPs that use each index.
+Table&nbsp;2.1: The CPUE indices in the Base Case assessment, the years with data, the units, and the lambda (weight in the likelihood) in the Base Case assessment.
 </figcaption><div aria-describedby="tbl-indices-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
 <table class="cell caption-top table table-sm table-striped small">
-<colgroup>
-<col style="width: 41%">
-<col style="width: 13%">
-<col style="width: 14%">
-<col style="width: 13%">
-<col style="width: 16%">
-</colgroup>
 <thead><tr class="header">
 <th style="text-align: left;">Index</th>
 <th style="text-align: left;">Years</th>
 <th style="text-align: left;">Units</th>
 <th style="text-align: right;">SS3 lambda</th>
-<th style="text-align: left;">Used by CMPs</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
@@ -284,56 +290,48 @@ Table&nbsp;2.1: The CPUE indices in the base case assessment, the years with dat
 <td style="text-align: left;">1976–1993</td>
 <td style="text-align: left;">Number</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: left;">SP</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">S2_JPN_WCNPO_OSDWCOLL_late_Area1</td>
 <td style="text-align: left;">1994–2021</td>
 <td style="text-align: left;">Number</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: left;">IR, IT, SP</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">S3_JPN_WCNPO_OSDWLL_early_Area2</td>
 <td style="text-align: left;">1976–1993</td>
 <td style="text-align: left;">Number</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: left;">SP</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">S4_JPN_WCNPO_OSDWLL_late_Area2</td>
 <td style="text-align: left;">1994–2021</td>
 <td style="text-align: left;">Number</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: left;">IR, IT, SP</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">S5_TWN_WCNPO_DWLL_late</td>
 <td style="text-align: left;">2000–2021</td>
 <td style="text-align: left;">Number</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: left;"></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">S6_US_WCNPO_LL_deep</td>
 <td style="text-align: left;">1995–2021</td>
 <td style="text-align: left;">Recruitment</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: left;"></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">S7_US_WCNPO_LL_shallow_early</td>
 <td style="text-align: left;">1995–2000</td>
 <td style="text-align: left;">Number</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: left;"></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">S8_US_WCNPO_LL_shallow_late</td>
 <td style="text-align: left;">2005–2021</td>
 <td style="text-align: left;">Number</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: left;"></td>
 </tr>
 </tbody>
 </table>
@@ -346,100 +344,174 @@ Table&nbsp;2.1: The CPUE indices in the base case assessment, the years with dat
 <div class="cell-output-display">
 <div id="fig-index-fits" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-index-fits-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="operating-models_files/figure-html/fig-index-fits-1.png" class="img-fluid figure-img" width="672">
+<a href="operating-models_files/figure-html/fig-index-fits-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="Figure&nbsp;2.3: The indices used by the CMPs (S2 and S4: Japanese longline Areas 1 and 2; S5: Chinese Taipei distant-water longline; S8: US shallow-set longline) and the corresponding vulnerable abundance in the Base Case OM. S5 and S8 were not fitted in the Base Case assessment."><img src="operating-models_files/figure-html/fig-index-fits-1.png" class="img-fluid figure-img" width="672"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-index-fits-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2.3: The two Japanese longline indices used by the index-based CMPs (S2: Area 1, S4: Area 2) and the corresponding vulnerable abundance in the base case OM. The model-based surplus production CMPs also used the earlier phases of these two indices (S1 and S3).
+Figure&nbsp;2.3: The indices used by the CMPs (S2 and S4: Japanese longline Areas 1 and 2; S5: Chinese Taipei distant-water longline; S8: US shallow-set longline) and the corresponding vulnerable abundance in the Base Case OM. S5 and S8 were not fitted in the Base Case assessment.
 </figcaption></figure>
 </div>
 </div>
 </div>
 </section></section><section id="sec-om-sensitivities" class="level2" data-number="2.2"><h2 data-number="2.2" class="anchored" data-anchor-id="sec-om-sensitivities">
 <span class="header-section-number">2.2</span> Base Case and Sensitivity OMs</h2>
-<section id="oms-included-in-the-mse" class="level3" data-number="2.2.1"><h3 data-number="2.2.1" class="anchored" data-anchor-id="oms-included-in-the-mse">
-<span class="header-section-number">2.2.1</span> OMs Included in the MSE</h3>
-<p>The 2023 assessment included sensitivity runs with alternative life-history parameters (natural mortality, steepness, growth, and maturity), catch assumptions, model settings, and CPUE indices. OMs were constructed from the base case and the 9 sensitivity runs with alternative life-history parameters (<a href="#tbl-ss3-runs" class="quarto-xref">Table&nbsp;<span>2.2</span></a>; <a href="#tbl-ss3-pars" class="quarto-xref">Table&nbsp;<span>2.3</span></a>). The other sensitivity runs are not currently included in the MSE.</p>
-<p>Three of these runs are not included in the MSE:</p>
-<ul>
+<p>The Base Case OM (OM 00) is constructed from the Base Case of the 2023 assessment described above, and the CMPs are tuned to this Base Case OM (see <a href="management-procedures.html#sec-tuning-methodology" class="quarto-xref"><span>Section 5.6</span></a> for details on the CMP tuning).</p>
+<p>The 10 sensitivity OMs included in the MSE are constructed in the same way from alternative SS3 runs, and are used to evaluate the robustness of the tuned CMPs to uncertainty in the stock dynamics that is not captured by the Base Case.</p>
+<p>The sensitivity (robustness) OMs explore two sources of uncertainty:</p>
+<ol type="1">
 <li>
-<strong>Run 03</strong> (steepness 0.70): the control file sets steepness to 0.70, but the starter file initialises the parameters from the base case parameter file, where steepness is 0.9. Because steepness is fixed, the fitted model has steepness of 0.9 and the SS3 output is identical to the base case, so the run does not represent the steepness sensitivity.</li>
+<strong>Life-history parameters</strong>: the sensitivity runs of the 2023 assessment with alternative natural mortality, steepness, growth, and maturity (runs 01–10; runs 05 and 06 are not included, see below).</li>
 <li>
-<strong>Runs 05</strong> (steepness 0.99) <strong>and 06</strong> (maximum size 10% larger): the SS3 fits estimate an implausibly large stock, with ln(R0) of 32.37 and 35.06 compared with 6.84 in the base case, and unfished spawning biomass of the order of <span class="math inline">\(10^{16}\)</span> and <span class="math inline">\(10^{17}\)</span> t. The stock in these OMs is therefore effectively unfished and unaffected by the catch.</li>
-</ul>
-<p>The CMPs are tuned on the base case OM (<a href="management-procedures.html#sec-tuning-methodology" class="quarto-xref"><span>Section 5.7</span></a>) and their robustness is evaluated on the 6 included sensitivity OMs.</p>
+<strong>Increasing catchability</strong>: two runs that assume the catchability of the indices of abundance has increased over time (effort creep) by 1% (run 20a) and 2% (run 20b) per year. These scenarios follow those used in the IATTC MSE for bigeye tuna in the eastern Pacific Ocean, where annual increases in longline catchability of 0%, 1%, and 2% are used to represent uncertainty in effort creep <span class="citation" data-cites="xuManagementStrategyEvaluation2026">(Xu and Maunder 2026)</span>. These runs are the Base Case fitted to the indices deflated by <span class="math inline">\((1 + c)^{y - y_0}\)</span>, where <span class="math inline">\(c\)</span> is the annual effort creep and <span class="math inline">\(y_0\)</span> the first year of each index. The OMs are conditioned on the deflated indices, but the CMPs use the observed indices, so the indices seen by the CMPs over-estimate the increase in abundance (or under-estimate the decline) in these OMs. The effort creep applies only to the historical period.</li>
+</ol>
+<p><a href="#tbl-ss3-runs" class="quarto-xref">Table&nbsp;<span>2.2</span></a> lists the 12 life-history and catchability runs and their key parameters.</p>
+<p>Two of these runs (05 with steepness 0.99 and 06 with maximum size 10% larger) are not included in the MSE. In these models the SS3 fits estimated an implausibly large stock, with ln(R0) of 32.37 and 35.06 compared with 6.84 in the Base Case, and unfished spawning biomass of the order of <span class="math inline">\(10^{16}\)</span> and <span class="math inline">\(10^{17}\)</span> t. The stock in these OMs is therefore effectively unfished and unaffected by the catch.</p>
 <div class="cell">
 <div id="tbl-ss3-runs" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure"><figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ss3-runs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;2.2: The SS3 runs of the 2023 assessment used to construct OMs, and whether each OM is included in the MSE.
+Table&nbsp;2.2: The SS3 runs considered as OMs (the Base Case and the life-history and catchability sensitivity runs) and their key parameters: steepness (h), mean female natural mortality (M, per year, over ages), female length at the maximum reference age (L<sub>Amax</sub>), female von Bertalanffy K, female length at 50% maturity (L<sub>50</sub>), and unfished spawning biomass (SB<sub>0</sub>). † Not included in the MSE because the model estimated an implausibly large stock (see text).
 </figcaption><div aria-describedby="tbl-ss3-runs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
 <table class="table cell caption-top table-sm table-striped small">
 <thead><tr class="header">
 <th style="text-align: left;" data-quarto-table-cell-role="th">OM</th>
 <th style="text-align: left;" data-quarto-table-cell-role="th">Description</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Included</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Reason for exclusion</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">h</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">M</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">L<sub>Amax</sub> (cm)</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">K</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">L<sub>50</sub> (cm)</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">SB<sub>0</sub> (t)</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">00</td>
-<td style="text-align: left; white-space: nowrap;">Base Case</td>
-<td style="text-align: left;">Yes</td>
-<td style="text-align: left;"></td>
+<td style="text-align: left; white-space: nowrap;">00</td>
+<td style="text-align: left;">Base Case</td>
+<td style="text-align: right; white-space: nowrap;">0.9</td>
+<td style="text-align: right; white-space: nowrap;">0.251</td>
+<td style="text-align: right; white-space: nowrap;">226.3</td>
+<td style="text-align: right; white-space: nowrap;">0.246</td>
+<td style="text-align: right; white-space: nowrap;">143.7</td>
+<td style="text-align: right; white-space: nowrap;">105,070</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">01</td>
-<td style="text-align: left; white-space: nowrap;">M 10% lower</td>
-<td style="text-align: left;">Yes</td>
-<td style="text-align: left;"></td>
+<td style="text-align: left; white-space: nowrap;">01</td>
+<td style="text-align: left;">M 10% lower</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">0.226</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">112,942</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">02</td>
-<td style="text-align: left; white-space: nowrap;">M 10% higher</td>
-<td style="text-align: left;">Yes</td>
-<td style="text-align: left;"></td>
+<td style="text-align: left; white-space: nowrap;">02</td>
+<td style="text-align: left;">M 10% higher</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">0.276</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">100,563</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">03</td>
-<td style="text-align: left; white-space: nowrap;">Steepness 0.70</td>
-<td style="text-align: left;">No</td>
-<td style="text-align: left;">Output identical to base case</td>
+<td style="text-align: left; white-space: nowrap;">03</td>
+<td style="text-align: left;">Steepness 0.70</td>
+<td style="text-align: right; white-space: nowrap;">0.7</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">131,032</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">04</td>
-<td style="text-align: left; white-space: nowrap;">Steepness 0.81</td>
-<td style="text-align: left;">Yes</td>
-<td style="text-align: left;"></td>
+<td style="text-align: left; white-space: nowrap;">04</td>
+<td style="text-align: left;">Steepness 0.81</td>
+<td style="text-align: right; white-space: nowrap;">0.81</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">113,516</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">05</td>
-<td style="text-align: left; white-space: nowrap;">Steepness 0.99</td>
-<td style="text-align: left;">No</td>
-<td style="text-align: left;">Implausibly large stock</td>
+<td style="text-align: left; white-space: nowrap; color: rgba(136, 136, 136, 1) !important;">05†</td>
+<td style="text-align: left; color: rgba(136, 136, 136, 1) !important;">Steepness 0.99</td>
+<td style="text-align: right; white-space: nowrap; color: rgba(136, 136, 136, 1) !important;">0.99</td>
+<td style="text-align: right; white-space: nowrap; color: rgba(136, 136, 136, 1) !important;">”</td>
+<td style="text-align: right; white-space: nowrap; color: rgba(136, 136, 136, 1) !important;">”</td>
+<td style="text-align: right; white-space: nowrap; color: rgba(136, 136, 136, 1) !important;">”</td>
+<td style="text-align: right; white-space: nowrap; color: rgba(136, 136, 136, 1) !important;">”</td>
+<td style="text-align: right; white-space: nowrap; color: rgba(136, 136, 136, 1) !important;">1.3e+16</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">06</td>
-<td style="text-align: left; white-space: nowrap;">Maximum size 10% larger</td>
-<td style="text-align: left;">No</td>
-<td style="text-align: left;">Implausibly large stock</td>
+<td style="text-align: left; white-space: nowrap; color: rgba(136, 136, 136, 1) !important;">06†</td>
+<td style="text-align: left; color: rgba(136, 136, 136, 1) !important;">Maximum size 10% larger</td>
+<td style="text-align: right; white-space: nowrap; color: rgba(136, 136, 136, 1) !important;">”</td>
+<td style="text-align: right; white-space: nowrap; color: rgba(136, 136, 136, 1) !important;">”</td>
+<td style="text-align: right; white-space: nowrap; color: rgba(136, 136, 136, 1) !important;">248.9</td>
+<td style="text-align: right; white-space: nowrap; color: rgba(136, 136, 136, 1) !important;">”</td>
+<td style="text-align: right; white-space: nowrap; color: rgba(136, 136, 136, 1) !important;">”</td>
+<td style="text-align: right; white-space: nowrap; color: rgba(136, 136, 136, 1) !important;">2.5e+17</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">07</td>
-<td style="text-align: left; white-space: nowrap;">Growth from Sun et al. (2002)</td>
-<td style="text-align: left;">Yes</td>
-<td style="text-align: left;"></td>
+<td style="text-align: left; white-space: nowrap;">07</td>
+<td style="text-align: left;">Growth from Sun et al. (2002)</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">240.8</td>
+<td style="text-align: right; white-space: nowrap;">0.138</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">130,827</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">08</td>
-<td style="text-align: left; white-space: nowrap;">L50 10% higher</td>
-<td style="text-align: left;">Yes</td>
-<td style="text-align: left;"></td>
+<td style="text-align: left; white-space: nowrap;">08</td>
+<td style="text-align: left;">L50 10% higher</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">158</td>
+<td style="text-align: right; white-space: nowrap;">98,002</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">09</td>
-<td style="text-align: left; white-space: nowrap;">L50 10% lower</td>
-<td style="text-align: left;">Yes</td>
-<td style="text-align: left;"></td>
+<td style="text-align: left; white-space: nowrap;">09</td>
+<td style="text-align: left;">L50 10% lower</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">129.3</td>
+<td style="text-align: right; white-space: nowrap;">110,249</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; white-space: nowrap;">10</td>
+<td style="text-align: left;">L50 from Wang et al. (2003)</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">150.6</td>
+<td style="text-align: right; white-space: nowrap;">101,919</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; white-space: nowrap;">20a</td>
+<td style="text-align: left;">Effort creep 1% per year in the indices</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">101,785</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; white-space: nowrap;">20b</td>
+<td style="text-align: left;">Effort creep 2% per year in the indices</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">”</td>
+<td style="text-align: right; white-space: nowrap;">99,481</td>
 </tr>
 </tbody>
 </table>
@@ -448,203 +520,168 @@ Table&nbsp;2.2: The SS3 runs of the 2023 assessment used to construct OMs, and w
 </figure>
 </div>
 </div>
-<div class="cell">
-<div id="tbl-ss3-pars" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-tbl figure"><figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ss3-pars-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;2.3: Key parameters of the SS3 runs used to construct OMs: steepness, mean female natural mortality (per year, over ages), female length at the maximum reference age, female von Bertalanffy K, female length at 50% maturity, and unfished spawning biomass. Parameters that are the same as in the base case are shown as ”.
-</figcaption><div aria-describedby="tbl-ss3-pars-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output-display">
-<table class="cell caption-top table table-sm table-striped small">
-<colgroup>
-<col style="width: 3%">
-<col style="width: 10%">
-<col style="width: 14%">
-<col style="width: 28%">
-<col style="width: 9%">
-<col style="width: 16%">
-<col style="width: 16%">
-</colgroup>
-<thead><tr class="header">
-<th style="text-align: left;">OM</th>
-<th style="text-align: right;">Steepness</th>
-<th style="text-align: right;">Mean female M</th>
-<th style="text-align: right;">Female length at Amax (cm)</th>
-<th style="text-align: right;">Female K</th>
-<th style="text-align: right;">Female L50 (cm)</th>
-<th style="text-align: right;">Unfished SB (t)</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">00</td>
-<td style="text-align: right;">0.9</td>
-<td style="text-align: right;">0.251</td>
-<td style="text-align: right;">226.3</td>
-<td style="text-align: right;">0.246</td>
-<td style="text-align: right;">143.7</td>
-<td style="text-align: right;">99,808</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">01</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">0.226</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">108,062</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">02</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">0.276</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">94,875</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">03</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">99,808</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">04</td>
-<td style="text-align: right;">0.81</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">108,558</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">05</td>
-<td style="text-align: right;">0.99</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">1.2e+16</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">06</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">248.9</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">2.4e+17</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">07</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">240.8</td>
-<td style="text-align: right;">0.138</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">124,347</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">08</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">158</td>
-<td style="text-align: right;">93,176</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">09</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">”</td>
-<td style="text-align: right;">129.3</td>
-<td style="text-align: right;">104,632</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</figure>
-</div>
-</div>
-</section><section id="estimates-of-stock-status" class="level3" data-number="2.2.2"><h3 data-number="2.2.2" class="anchored" data-anchor-id="estimates-of-stock-status">
-<span class="header-section-number">2.2.2</span> Estimates of Stock Status</h3>
-<p><a href="#tbl-stock-status" class="quarto-xref">Table&nbsp;<span>2.4</span></a> summarizes the estimated stock status (SB/SB0 &amp; SB/SBMSY), relative fishing mortality (F/FMSY), and the ratio of SBMSY to the equilibrium unfished spawning biomass (SB0), for the Base Case and the 6 sensitivity OMs that are included in the MSE. The MSY-based reference points for each OM are shown in <a href="#tbl-ref-points" class="quarto-xref">Table&nbsp;<span>2.5</span></a>.</p>
-<p><a href="#fig-trajectories" class="quarto-xref">Figure&nbsp;<span>2.4</span></a> shows time series plots of SB/SB0, SB/SBMSY, and F/FMSY for the Base Case and the 6 sensitivity OMs.</p>
+<p><a href="#tbl-stock-status" class="quarto-xref">Table&nbsp;<span>2.3</span></a> summarizes the estimated stock status (SB/SB0 &amp; SB/SBMSY), relative fishing mortality (F/FMSY), and the MSY-based reference points, including the ratio of SBMSY to the equilibrium unfished spawning biomass (SB0), for the Base Case and the 10 sensitivity OMs that are included in the MSE.</p>
+<p>Time series of SB/SB0, SB/SBMSY, and F/FMSY are shown for the Base Case (00) and the sensitivity OMs for each source of uncertainty:</p>
+<ul>
+<li>natural mortality (01 &amp; 02; <a href="#fig-traj-m" class="quarto-xref">Figure&nbsp;<span>2.4</span></a>);</li>
+<li>steepness (03 &amp; 04; <a href="#fig-traj-h" class="quarto-xref">Figure&nbsp;<span>2.5</span></a>);</li>
+<li>growth (07; <a href="#fig-traj-growth" class="quarto-xref">Figure&nbsp;<span>2.6</span></a>);</li>
+<li>maturity (08, 09 &amp; 10; <a href="#fig-traj-maturity" class="quarto-xref">Figure&nbsp;<span>2.7</span></a>);</li>
+<li>increasing catchability (20a &amp; 20b; <a href="#fig-traj-q" class="quarto-xref">Figure&nbsp;<span>2.8</span></a>).</li>
+</ul>
 <div class="cell">
 <div id="tbl-stock-status" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure"><figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-stock-status-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;2.4: Stock status in 2021 (mean over the quarters) for each OM: spawning biomass relative to the equilibrium unfished spawning biomass (SB/SB0) and to SBMSY, fishing mortality relative to FMSY, and SBMSY relative to SB0.
+Table&nbsp;2.3: Stock status in 2021 (mean over the quarters) and the MSY reference points for each OM: spawning biomass relative to the equilibrium unfished spawning biomass (SB/SB0) and to SBMSY, fishing mortality relative to FMSY, SBMSY relative to SB0, the apical fishing mortality at MSY (FMSY, per year), female spawning biomass at MSY (SBMSY), and the annual catch at MSY (MSY). The OMs are described in <a href="#tbl-ss3-runs" class="quarto-xref">Table&nbsp;<span>2.2</span></a>.
 </figcaption><div aria-describedby="tbl-stock-status-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<table class="cell caption-top table table-sm table-striped small">
+<table class="table cell caption-top table-sm table-striped small">
 <colgroup>
-<col style="width: 50%">
-<col style="width: 10%">
-<col style="width: 13%">
-<col style="width: 10%">
-<col style="width: 14%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
 </colgroup>
-<thead><tr class="header">
-<th style="text-align: left;">OM</th>
-<th style="text-align: right;">SB/SB0</th>
-<th style="text-align: right;">SB/SBMSY</th>
-<th style="text-align: right;">F/FMSY</th>
-<th style="text-align: right;">SBMSY/SB0</th>
-</tr></thead>
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th" style="text-align: left; empty-cells: hide; border-bottom: hidden;"></th>
+<th colspan="3" data-quarto-table-cell-role="th" style="text-align: center; border-bottom: hidden; padding-bottom: 0; padding-left: 3px; padding-right: 3px;"><div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+Status in 2021
+</div></th>
+<th colspan="4" data-quarto-table-cell-role="th" style="text-align: center; border-bottom: hidden; padding-bottom: 0; padding-left: 3px; padding-right: 3px;"><div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+MSY reference points
+</div></th>
+</tr>
+<tr class="even">
+<th style="text-align: left;" data-quarto-table-cell-role="th">OM</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">SB/SB<sub>0</sub>
+</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">SB/SB<sub>MSY</sub>
+</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">F/F<sub>MSY</sub>
+</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">SB<sub>MSY</sub>/SB<sub>0</sub>
+</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">F<sub>MSY</sub>
+</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">SB<sub>MSY</sub> (t)</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">MSY (t)</th>
+</tr>
+</thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">00: Base Case</td>
-<td style="text-align: right;">0.37</td>
-<td style="text-align: right;">2.30</td>
-<td style="text-align: right;">0.37</td>
-<td style="text-align: right;">0.16</td>
+<td style="text-align: left;">00</td>
+<td style="text-align: right; white-space: nowrap;">0.38</td>
+<td style="text-align: right; white-space: nowrap;">2.28</td>
+<td style="text-align: right; white-space: nowrap;">0.37</td>
+<td style="text-align: right; white-space: nowrap;">0.16</td>
+<td style="text-align: right; white-space: nowrap;">0.452</td>
+<td style="text-align: right; white-space: nowrap;">17,205</td>
+<td style="text-align: right; white-space: nowrap;">15,157</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">01: M 10% lower</td>
-<td style="text-align: right;">0.32</td>
-<td style="text-align: right;">1.93</td>
-<td style="text-align: right;">0.44</td>
-<td style="text-align: right;">0.16</td>
+<td style="text-align: left;">01</td>
+<td style="text-align: right; white-space: nowrap;">0.32</td>
+<td style="text-align: right; white-space: nowrap;">1.89</td>
+<td style="text-align: right; white-space: nowrap;">0.45</td>
+<td style="text-align: right; white-space: nowrap;">0.17</td>
+<td style="text-align: right; white-space: nowrap;">0.405</td>
+<td style="text-align: right; white-space: nowrap;">19,137</td>
+<td style="text-align: right; white-space: nowrap;">14,388</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">02: M 10% higher</td>
-<td style="text-align: right;">0.43</td>
-<td style="text-align: right;">2.70</td>
-<td style="text-align: right;">0.31</td>
-<td style="text-align: right;">0.16</td>
+<td style="text-align: left;">02</td>
+<td style="text-align: right; white-space: nowrap;">0.43</td>
+<td style="text-align: right; white-space: nowrap;">2.70</td>
+<td style="text-align: right; white-space: nowrap;">0.31</td>
+<td style="text-align: right; white-space: nowrap;">0.16</td>
+<td style="text-align: right; white-space: nowrap;">0.503</td>
+<td style="text-align: right; white-space: nowrap;">15,893</td>
+<td style="text-align: right; white-space: nowrap;">16,317</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">04: Steepness 0.81</td>
-<td style="text-align: right;">0.34</td>
-<td style="text-align: right;">1.68</td>
-<td style="text-align: right;">0.49</td>
-<td style="text-align: right;">0.21</td>
+<td style="text-align: left;">03</td>
+<td style="text-align: right; white-space: nowrap;">0.31</td>
+<td style="text-align: right; white-space: nowrap;">1.19</td>
+<td style="text-align: right; white-space: nowrap;">0.66</td>
+<td style="text-align: right; white-space: nowrap;">0.26</td>
+<td style="text-align: right; white-space: nowrap;">0.255</td>
+<td style="text-align: right; white-space: nowrap;">33,610</td>
+<td style="text-align: right; white-space: nowrap;">14,007</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">07: Growth from Sun et al.&nbsp;(2002)</td>
-<td style="text-align: right;">0.36</td>
-<td style="text-align: right;">2.42</td>
-<td style="text-align: right;">0.35</td>
-<td style="text-align: right;">0.15</td>
+<td style="text-align: left;">04</td>
+<td style="text-align: right; white-space: nowrap;">0.35</td>
+<td style="text-align: right; white-space: nowrap;">1.66</td>
+<td style="text-align: right; white-space: nowrap;">0.50</td>
+<td style="text-align: right; white-space: nowrap;">0.21</td>
+<td style="text-align: right; white-space: nowrap;">0.339</td>
+<td style="text-align: right; white-space: nowrap;">23,795</td>
+<td style="text-align: right; white-space: nowrap;">14,334</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">08: L50 10% higher</td>
-<td style="text-align: right;">0.34</td>
-<td style="text-align: right;">2.27</td>
-<td style="text-align: right;">0.40</td>
-<td style="text-align: right;">0.15</td>
+<td style="text-align: left;">07</td>
+<td style="text-align: right; white-space: nowrap;">0.37</td>
+<td style="text-align: right; white-space: nowrap;">2.34</td>
+<td style="text-align: right; white-space: nowrap;">0.35</td>
+<td style="text-align: right; white-space: nowrap;">0.16</td>
+<td style="text-align: right; white-space: nowrap;">0.476</td>
+<td style="text-align: right; white-space: nowrap;">20,348</td>
+<td style="text-align: right; white-space: nowrap;">15,052</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">09: L50 10% lower</td>
-<td style="text-align: right;">0.39</td>
-<td style="text-align: right;">2.29</td>
-<td style="text-align: right;">0.34</td>
-<td style="text-align: right;">0.17</td>
+<td style="text-align: left;">08</td>
+<td style="text-align: right; white-space: nowrap;">0.35</td>
+<td style="text-align: right; white-space: nowrap;">2.24</td>
+<td style="text-align: right; white-space: nowrap;">0.41</td>
+<td style="text-align: right; white-space: nowrap;">0.16</td>
+<td style="text-align: right; white-space: nowrap;">0.415</td>
+<td style="text-align: right; white-space: nowrap;">14,922</td>
+<td style="text-align: right; white-space: nowrap;">14,914</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">09</td>
+<td style="text-align: right; white-space: nowrap;">0.40</td>
+<td style="text-align: right; white-space: nowrap;">2.26</td>
+<td style="text-align: right; white-space: nowrap;">0.35</td>
+<td style="text-align: right; white-space: nowrap;">0.17</td>
+<td style="text-align: right; white-space: nowrap;">0.487</td>
+<td style="text-align: right; white-space: nowrap;">19,342</td>
+<td style="text-align: right; white-space: nowrap;">15,372</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">10</td>
+<td style="text-align: right; white-space: nowrap;">0.36</td>
+<td style="text-align: right; white-space: nowrap;">2.27</td>
+<td style="text-align: right; white-space: nowrap;">0.39</td>
+<td style="text-align: right; white-space: nowrap;">0.16</td>
+<td style="text-align: right; white-space: nowrap;">0.434</td>
+<td style="text-align: right; white-space: nowrap;">16,122</td>
+<td style="text-align: right; white-space: nowrap;">15,042</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">20a</td>
+<td style="text-align: right; white-space: nowrap;">0.32</td>
+<td style="text-align: right; white-space: nowrap;">1.97</td>
+<td style="text-align: right; white-space: nowrap;">0.45</td>
+<td style="text-align: right; white-space: nowrap;">0.16</td>
+<td style="text-align: right; white-space: nowrap;">0.447</td>
+<td style="text-align: right; white-space: nowrap;">16,661</td>
+<td style="text-align: right; white-space: nowrap;">14,646</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">20b</td>
+<td style="text-align: right; white-space: nowrap;">0.28</td>
+<td style="text-align: right; white-space: nowrap;">1.72</td>
+<td style="text-align: right; white-space: nowrap;">0.52</td>
+<td style="text-align: right; white-space: nowrap;">0.16</td>
+<td style="text-align: right; white-space: nowrap;">0.441</td>
+<td style="text-align: right; white-space: nowrap;">16,278</td>
+<td style="text-align: right; white-space: nowrap;">14,267</td>
 </tr>
 </tbody>
 </table>
@@ -654,76 +691,77 @@ Table&nbsp;2.4: Stock status in 2021 (mean over the quarters) for each OM: spawn
 </div>
 </div>
 <div class="cell">
-<div id="tbl-ref-points" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-tbl figure"><figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ref-points-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;2.5: The MSY reference points for each OM. FMSY is the apical fishing mortality (per year) at MSY, SBMSY is female spawning biomass, and MSY is the annual catch.
-</figcaption><div aria-describedby="tbl-ref-points-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<table class="cell caption-top table table-sm table-striped small">
-<thead><tr class="header">
-<th style="text-align: left;">OM</th>
-<th style="text-align: right;">FMSY</th>
-<th style="text-align: right;">SBMSY (t)</th>
-<th style="text-align: right;">MSY (t)</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">00: Base Case</td>
-<td style="text-align: right;">0.393</td>
-<td style="text-align: right;">16,629</td>
-<td style="text-align: right;">15,355</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">01: M 10% lower</td>
-<td style="text-align: right;">0.356</td>
-<td style="text-align: right;">18,317</td>
-<td style="text-align: right;">14,680</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">02: M 10% higher</td>
-<td style="text-align: right;">0.433</td>
-<td style="text-align: right;">15,487</td>
-<td style="text-align: right;">16,429</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">04: Steepness 0.81</td>
-<td style="text-align: right;">0.298</td>
-<td style="text-align: right;">23,011</td>
-<td style="text-align: right;">14,735</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">07: Growth from Sun et al.&nbsp;(2002)</td>
-<td style="text-align: right;">0.416</td>
-<td style="text-align: right;">19,257</td>
-<td style="text-align: right;">15,398</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">08: L50 10% higher</td>
-<td style="text-align: right;">0.361</td>
-<td style="text-align: right;">14,394</td>
-<td style="text-align: right;">15,125</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">09: L50 10% lower</td>
-<td style="text-align: right;">0.426</td>
-<td style="text-align: right;">18,640</td>
-<td style="text-align: right;">15,571</td>
-</tr>
-</tbody>
-</table>
+<div id="fig-traj-m" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-traj-m-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="operating-models_files/figure-html/fig-traj-m-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4" title="Figure&nbsp;2.4: Historical spawning biomass relative to the equilibrium unfished spawning biomass (SB/SB0) and to SBMSY, and fishing mortality relative to FMSY, for the Base Case (black) and the OMs with alternative natural mortality. The dashed lines show the LRP (17% SB0), SBMSY, and FMSY."><img src="operating-models_files/figure-html/fig-traj-m-1.png" class="img-fluid figure-img" width="672"></a>
 </div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-traj-m-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.4: Historical spawning biomass relative to the equilibrium unfished spawning biomass (SB/SB0) and to SBMSY, and fishing mortality relative to FMSY, for the Base Case (black) and the OMs with alternative natural mortality. The dashed lines show the LRP (17% SB0), SBMSY, and FMSY.
+</figcaption></figure>
 </div>
-</figure>
 </div>
 </div>
 <div class="cell">
 <div class="cell-output-display">
-<div id="fig-trajectories" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-trajectories-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="operating-models_files/figure-html/fig-trajectories-1.png" class="img-fluid figure-img" width="672">
+<div id="fig-traj-h" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-traj-h-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="operating-models_files/figure-html/fig-traj-h-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5" title="Figure&nbsp;2.5: Historical spawning biomass relative to the equilibrium unfished spawning biomass (SB/SB0) and to SBMSY, and fishing mortality relative to FMSY, for the Base Case (black) and the OMs with alternative steepness. The dashed lines show the LRP (17% SB0), SBMSY, and FMSY."><img src="operating-models_files/figure-html/fig-traj-h-1.png" class="img-fluid figure-img" width="672"></a>
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-trajectories-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2.4: Historical spawning biomass relative to the equilibrium unfished spawning biomass (top) and to SBMSY (middle), and fishing mortality relative to FMSY (bottom), for each OM. The dashed lines show the LRP (17% SB0), SBMSY, and FMSY.
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-traj-h-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.5: Historical spawning biomass relative to the equilibrium unfished spawning biomass (SB/SB0) and to SBMSY, and fishing mortality relative to FMSY, for the Base Case (black) and the OMs with alternative steepness. The dashed lines show the LRP (17% SB0), SBMSY, and FMSY.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-traj-growth" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-traj-growth-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="operating-models_files/figure-html/fig-traj-growth-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6" title="Figure&nbsp;2.6: Historical spawning biomass relative to the equilibrium unfished spawning biomass (SB/SB0) and to SBMSY, and fishing mortality relative to FMSY, for the Base Case (black) and the OM with alternative growth. The dashed lines show the LRP (17% SB0), SBMSY, and FMSY."><img src="operating-models_files/figure-html/fig-traj-growth-1.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-traj-growth-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.6: Historical spawning biomass relative to the equilibrium unfished spawning biomass (SB/SB0) and to SBMSY, and fishing mortality relative to FMSY, for the Base Case (black) and the OM with alternative growth. The dashed lines show the LRP (17% SB0), SBMSY, and FMSY.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-traj-maturity" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-traj-maturity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="operating-models_files/figure-html/fig-traj-maturity-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-7" title="Figure&nbsp;2.7: Historical spawning biomass relative to the equilibrium unfished spawning biomass (SB/SB0) and to SBMSY, and fishing mortality relative to FMSY, for the Base Case (black) and the OMs with alternative maturity. The dashed lines show the LRP (17% SB0), SBMSY, and FMSY."><img src="operating-models_files/figure-html/fig-traj-maturity-1.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-traj-maturity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.7: Historical spawning biomass relative to the equilibrium unfished spawning biomass (SB/SB0) and to SBMSY, and fishing mortality relative to FMSY, for the Base Case (black) and the OMs with alternative maturity. The dashed lines show the LRP (17% SB0), SBMSY, and FMSY.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-traj-q" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-traj-q-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="operating-models_files/figure-html/fig-traj-q-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8" title="Figure&nbsp;2.8: Historical spawning biomass relative to the equilibrium unfished spawning biomass (SB/SB0) and to SBMSY, and fishing mortality relative to FMSY, for the Base Case (black) and the effort creep OMs. The dashed lines show the LRP (17% SB0), SBMSY, and FMSY."><img src="operating-models_files/figure-html/fig-traj-q-1.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-traj-q-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.8: Historical spawning biomass relative to the equilibrium unfished spawning biomass (SB/SB0) and to SBMSY, and fishing mortality relative to FMSY, for the Base Case (black) and the effort creep OMs. The dashed lines show the LRP (17% SB0), SBMSY, and FMSY.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<section id="effort-creep-oms" class="level3" data-number="2.2.1"><h3 data-number="2.2.1" class="anchored" data-anchor-id="effort-creep-oms">
+<span class="header-section-number">2.2.1</span> Effort Creep OMs</h3>
+<p>In the effort creep OMs (20a and 20b), SS3 is fitted to indices deflated by 1% and 2% per year, i.e.&nbsp;the indices that would be obtained if they were standardized for an assumed increase in catchability over the time series (<a href="#fig-creep-indices" class="quarto-xref">Figure&nbsp;<span>2.9</span></a>). The same increase in catchability is assumed for all indices.</p>
+<p>The deflated indices are equal to the observed indices in the first year of each index, and decline relative to them over time, so the effort creep runs estimate a larger decline in abundance over the period of the indices. To explain this decline with the same catch history, the stock is estimated to have started from a much higher state: SB/SB0 in 1975 is 0.59 in run 20a and 0.98 in run 20b, compared with 0.3 in the Base Case (<a href="#fig-traj-q" class="quarto-xref">Figure&nbsp;<span>2.8</span></a>). In 2021, SB/SB0 is 0.38 in the Base Case, and 0.32 and 0.28 in runs 20a and 20b.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-creep-indices" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-creep-indices-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="operating-models_files/figure-html/fig-creep-indices-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-9" title="Figure&nbsp;2.9: The indices used to condition the Base Case and the effort creep OMs. The Base Case is conditioned on the observed indices, and 20a and 20b on the observed indices deflated for an assumed increase in catchability of 1% and 2% per year from the first year of each index."><img src="operating-models_files/figure-html/fig-creep-indices-1.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-creep-indices-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.9: The indices used to condition the Base Case and the effort creep OMs. The Base Case is conditioned on the observed indices, and 20a and 20b on the observed indices deflated for an assumed increase in catchability of 1% and 2% per year from the first year of each index.
 </figcaption></figure>
 </div>
 </div>
@@ -1141,7 +1179,38 @@ Figure&nbsp;2.4: Historical spawning biomass relative to the equilibrium unfishe
   </div>
 </nav>
 </div> <!-- /content -->
-
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
 
 
 </body></html>

@@ -70,7 +70,8 @@ ul.task-list li input[type="checkbox"] {
     "search-submit-button-title": "Submit",
     "search-label": "Search"
   }
-}</script><script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script><script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script><script type="text/javascript">
+}</script><script src="site_libs/kePrint-0.0.1/kePrint.js"></script><link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script><script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script><script type="text/javascript">
 const typesetMath = (el) => {
   if (window.MathJax) {
     // MathJax Typeset
@@ -170,6 +171,12 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./results.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Presentation of Results</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./references.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">References</span></a>
   </div>
@@ -185,7 +192,8 @@ window.Quarto = {
 <li><a href="#management-objectives" id="toc-management-objectives" class="nav-link active" data-scroll-target="#management-objectives"><span class="header-section-number">4.1</span> Management Objectives</a></li>
   <li><a href="#primary-performance-metrics" id="toc-primary-performance-metrics" class="nav-link" data-scroll-target="#primary-performance-metrics"><span class="header-section-number">4.2</span> Primary Performance Metrics</a></li>
   <li><a href="#sec-secondary-pms" id="toc-sec-secondary-pms" class="nav-link" data-scroll-target="#sec-secondary-pms"><span class="header-section-number">4.3</span> Secondary Performance Metrics</a></li>
-  <li><a href="#summary-of-all-performance-metrics" id="toc-summary-of-all-performance-metrics" class="nav-link" data-scroll-target="#summary-of-all-performance-metrics"><span class="header-section-number">4.4</span> Summary of All Performance Metrics</a></li>
+  <li><a href="#time-windows" id="toc-time-windows" class="nav-link" data-scroll-target="#time-windows"><span class="header-section-number">4.4</span> Time Windows</a></li>
+  <li><a href="#summary-of-all-performance-metrics" id="toc-summary-of-all-performance-metrics" class="nav-link" data-scroll-target="#summary-of-all-performance-metrics"><span class="header-section-number">4.5</span> Summary of All Performance Metrics</a></li>
   </ul></nav>
     </div>
 <!-- main -->
@@ -206,61 +214,73 @@ window.Quarto = {
 
 </header><section id="management-objectives" class="level2" data-number="4.1"><h2 data-number="4.1" class="anchored" data-anchor-id="management-objectives">
 <span class="header-section-number">4.1</span> Management Objectives</h2>
-<p>The CMPs are evaluated against the following management objectives (<a href="#tbl-pm-summary" class="quarto-xref">Table&nbsp;<span>4.1</span></a>):</p>
+<p>The CMPs are evaluated against the candidate management objectives specified in the candidate inputs for the MSE <span class="citation" data-cites="WCPFC2026">(WCPFC 2026, Attachment 7, Table 1)</span> (<a href="#tbl-pm-summary" class="quarto-xref">Table&nbsp;<span>4.1</span></a>):</p>
 <ol type="1">
-<li><p><strong>Safety:</strong> Maintain spawning biomass above the limit reference point (LRP; 0.17<span class="math inline">\(SB_0\)</span>) with at least 80% probability. A simulation in which spawning biomass falls below the LRP in any year of the evaluation period is considered a breach.</p></li>
-<li><p><strong>Status:</strong> Maintain fishing mortality at or below the target value (F<span class="math inline">\(_{40\%}\)</span>) with at least 50% probability.</p></li>
-<li><p><strong>Stability:</strong> Changes in the TAC between management periods should be relatively gradual. This is measured by the probability that the TAC changes by no more than 10% between consecutive management periods, and by the probability of no management change (the TAC changes by no more than 1%; the CMPs leave the TAC unchanged when the change would be less than 1%).</p></li>
-<li><p><strong>Yield:</strong> Maintain catches above the average historical catch level, measured by the probability that the annual catch is at least the mean catch in 2008–2010. The mean annual catch is also reported.</p></li>
+<li><p><strong>Safety:</strong> Maintain spawning biomass above the limit reference point (LRP; 17% <span class="math inline">\(SB_0\)</span>) with at least 80% probability.</p></li>
+<li><p><strong>Status:</strong> Maintain fishing mortality at or below the target reference point with at least 50% probability. The candidate target reference points are F<span class="math inline">\(_{40\%}\)</span>, F<span class="math inline">\(_{35\%}\)</span>, F<span class="math inline">\(_{30\%}\)</span>, the F targets of the HCRs (<a href="management-procedures.html#sec-hcrs" class="quarto-xref"><span>Section 5.2</span></a>). Status is evaluated against the F target of the HCR of each CMP, and is also reported against each of the candidate target reference points. Following the advice of the ISC that the Status indicator should incorporate biomass as well as fishing mortality <span class="citation" data-cites="WCPFC2026">(WCPFC 2026, para. 46)</span>, the probability that spawning biomass is above each of the candidate threshold reference points (35%, 30%, 25% <span class="math inline">\(SB_0\)</span>) is also reported with the Status metrics.</p></li>
+<li><p><strong>Stability:</strong> Changes in the TAC between management periods should be relatively gradual.</p></li>
+<li><p><strong>Yield:</strong> Maintain catches above average historical catch levels.</p></li>
 </ol>
-<p>The CMPs are tuned in the base case OM to maximise the mean annual catch subject to the Safety objective (probability of at least 0.8) and the Status objective (probability of at least 0.5; <a href="management-procedures.html#sec-tuning-methodology" class="quarto-xref"><span>Section 5.7</span></a>). The Stability and Yield metrics are not used in the tuning; the trade-off between TAC stability and catch is shown by the variants of each CMP type with different limits on the change in the TAC.</p>
+<p>The CMPs are tuned in the Base Case OM to maximise the mean annual catch subject to the Safety objective (probability of at least 0.8) and the Status objective (probability of at least 0.5 against the F target of the HCR of the CMP; <a href="management-procedures.html#sec-tuning-methodology" class="quarto-xref"><span>Section 5.6</span></a>). The Stability and Yield metrics are not used in the tuning; the trade-off between TAC stability and catch is shown by the two TAC change limits of each CMP.</p>
 <div class="cell">
 <div id="tbl-pm-summary" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure"><figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-pm-summary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;4.1: The candidate management objectives and the corresponding performance metrics.
 </figcaption><div aria-describedby="tbl-pm-summary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<table class="cell caption-top table table-sm table-striped small">
-<colgroup>
-<col style="width: 4%">
-<col style="width: 37%">
-<col style="width: 57%">
-</colgroup>
+<table class="table cell caption-top table-sm table-striped small">
 <thead><tr class="header">
-<th style="text-align: left;">Category</th>
-<th style="text-align: left;">Management Objective</th>
-<th style="text-align: left;">Performance Metric</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Management Objective</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Performance Metric</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
-<td style="text-align: left;">Safety</td>
-<td style="text-align: left;">Maintain SSB above the LRP with at least 80% probability</td>
-<td style="text-align: left;">Probability that SB &gt; LRP (17% <span class="math inline">\(SB_0\)</span>) in every year of the evaluation period</td>
+<tr class="odd" data-grouplength="1">
+<td colspan="2" style="border-top: 2px solid #666; background-color: #f2f2f2"><strong>Safety</strong></td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Status</td>
-<td style="text-align: left;">Maintain fishing intensity (F) at the target value with at least 50% probability</td>
-<td style="text-align: left;">Probability that F <span class="math inline">\(\leq\)</span> F<span class="math inline">\(_{40\%}\)</span> &amp; median F<span class="math inline">\(_{40\%}\)</span>/F</td>
+<td style="text-align: left;">Maintain SB above the LRP with at least 80% probability</td>
+<td style="text-align: left;">Probability that SB &gt; LRP (17% \(SB_0\)) in any given year</td>
 </tr>
-<tr class="odd">
-<td style="text-align: left;">Stability</td>
-<td style="text-align: left;">Change in TAC between years should be relatively gradual</td>
-<td style="text-align: left;">Probability that the change in TAC between consecutive management periods is <span class="math inline">\(\leq\)</span> 10%</td>
+<tr class="odd" data-grouplength="3">
+<td colspan="2" style="border-top: 2px solid #666; background-color: #f2f2f2"><strong>Status</strong></td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">Probability of no management change: probability that the change in TAC between consecutive management periods is <span class="math inline">\(\leq\)</span> 1%</td>
+<td style="text-align: left;">Maintain F at or below the target reference point with at least 50% probability</td>
+<td style="text-align: left;">Probability that F \(\leq\) F target of the HCR of the CMP</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Yield</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Median F target / F</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Maintain SB above the threshold reference point (ThRP)</td>
+<td style="text-align: left;">Probability that SB &gt; ThRP (35%, 30%, 25% \(SB_0\)) in any given year</td>
+</tr>
+<tr class="odd" data-grouplength="2">
+<td colspan="2" style="border-top: 2px solid #666; background-color: #f2f2f2"><strong>Stability</strong></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Change in TAC between management periods should be relatively gradual</td>
+<td style="text-align: left;">Probability that the change in TAC between consecutive management cycles is \(\leq\) 10%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Probability of no management change (change in TAC \(\leq\) 1%)</td>
+</tr>
+<tr class="even" data-grouplength="3">
+<td colspan="2" style="border-top: 2px solid #666; background-color: #f2f2f2"><strong>Yield</strong></td>
+</tr>
+<tr class="odd">
 <td style="text-align: left;">Maintain catches above average historical catch levels</td>
-<td style="text-align: left;">Probability that the annual catch is <span class="math inline">\(\geq\)</span> the mean 2008–2010 catch</td>
+<td style="text-align: left;">Probability that the annual catch is \(\geq\) the mean 2008--2010 catch</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
+<td style="text-align: left;">Probability that the annual catch is \(\geq\) the mean 2016--2021 catch</td>
+</tr>
+<tr class="odd">
 <td style="text-align: left;"></td>
-<td style="text-align: left;">Mean annual catch (maximized tuning objective)</td>
+<td style="text-align: left;">Mean annual catch (maximised in the tuning)</td>
 </tr>
 </tbody>
 </table>
@@ -271,12 +291,12 @@ Table&nbsp;4.1: The candidate management objectives and the corresponding perfor
 </div>
 </section><section id="primary-performance-metrics" class="level2" data-number="4.2"><h2 data-number="4.2" class="anchored" data-anchor-id="primary-performance-metrics">
 <span class="header-section-number">4.2</span> Primary Performance Metrics</h2>
-<p>All performance metrics are calculated over the 30 years in which the CMPs set the TAC (2028–2057), for each OM and CMP. The following notation is used:</p>
+<p>All performance metrics are calculated over the 30 years in which the CMPs set the TAC (2028–2057), for each OM and CMP, from the true spawning biomass, fishing mortality, and catch in the OM (not the CMPs’ estimates). Spawning biomass and fishing mortality are averaged over the quarters of each calendar year, and catch is summed. The following notation is used:</p>
 <ul>
 <li>
 <span class="math inline">\(s = 1, \ldots, S\)</span> indexes the simulations and <span class="math inline">\(y \in \mathcal{Y}\)</span> the <span class="math inline">\(N_Y\)</span> = 30 years;</li>
 <li>
-<span class="math inline">\(B_{s,y}\)</span> is the annual spawning biomass relative to <span class="math inline">\(SB_0\)</span>;</li>
+<span class="math inline">\(SB_{s,y}\)</span> is the annual female spawning biomass, <span class="math inline">\(SB_0\)</span> the equilibrium unfished spawning biomass, and <span class="math inline">\(SB_{\text{MSY}}\)</span> the spawning biomass at MSY;</li>
 <li>
 <span class="math inline">\(F_{s,y}\)</span> is the annual apical fishing mortality;</li>
 <li>
@@ -286,9 +306,9 @@ Table&nbsp;4.1: The candidate management objectives and the corresponding perfor
 <li>
 <span class="math inline">\(\mathrm{I}(\cdot)\)</span> is 1 if the condition is true and 0 otherwise.</li>
 </ul>
-<p><strong>Safety</strong>: the probability that spawning biomass remains above the LRP in every year:</p>
+<p><strong>Safety</strong>: the probability that spawning biomass is above the LRP in any given year:</p>
 <p><span class="math display">\[
-P_{\text{Safety}} = \frac{1}{S} \sum_{s} \mathrm{I}\left(\min_{y \in \mathcal{Y}} B_{s,y} &gt; 0.17\right)
+P_{\text{Safety}} = \frac{1}{S N_Y} \sum_{s} \sum_{y} \mathrm{I}\left(SB_{s,y}/SB_0 &gt; 0.17\right)
 \]</span></p>
 <p><strong>Status</strong>: the probability that fishing mortality is at or below the F target, and the median ratio of the F target to fishing mortality:</p>
 <p><span class="math display">\[
@@ -297,15 +317,21 @@ P_{\text{Status}} = \frac{1}{S N_Y} \sum_{s} \sum_{y} \mathrm{I}\left(F_{s,y} \l
 <p><span class="math display">\[
 \frac{F_{\text{target}}}{F} = \frac{1}{S} \sum_{s} \operatorname*{median}_{y} \left(\frac{F_{\text{target}}}{F_{s,y}}\right)
 \]</span></p>
-<p>where <span class="math inline">\(F_{\text{target}}\)</span> is F<span class="math inline">\(_{40\%}\)</span>, the apical fishing mortality that reduces the female spawning potential ratio to 40%.</p>
-<p><strong>Stability</strong>: the probability that the TAC changes by no more than 10% between management cycles, and the probability of no management change, i.e.&nbsp;that the TAC changes by no more than 1%:</p>
+<p>where <span class="math inline">\(F_{\text{target}}\)</span> is the F target of the HCR of the CMP (F<span class="math inline">\(_{40\%}\)</span>, F<span class="math inline">\(_{35\%}\)</span>, F<span class="math inline">\(_{30\%}\)</span>), the apical fishing mortality that reduces the female spawning potential ratio to the target level. <span class="math inline">\(F_{\text{target}}\)</span> is calculated for each OM and simulation, relative to <span class="math inline">\(F_{\text{MSY}}\)</span>, in the last year with both reference points, and the annual <span class="math inline">\(F/F_{\text{target}}\)</span> is calculated from the annual <span class="math inline">\(F/F_{\text{MSY}}\)</span>.</p>
+<p>The probability that spawning biomass is above a threshold reference point (ThRP) is also reported with the Status metrics, for each of the candidate ThRPs (35%, 30%, 25% <span class="math inline">\(SB_0\)</span>):</p>
+<p><span class="math display">\[
+P_{\text{SB &gt; ThRP}} = \frac{1}{S N_Y} \sum_{s} \sum_{y} \mathrm{I}\left(SB_{s,y}/SB_0 &gt; \text{ThRP}\right)
+\]</span></p>
+<p>Like the other metrics, this is calculated from the true spawning biomass in the OM. The same ThRPs are used for every CMP, so the metric does not depend on the ThRP of the HCR of the CMP, and CMPs with different HCRs can be compared against the same thresholds.</p>
+<p><strong>Stability</strong>: the probability that the TAC changes by no more than 10% between management cycles, and the probability of no management change, i.e.&nbsp;that the TAC changes by no more than 1% (the CMPs leave the TAC unchanged when the change would be less than 1%):</p>
 <p><span class="math display">\[
 P_{\text{Stability}} = \frac{1}{S N_C} \sum_{s} \sum_{c} \mathrm{I}\left(\Delta_{s,c} \leq 0.1\right)
 \]</span></p>
 <p><span class="math display">\[
 P_{\text{No change}} = \frac{1}{S N_C} \sum_{s} \sum_{c} \mathrm{I}\left(\Delta_{s,c} \leq 0.01\right)
 \]</span></p>
-<p><strong>Yield</strong>: the probability that the annual catch is at least the mean historical catch in 2008–2010 (<span class="math inline">\(\bar{C}_{\text{ref}}\)</span>, in the OM), and the mean annual catch:</p>
+<p>Because the TAC change limit of the CMPs is either 10% or larger, <span class="math inline">\(P_{\text{Stability}}\)</span> is 1 for the CMPs with a 10% limit.</p>
+<p><strong>Yield</strong>: the probability that the annual catch is at least the mean historical catch in the reference years (<span class="math inline">\(\bar{C}_{\text{ref}}\)</span>, from the OM), for two reference periods (2008–2010 and 2016–2021), and the mean annual catch:</p>
 <p><span class="math display">\[
 P_{\text{Yield}} = \frac{1}{S N_Y} \sum_{s} \sum_{y} \mathrm{I}\left(C_{s,y} \geq \bar{C}_{\text{ref}}\right)
 \]</span></p>
@@ -314,6 +340,12 @@ P_{\text{Yield}} = \frac{1}{S N_Y} \sum_{s} \sum_{y} \mathrm{I}\left(C_{s,y} \ge
 \]</span></p>
 </section><section id="sec-secondary-pms" class="level2" data-number="4.3"><h2 data-number="4.3" class="anchored" data-anchor-id="sec-secondary-pms">
 <span class="header-section-number">4.3</span> Secondary Performance Metrics</h2>
+<p><strong>Status against each candidate target reference point</strong>: <span class="math inline">\(P_{\text{Status}}\)</span> and <span class="math inline">\(F_{\text{target}}/F\)</span> are also calculated for each of F<span class="math inline">\(_{40\%}\)</span>, F<span class="math inline">\(_{35\%}\)</span>, F<span class="math inline">\(_{30\%}\)</span>, for every CMP, so CMPs with different HCRs can be compared against the same target.</p>
+<p><strong>Probability that SB is above the ThRP of the HCR</strong>: <span class="math inline">\(P_{\text{SB &gt; ThRP}}\)</span> calculated with the ThRP of the HCR of each CMP, i.e.&nbsp;the proportion of years in which the true stock status is above the point where the HCR starts to reduce fishing (<a href="management-procedures.html#sec-hcrs" class="quarto-xref"><span>Section 5.2</span></a>).</p>
+<p><strong>Probability of no breach of the LRP</strong>: the probability that spawning biomass remains above the LRP in every year; a simulation in which spawning biomass falls below the LRP in any year is a breach:</p>
+<p><span class="math display">\[
+P_{\text{No breach}} = \frac{1}{S} \sum_{s} \mathrm{I}\left(\min_{y \in \mathcal{Y}} SB_{s,y}/SB_0 &gt; 0.17\right)
+\]</span></p>
 <p><strong>Average TAC variability</strong>: the mean absolute relative change in the TAC between management cycles:</p>
 <p><span class="math display">\[
 \text{AAVY} = \frac{1}{S N_C} \sum_{s} \sum_{c} \Delta_{s,c}
@@ -322,15 +354,27 @@ P_{\text{Yield}} = \frac{1}{S N_Y} \sum_{s} \sum_{y} \mathrm{I}\left(C_{s,y} \ge
 <p><span class="math display">\[
 P_{\text{Kobe}} = \frac{1}{S N_Y} \sum_{s} \sum_{y} \mathrm{I}\left(\frac{SB_{s,y}}{SB_{\text{MSY}}} &gt; 1 \ \text{and} \ \frac{F_{s,y}}{F_{\text{MSY}}} &lt; 1\right)
 \]</span></p>
-</section><section id="summary-of-all-performance-metrics" class="level2" data-number="4.4"><h2 data-number="4.4" class="anchored" data-anchor-id="summary-of-all-performance-metrics">
-<span class="header-section-number">4.4</span> Summary of All Performance Metrics</h2>
-<p>Safety (no breach within the window), mean catch, and <span class="math inline">\(SB/SB_0\)</span> are also calculated for three time windows:</p>
+<p><strong>Stock status</strong>: the mean <span class="math inline">\(SB/SB_0\)</span>, the lowest annual <span class="math inline">\(SB/SB_0\)</span>, and the mean <span class="math inline">\(SB/SB_{\text{MSY}}\)</span> and <span class="math inline">\(F/F_{\text{MSY}}\)</span>.</p>
+<p><strong>Relative yield</strong>: the mean annual catch relative to the CMP with the highest mean annual catch in the same OM.</p>
+</section><section id="time-windows" class="level2" data-number="4.4"><h2 data-number="4.4" class="anchored" data-anchor-id="time-windows">
+<span class="header-section-number">4.4</span> Time Windows</h2>
+<p>Safety, mean catch, and mean <span class="math inline">\(SB/SB_0\)</span> are also calculated for three time windows:</p>
 <ol type="1">
 <li>Short: the first 10 years (2028–2037);</li>
-<li>Medium: the second 10 years (2038–2047);</li>
+<li>Medium: the years between the short and long windows (2038–2047);</li>
 <li>Long: the last 10 years (2048–2057).</li>
 </ol>
-<p>All the performance metrics reported for every CMP and OM combination are listed in <a href="#tbl-pm-secondary" class="quarto-xref">Table&nbsp;<span>4.2</span></a>.</p>
+<p>The metrics calculated over all 30 years can hide differences in when the outcomes occur. The windows show how the outcomes change over the projection period:</p>
+<ul>
+<li>
+<strong>Safety</strong> shows when the risk to the stock occurs. For example, a CMP can meet the Safety objective over the whole period while most of the years below the LRP occur early or late in the period.</li>
+<li>
+<strong>Mean catch</strong> shows how the catch is distributed over time. For example, it distinguishes CMPs with high initial catches that decline later from CMPs with lower initial catches that increase.</li>
+<li>
+<strong>Mean <span class="math inline">\(SB/SB_0\)</span></strong> shows the trajectory of the stock, i.e., whether it is rebuilding, stable, or declining under each CMP.</li>
+</ul></section><section id="summary-of-all-performance-metrics" class="level2" data-number="4.5"><h2 data-number="4.5" class="anchored" data-anchor-id="summary-of-all-performance-metrics">
+<span class="header-section-number">4.5</span> Summary of All Performance Metrics</h2>
+<p>All the performance metrics reported for every CMP and OM combination are listed in <a href="#tbl-pm-secondary" class="quarto-xref">Table&nbsp;<span>4.2</span></a>, with the codes used in the Slick app (<a href="results.html" class="quarto-xref"><span>Chapter 6</span></a>).</p>
 <div class="cell">
 <div id="tbl-pm-secondary" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure"><figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-pm-secondary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -339,99 +383,183 @@ Table&nbsp;4.2: Performance metrics computed for every CMP and OM combination.
 <div class="cell-output-display">
 <table class="cell caption-top table table-sm table-striped small">
 <colgroup>
-<col style="width: 16%">
-<col style="width: 83%">
+<col style="width: 8%">
+<col style="width: 17%">
+<col style="width: 74%">
 </colgroup>
 <thead><tr class="header">
+<th style="text-align: left;">Code</th>
 <th style="text-align: left;">Metric</th>
 <th style="text-align: left;">Description</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
+<td style="text-align: left;"><code>Safety</code></td>
 <td style="text-align: left;">Probability SB &gt; LRP</td>
-<td style="text-align: left;">Probability that spawning biomass remains above the limit reference point (LRP; 17% SB0) in every year of the projection period: a simulation that falls below the LRP in any year is a breach.</td>
+<td style="text-align: left;">Probability that spawning biomass is above the limit reference point (LRP; 17% SB0) in any given year of the projection period (proportion of simulations and years).</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Probability F &lt;= F target (F40%)</td>
-<td style="text-align: left;">Probability that fishing mortality is at or below the F target (F40% of the HCR), over all projection years.</td>
+<td style="text-align: left;"><code>Status_F</code></td>
+<td style="text-align: left;">Probability F &lt;= F target (of the HCR)</td>
+<td style="text-align: left;">Probability that fishing mortality is at or below the F target of the HCR of the CMP (F40%, F35%, or F30%), over all projection years.</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">F target / F</td>
-<td style="text-align: left;">Median ratio of the F target (F40%) to fishing mortality over the projection years; values above 1 mean F is below the target.</td>
+<td style="text-align: left;"><code>Status_F40</code></td>
+<td style="text-align: left;">Probability F &lt;= F40%</td>
+<td style="text-align: left;">Probability that fishing mortality is at or below F40% (candidate target reference point), over all projection years.</td>
 </tr>
 <tr class="even">
+<td style="text-align: left;"><code>Status_F35</code></td>
+<td style="text-align: left;">Probability F &lt;= F35%</td>
+<td style="text-align: left;">Probability that fishing mortality is at or below F35% (candidate target reference point), over all projection years.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>Status_F30</code></td>
+<td style="text-align: left;">Probability F &lt;= F30%</td>
+<td style="text-align: left;">Probability that fishing mortality is at or below F30% (candidate target reference point), over all projection years.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>Status_SB35</code></td>
+<td style="text-align: left;">Probability SB &gt; 35% SB0</td>
+<td style="text-align: left;">Probability that spawning biomass is above 35% SB0 (candidate threshold reference point) in any given year of the projection period.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>Status_SB30</code></td>
+<td style="text-align: left;">Probability SB &gt; 30% SB0</td>
+<td style="text-align: left;">Probability that spawning biomass is above 30% SB0 (candidate threshold reference point) in any given year of the projection period.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>Status_SB25</code></td>
+<td style="text-align: left;">Probability SB &gt; 25% SB0</td>
+<td style="text-align: left;">Probability that spawning biomass is above 25% SB0 (candidate threshold reference point) in any given year of the projection period.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>Status_SB</code></td>
+<td style="text-align: left;">Probability SB &gt; ThRP (of the HCR)</td>
+<td style="text-align: left;">Probability that spawning biomass is above the threshold reference point of the HCR of the CMP (ThRP; 35%, 30%, or 25% SB0) in any given year of the projection period.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>FTarget_F</code></td>
+<td style="text-align: left;">F target (of the HCR) / F</td>
+<td style="text-align: left;">Median ratio of the F target of the HCR of the CMP to fishing mortality over the projection years; values above 1 mean F is below the target.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>FTarget_F_F40</code></td>
+<td style="text-align: left;">F40% / F</td>
+<td style="text-align: left;">Median ratio of F40% to fishing mortality over the projection years; values above 1 mean F is below F40%.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>FTarget_F_F35</code></td>
+<td style="text-align: left;">F35% / F</td>
+<td style="text-align: left;">Median ratio of F35% to fishing mortality over the projection years; values above 1 mean F is below F35%.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>FTarget_F_F30</code></td>
+<td style="text-align: left;">F30% / F</td>
+<td style="text-align: left;">Median ratio of F30% to fishing mortality over the projection years; values above 1 mean F is below F30%.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>Stability</code></td>
 <td style="text-align: left;">Catch stability (TAC change &lt;= 10%)</td>
 <td style="text-align: left;">Probability that the TAC changes by no more than 10% between consecutive management cycles.</td>
 </tr>
 <tr class="odd">
+<td style="text-align: left;"><code>NoChange</code></td>
 <td style="text-align: left;">Probability of no management change</td>
 <td style="text-align: left;">Probability of no management change: the probability that the TAC changes by no more than 1% between consecutive management cycles.</td>
 </tr>
 <tr class="even">
+<td style="text-align: left;"><code>Yield_Hist</code></td>
 <td style="text-align: left;">Probability catch &gt;= 2008-2010 catch</td>
 <td style="text-align: left;">Probability that the annual catch is at least the mean historical catch in 2008-2010, over all projection years.</td>
 </tr>
 <tr class="odd">
+<td style="text-align: left;"><code>Yield_Recent</code></td>
+<td style="text-align: left;">Probability catch &gt;= 2016-2021 catch</td>
+<td style="text-align: left;">Probability that the annual catch is at least the mean historical catch in 2016-2021, over all projection years.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>Yield_All</code></td>
 <td style="text-align: left;">Mean catch (all years)</td>
 <td style="text-align: left;">Mean annual catch (t) over all projection years.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
+<td style="text-align: left;"><code>Yield_Short</code></td>
 <td style="text-align: left;">Mean catch (years 1-10)</td>
 <td style="text-align: left;">Mean annual catch (t) over the first 10 projection years (short-term).</td>
 </tr>
-<tr class="odd">
+<tr class="even">
+<td style="text-align: left;"><code>Yield_Medium</code></td>
 <td style="text-align: left;">Mean catch (years 11-20)</td>
 <td style="text-align: left;">Mean annual catch (t) over the middle 10 projection years (medium-term).</td>
 </tr>
-<tr class="even">
+<tr class="odd">
+<td style="text-align: left;"><code>Yield_Long</code></td>
 <td style="text-align: left;">Mean catch (years 21-30)</td>
 <td style="text-align: left;">Mean annual catch (t) over the final 10 projection years (long-term).</td>
 </tr>
-<tr class="odd">
+<tr class="even">
+<td style="text-align: left;"><code>Safety_Short</code></td>
 <td style="text-align: left;">Probability SB &gt; LRP (years 1-10)</td>
-<td style="text-align: left;">Probability that spawning biomass remains above the limit reference point (LRP; 17% SB0) in every year of the first 10 projection years (short-term).</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Probability SB &gt; LRP (years 11-20)</td>
-<td style="text-align: left;">Probability that spawning biomass remains above the limit reference point (LRP; 17% SB0) in every year of the middle 10 projection years (medium-term).</td>
+<td style="text-align: left;">Probability that spawning biomass is above the limit reference point (LRP; 17% SB0) in any given year of the first 10 projection years (short-term).</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Probability SB &gt; LRP (years 21-30)</td>
-<td style="text-align: left;">Probability that spawning biomass remains above the limit reference point (LRP; 17% SB0) in every year of the final 10 projection years (long-term).</td>
+<td style="text-align: left;"><code>Safety_Medium</code></td>
+<td style="text-align: left;">Probability SB &gt; LRP (years 11-20)</td>
+<td style="text-align: left;">Probability that spawning biomass is above the limit reference point (LRP; 17% SB0) in any given year of the middle 10 projection years (medium-term).</td>
 </tr>
 <tr class="even">
+<td style="text-align: left;"><code>Safety_Long</code></td>
+<td style="text-align: left;">Probability SB &gt; LRP (years 21-30)</td>
+<td style="text-align: left;">Probability that spawning biomass is above the limit reference point (LRP; 17% SB0) in any given year of the final 10 projection years (long-term).</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>Safety_NoBreach</code></td>
+<td style="text-align: left;">Probability SB &gt; LRP in every year</td>
+<td style="text-align: left;">Probability that spawning biomass remains above the LRP (17% SB0) in every year of the projection period: a simulation that falls below the LRP in any year is a breach.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>Depletion_All</code></td>
 <td style="text-align: left;">SB/SB0 (all years)</td>
 <td style="text-align: left;">Mean spawning biomass relative to the equilibrium unfished spawning biomass (SB/SB0) over all projection years.</td>
 </tr>
 <tr class="odd">
+<td style="text-align: left;"><code>Depletion_Short</code></td>
 <td style="text-align: left;">SB/SB0 (years 1-10)</td>
 <td style="text-align: left;">Mean SB/SB0 over the first 10 projection years (short-term).</td>
 </tr>
 <tr class="even">
+<td style="text-align: left;"><code>Depletion_Medium</code></td>
 <td style="text-align: left;">SB/SB0 (years 11-20)</td>
 <td style="text-align: left;">Mean SB/SB0 over the middle 10 projection years (medium-term).</td>
 </tr>
 <tr class="odd">
+<td style="text-align: left;"><code>Depletion_Long</code></td>
 <td style="text-align: left;">SB/SB0 (years 21-30)</td>
 <td style="text-align: left;">Mean SB/SB0 over the final 10 projection years (long-term).</td>
 </tr>
 <tr class="even">
+<td style="text-align: left;"><code>Depletion_Min</code></td>
 <td style="text-align: left;">Minimum SB/SB0</td>
 <td style="text-align: left;">Lowest annual SB/SB0 reached during the projection.</td>
 </tr>
 <tr class="odd">
+<td style="text-align: left;"><code>Kobe_Green</code></td>
 <td style="text-align: left;">Probability Kobe green quadrant</td>
 <td style="text-align: left;">Probability that SB &gt; SBMSY and F &lt; FMSY in the same year, over all projection years.</td>
 </tr>
 <tr class="even">
+<td style="text-align: left;"><code>SB_SBMSY_All</code></td>
 <td style="text-align: left;">SB/SBMSY (all years)</td>
 <td style="text-align: left;">Mean annual SB/SBMSY over all projection years.</td>
 </tr>
 <tr class="odd">
+<td style="text-align: left;"><code>F_FMSY_All</code></td>
 <td style="text-align: left;">F/FMSY (all years)</td>
 <td style="text-align: left;">Mean annual F/FMSY over all projection years.</td>
 </tr>
 <tr class="even">
+<td style="text-align: left;"><code>AAVY</code></td>
 <td style="text-align: left;">Average TAC variability</td>
 <td style="text-align: left;">Mean absolute relative change in the TAC between management cycles.</td>
 </tr>
