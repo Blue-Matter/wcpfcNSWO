@@ -11,7 +11,8 @@ FminSPR   <- 0.9                # Fmin = F90%
 TACChange <- c(0.1, 0.2)        # maximum TAC change (up or down) between management cycles
 
 # Candidate HCRs: Table 2 of the candidate inputs for the MSE (NC22 Summary
-# Report, Attachment 7). The F target of each HCR is set by tuning (tunepar):
+# Report, Attachment 7).
+# The F target of each HCR is set by tuning (tunepar):
 # each CMP is tuned so that P(F <= F target) >= PStatus
 HCRs <- data.frame(HCR        = 1:6,
                    FTargetSPR = c(0.40, 0.40, 0.40, 0.35, 0.35, 0.30),
@@ -33,10 +34,6 @@ FTarget_FMSY <- lapply(stats::setNames(FTargetSPRs, FLabel(FTargetSPRs)),
                        \(SPR) Calc_FTarget_FMSY(Hist, SPR = SPR))
 
 # ---- Indices ----
-# Index sets of all CMPs (IR, IT, SP): the Japanese late longline CPUE
-# (Areas 1 and 2) alone and with the US shallow-set (S8) and/or Taiwanese (S5)
-# longline CPUE. S6 is a recruitment index. S5 and S8 have lambda = 0 in the
-# base case assessment
 IndexSets <- list(JPN    = c('S2_JPN_WCNPO_OSDWCOLL_late_Area1', 'S4_JPN_WCNPO_OSDWLL_late_Area2'),
                   JPNUS  = c('S2_JPN_WCNPO_OSDWCOLL_late_Area1', 'S4_JPN_WCNPO_OSDWLL_late_Area2',
                              'S8_US_WCNPO_LL_shallow_late'),
@@ -46,10 +43,12 @@ IndexSets <- list(JPN    = c('S2_JPN_WCNPO_OSDWCOLL_late_Area1', 'S4_JPN_WCNPO_O
                              'S5_TWN_WCNPO_DWLL_late', 'S8_US_WCNPO_LL_shallow_late'))
 IndexSetLabel <- c(JPN = 'JPN', JPNUS = 'JPN + US', JPNTWN = 'JPN + TWN', All = 'JPN + US + TWN')
 
-# Index set(s) of the CMPs. All four sets were tested (144 CMPs); the index set
-# made little difference to the performance of the IR and SP CMPs (mean catch
-# within 2% across the sets for 90% of CMP x OM combinations), so only the set
-# with all the indices is kept (36 CMPs)
+# Index set(s) of the CMPs.
+#
+# All four sets were tuned and tested (144 CMPs).
+# The choice of index set made little difference to the performance of the IR
+# and SP CMPs (mean catch within 2% across the sets for 90% of CMP x OM
+# combinations), so only the set with all the indices is kept (36 CMPs)
 CMPIndexSets <- 'All'
 
 MPIndices <- function(MP, IndexSet) IndexSets[[IndexSet]]
@@ -58,10 +57,10 @@ MPIndices <- function(MP, IndexSet) IndexSets[[IndexSet]]
 # The catch and indices contain little information on stock size: catch is
 # near-constant since 1975 and the indices have no trend.
 
-# With biomass fixed at K at the start of the fitted years (the MSEtool default),
+# With biomass fixed at K at the start of the fitted years
 # MSY and K run to their upper bounds and most fits fail.
 #
-# So the model is fitted from the start of the late Japanese series (1994;
+# The model is fitted from the start of the late Japanese series (1994;
 # the early series S1 and S3 end in 1993), the depletion in 1994 is estimated,
 # and weakly informative lognormal priors are set on depletion (B/K) and MSY
 # (median twice the mean historical catch)
@@ -76,13 +75,9 @@ SPSettings <- list(Shape        = 2,           # Schaefer; the settings below we
                                        Depletion = c(0.5, 0.5),
                                        MSY       = c(2 * SPMeanCatch, 1)))
 
+
 ## Index level at SB0 of each index (IndexSB0), so the status of the index CMPs,
 # index / IndexSB0, is in units of SB/SB0, as are the HCR control points.
-# Calibrated on the projection of the base case OM (05a-Calibrate-IndexSB0.R:
-# mean index / mean SB/SB0, 2022-2051, constant catch), where the HCR operates.
-# Calculated once, from the base case, and used, as MP arguments, with every OM.
-# Calibrated on the historical years (below, IndexSB0Hist), the CMPs' status ran
-# at only ~0.77 x OM SB/SB0 in the projection (with a 2017-2021 window, ~0.72)
 IndexNames <- unique(unlist(IndexSets))
 
 Survey    <- Hist@Data[[1]][[1]]@Survey
@@ -99,13 +94,12 @@ DepCalib <- vapply(IndexSB0Years, \(Yrs) {
   d <- Dep[Dep$Year %in% Yrs, ]
   stats::median(tapply(d$Value, d$Sim, mean))
 }, numeric(1))
-# historical calibration: each index over all its observed historical years
+
 IndexSB0Hist <- vapply(IndexNames, \(nm) mean(IndexValue[[nm]][IndexYear %in% IndexSB0Years[[nm]]], na.rm = TRUE) /
                          DepCalib[[nm]], numeric(1))
 
 IndexSB0File <- file.path('objects', 'IndexSB0.rds')
-if (!file.exists(IndexSB0File))
-  stop('Run analysis/05a-Calibrate-IndexSB0.R first: ', IndexSB0File, ' not found')
+
 IndexSB0Calib <- readRDS(IndexSB0File)
 stopifnot(all(IndexNames %in% names(IndexSB0Calib$IndexSB0)))
 IndexSB0 <- IndexSB0Calib$IndexSB0[IndexNames]
@@ -114,12 +108,12 @@ IndexSB0 <- IndexSB0Calib$IndexSB0[IndexNames]
 TuneDir <- file.path(normalizePath('objects'), 'Tune')
 dir.create(TuneDir, showWarnings = FALSE)
 
-# PM_Removals sums catch to calendar years, so its Mean is the mean annual catch
+
 Objective <- MSEtool::TuneObjective(MSEtool::PM_Removals, Name = 'MeanCatch')
 
-# Candidate management objectives (Table 1 of the candidate inputs): Safety,
-# P(SB > LRP) in any given year >= PSafety, and Status, P(F <= F target of the
-# HCR) >= PStatus
+# Candidate management objectives (Table 1 of the candidate inputs):
+# Safety: P(SB > LRP) in any given year >= PSafety
+# Status: P(F <= F target of the HCR) >= PStatus
 TuneConstraints <- function(FTargetSPR) {
   list(
     MSEtool::TuneConstraint(PM_SafetyLRP, Lim = LRP, Min = PSafety, Name = 'Safety'),
@@ -128,10 +122,6 @@ TuneConstraints <- function(FTargetSPR) {
   )
 }
 
-# The CMPs were first tuned with the stricter Safety constraint P(SB > LRP in
-# every year) >= PSafety (PM_SafetyNoBreach). A saved result tuned with it is
-# kept if Status limited the tuning (StatusBound()), as it is then also the
-# result with the PM_SafetyLRP constraint
 TuneConstraintsNoBreach <- function(FTargetSPR) {
   Cons <- TuneConstraints(FTargetSPR)
   Cons[[1]] <- MSEtool::TuneConstraint(PM_SafetyNoBreach, Lim = LRP, Min = PSafety, Name = 'Safety')
@@ -159,9 +149,7 @@ TuneSpecNoBreach <- function(FTargetSPR) MetricSpec(c(list(Objective), TuneConst
 # TuneMP records a failed projection as infeasible without the error
 AllFailed <- function(Tuned) all(Tuned@History$FailRate >= 1)
 
-# Status limited the tuning: Status fails at the closest larger tunepar tried,
-# and Safety is not binding at the tuned tunepar (more than 0.01 above
-# PSafety), so a weaker Safety constraint gives the same result
+# Status limited the tuning
 StatusBound <- function(Tuned) {
   h   <- Tuned@History[Tuned@History$Stage == 'Tune', ]
   tp  <- Tuned@Args$tunepar
@@ -171,17 +159,11 @@ StatusBound <- function(Tuned) {
     at$Safety[1] > PSafety + 0.01
 }
 
-# The Safety PI (Calc_PM_Stats()) of the Safety constraint of a saved result
-# that is current: 'Safety', or 'Safety_NoBreach' if tuned with PM_SafetyNoBreach
 TunedSafetyPI <- function(Tuned, i) {
   if (isTRUE(all.equal(MetricSpec(Tuned@Settings$Metrics), TuneSpec(CMPs$FTargetSPR[i]), tolerance = 1e-8)))
     'Safety' else 'Safety_NoBreach'
 }
 
-# A saved result is current if its MP settings and tuning specification match
-# those of CMP i (or it was tuned with PM_SafetyNoBreach and Status limited the
-# tuning). Compared with a numerical tolerance, as values derived from
-# reference points (e.g. FminRatio) can differ in the last digits between machines
 IsCurrent <- function(Tuned, i) {
   Spec <- MetricSpec(Tuned@Settings$Metrics)
   isTRUE(all.equal(MPSettings(Tuned@MP), MPSettings(CMPs$Fn[[i]]), tolerance = 1e-8)) &&
@@ -192,9 +174,7 @@ IsCurrent <- function(Tuned, i) {
 }
 
 # ---- MP Settings Selected by 05c-Select-Configs.R ----
-# Candidate values of the MP settings not set by tuning or by the HCR. The
-# values selected for each MP (ConfigsFile) are used for all its CMPs; MSEtool
-# defaults until then. Selected with ConfigCMP
+
 ConfigCandidates <- list(IR = list(RecentYears = c(1, 3), Smooth = c(TRUE, FALSE)),
                          IT = list(RecentYears = c(1, 3), Smooth = c(TRUE, FALSE)))
 ConfigCMP <- list(HCR = 2, IndexSet = 'All', TACChange = 0.1)
@@ -216,16 +196,7 @@ for (mp in names(ConfigCandidates))
 BMSY_K <- function(Shape) if (abs(Shape - 1) < 1e-6) exp(-1) else Shape^(1 / (1 - Shape))
 
 # ---- Candidate MPs ----
-# All HCRs: Fmin below the LRP, linear increase to the target at the ThRP
-# - IR: catch/index rate (fishing intensity) vs index / index at SB0
-# - IT: catch vs index / index at SB0; constant catch above the ThRP, and
-#   the catch of Fmin at the LRP below it (FminRatio * LRP / ThRP)
-# - SP: F (multiple of estimated FMSY) vs estimated B/BMSY; control points
-#   converted from B/K with BMSY/K of the model Shape
-# Indices are equally weighted
 
-# MP arguments of an HCR and configuration: the HCR control points (from the
-# ThRP and Fmin of the HCR and, for SP, the model Shape) and the other settings
 ConfigArgs <- function(MP, HCR, Config) {
   ThRP      <- HCRs$ThRP[HCRs$HCR == HCR]
   FminRatio <- HCRs$FminRatio[HCRs$HCR == HCR]
