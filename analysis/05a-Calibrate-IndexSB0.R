@@ -43,7 +43,8 @@ Calib <- function(Years, MP) {
 }
 
 IndexSB0 <- Calib(CalibYears, 'CurrentCatch')
-# for comparison: the historical calibration (each index over its observed years)
+
+
 HistIndexSB0 <- vapply(names(IndexSB0), \(nm) {
   Yrs <- unique(Index$Y[Index$Index == nm & Index$Y <= max(MSEtool::Years(MSE, 'H'))])
   Calib(Yrs, 'Historical')[[nm]]
