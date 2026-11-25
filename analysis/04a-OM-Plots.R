@@ -49,28 +49,14 @@ SS3Pars <- purrr::map_dfr(seq_len(nrow(SS3Runs)), function(i) {
 ss3_par <- function(om, col, digits = 2) round(SS3Pars[[col]][SS3Pars$OM == om], digits)
 
 # ---- ss3_runs_table ----
-# short reasons for the excluded runs (explained in full in the TSD text)
-ExcludedReason <- c('05' = 'Implausibly large stock',
-                    '06' = 'Implausibly large stock')
-
-knitr::kable(
-  data.frame(OM          = SS3Runs$OM,
-             Description = SS3Runs$Description,
-             Included    = ifelse(SS3Runs$Include, 'Yes', 'No'),
-             Reason      = dplyr::coalesce(unname(ExcludedReason[SS3Runs$OM]),
-                                           ifelse(SS3Runs$Include, '', 'See text'))),
-  row.names = FALSE, col.names = c('OM', 'Description', 'Included', 'Reason for exclusion')
-) |>
-  kableExtra::kable_styling(full_width = FALSE) |>
-  kableExtra::column_spec(2, extra_css = 'white-space: nowrap;')
-
-# ---- ss3_pars_table ----
-# input parameters: shown where they differ from the base case, a ditto mark otherwise
+stopifnot(identical(SS3Pars$OM, SS3Runs$OM))
 Base   <- SS3Pars$OM == '00'
 Ditto  <- function(x) ifelse(!Base & x == x[Base], '”', as.character(x))
+Excl   <- !SS3Runs$Include
 
 knitr::kable(
-  data.frame(OM   = SS3Pars$OM,
+  data.frame(OM          = paste0(SS3Runs$OM, ifelse(Excl, '†', '')),
+             Description = SS3Runs$Description,
              h    = Ditto(SS3Pars$h),
              M    = Ditto(round(SS3Pars$M, 3)),
              Lmax = Ditto(SS3Pars$Lmax),
@@ -81,10 +67,13 @@ knitr::kable(
                  format(round(x), big.mark = ',') else
                  formatC(x, format = 'e', digits = 1)
              }, character(1))),
-  row.names = FALSE, align = c('l', rep('r', 6)),
-  col.names = c('OM', 'Steepness', 'Mean female M', 'Female length at Amax (cm)',
-                'Female K', 'Female L50 (cm)', 'Unfished SB (t)')
-)
+  format = 'html', row.names = FALSE, align = c('l', 'l', rep('r', 6)), escape = FALSE,
+  col.names = c('OM', 'Description', 'h', 'M', 'L<sub>Amax</sub> (cm)', 'K',
+                'L<sub>50</sub> (cm)', 'SB<sub>0</sub> (t)')
+) |>
+  kableExtra::kable_styling(full_width = FALSE) |>
+  kableExtra::column_spec(c(1, 3:8), extra_css = 'white-space: nowrap;') |>
+  kableExtra::row_spec(which(Excl), color = '#888888')
 
 # ---- life_history ----
 LifeHistory <- purrr::imap_dfr(HistList, function(Hist, om) {
@@ -102,7 +91,8 @@ LifeHistory <- purrr::imap_dfr(HistList, function(Hist, om) {
 })
 
 # most OMs share the base-case curve in a panel (e.g. steepness and catchability OMs in all
-# of them): draw only the curves that differ from the base case, with the base case in black
+# of them)
+# draw only the curves that differ from the base case, with the base case in black
 BaseLabel <- OM_Label[['00']]
 BaseLH    <- LifeHistory[LifeHistory$OM == BaseLabel, c('Variable', 'Age', 'Value')]
 names(BaseLH)[3] <- 'Base'
@@ -123,7 +113,7 @@ ggplot(LifeHistory, aes(x = Age, y = Value, colour = OM)) +
   facet_wrap(~Variable, scales = 'free_y', ncol = 1) +
   expand_limits(y = 0) +
   labs(x = 'Age (years)', y = NULL, colour = 'OM',
-       caption = 'OMs not shown in a panel are identical to the base case') +
+       caption = 'OMs not shown in a panel are identical to the Base Case') +
   theme_bw() +
   theme(legend.position = 'right')
 
@@ -161,7 +151,6 @@ knitr::kable(
 )
 
 # ---- index_fits ----
-# all indices used by the CMPs (IndexSets in 05b-Define-CMPs.R); S5 and S8 are not fitted in SS3
 CMPIndices <- c('S2_JPN_WCNPO_OSDWCOLL_late_Area1', 'S4_JPN_WCNPO_OSDWLL_late_Area2',
                 'S5_TWN_WCNPO_DWLL_late', 'S8_US_WCNPO_LL_shallow_late')
 MSEtool::PlotIndexFit(BaseHist, 'Survey', nsim = 0, ribbon = TRUE, Fleets = CMPIndices) +
@@ -194,20 +183,26 @@ status_range <- function(col, digits = 2) round(range(StockStatus[[col]]), digit
 base_value   <- function(col, digits = 2) round(StockStatus[[col]][StockStatus$OM == '00'], digits)
 
 # ---- stock_status_table ----
+# stock status in the terminal year and the MSY reference points of each OM
+f2 <- function(x) formatC(x, format = 'f', digits = 2)
+f0 <- function(x) format(round(x), big.mark = ',', scientific = FALSE)
 knitr::kable(
-  data.frame(OM = OM_Label[StockStatus$OM],
-             StockStatus[, c('SB_SB0', 'SB_SBMSY', 'F_FMSY', 'SBMSY_SB0')]),
-  digits = 2, row.names = FALSE,
-  col.names = c('OM', 'SB/SB0', 'SB/SBMSY', 'F/FMSY', 'SBMSY/SB0')
-)
-
-# ---- refpoints_table ----
-knitr::kable(
-  data.frame(OM = OM_Label[StockStatus$OM], FMSY = StockStatus$FMSY,
-             SBMSY = round(StockStatus$SBMSY), MSY = round(StockStatus$MSY)),
-  digits = 3, row.names = FALSE, format.args = list(big.mark = ',', scientific = FALSE),
-  col.names = c('OM', 'FMSY', 'SBMSY (t)', 'MSY (t)')
-)
+  data.frame(OM        = StockStatus$OM,  # descriptions in the SS3 runs table
+             SB_SB0    = f2(StockStatus$SB_SB0),
+             SB_SBMSY  = f2(StockStatus$SB_SBMSY),
+             F_FMSY    = f2(StockStatus$F_FMSY),
+             SBMSY_SB0 = f2(StockStatus$SBMSY_SB0),
+             FMSY      = formatC(StockStatus$FMSY, format = 'f', digits = 3),
+             SBMSY     = f0(StockStatus$SBMSY),
+             MSY       = f0(StockStatus$MSY)),
+  format = 'html', row.names = FALSE, escape = FALSE, align = c('l', rep('r', 7)),
+  col.names = c('OM', 'SB/SB<sub>0</sub>', 'SB/SB<sub>MSY</sub>', 'F/F<sub>MSY</sub>',
+                'SB<sub>MSY</sub>/SB<sub>0</sub>', 'F<sub>MSY</sub>', 'SB<sub>MSY</sub> (t)', 'MSY (t)')
+) |>
+  kableExtra::kable_styling(full_width = FALSE) |>
+  kableExtra::add_header_above(c(' ' = 1, setNames(3, paste('Status in', TerminalYear)),
+                                 'MSY reference points' = 4)) |>
+  kableExtra::column_spec(2:8, extra_css = 'white-space: nowrap;')
 
 # ---- trajectories ----
 Trajectories <- purrr::imap_dfr(HistList, function(Hist, om) {
