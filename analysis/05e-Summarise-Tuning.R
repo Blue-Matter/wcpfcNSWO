@@ -1,6 +1,6 @@
-# Summarise the tuned CMPs (05d-Tune-CMPs.R), after the .tune files of every
-# machine have been copied into objects/Tune. Writes Summary.csv and the tuned
-# CMPs for the projections (TunedCMPs.rds)
+# Summarise the tuned CMPs (05d-Tune-CMPs.R)
+# Writes Summary.csv and the tuned CMPs for the projections (TunedCMPs.rds)
+
 source('analysis/05b-Define-CMPs.R')
 
 Files <- file.path(TuneDir, paste0(CMPs$Name, '.tune'))
@@ -20,8 +20,7 @@ Summary <- CMPs[IsDone, c('Name', 'MP', 'HCR', 'FTargetSPR', 'ThRP', 'IndexSet',
 Summary$tunepar    <- vapply(Tuned[IsDone], \(x) x@Args$tunepar, numeric(1))
 Summary$TuneStatus <- vapply(Tuned[IsDone], \(x) x@Status, character(1))
 Summary[[Objective$Name]] <- vapply(Tuned[IsDone], \(x) x@Objective, numeric(1))
-# PI of the Safety constraint: 'Safety' (PM_SafetyLRP), or 'Safety_NoBreach' for
-# results tuned with PM_SafetyNoBreach and kept (see IsCurrent())
+
 Summary$SafetyPI <- vapply(which(IsDone), \(i) TunedSafetyPI(Tuned[[i]], i), character(1))
 for (nm in c('Safety', 'Status'))
   Summary[[nm]] <- vapply(Tuned[IsDone], \(x) {
@@ -29,18 +28,22 @@ for (nm in c('Safety', 'Status'))
     Tab$Value[Tab$Name == nm]
   }, numeric(1))
 
-# where each tuning was run
+# Info on the machine and MSEtool version/SHA where the tunings were run
 Info <- function(x, nm) x@Settings$RunInfo[[nm]] %||% NA
-Summary$Machine      <- vapply(Tuned[IsDone], \(x) as.character(Info(x, 'Machine')), character(1))
-Summary$MSEtool      <- vapply(Tuned[IsDone], \(x) as.character(Info(x, 'MSEtool')), character(1))
-Summary$MSEtoolSHA   <- vapply(Tuned[IsDone], \(x) as.character(Info(x, 'MSEtoolSHA')), character(1))
-Summary$MSEtoolBuilt <- vapply(Tuned[IsDone], \(x) as.character(Info(x, 'MSEtoolBuilt')), character(1))
-Summary$Minutes      <- vapply(Tuned[IsDone], \(x) as.numeric(Info(x, 'Minutes')), numeric(1))
-
-# MSEtool source of each tuning: the GitHub commit, or (installed from a local
-# copy, so no commit recorded) the build time, which differs between machines
-Summary$MSEtoolSource <- ifelse(is.na(Summary$MSEtoolSHA), paste('built', Summary$MSEtoolBuilt),
+Summary$Machine       <- vapply(Tuned[IsDone], \(x)
+                                as.character(Info(x, 'Machine')), character(1))
+Summary$MSEtool       <- vapply(Tuned[IsDone], \(x)
+                                as.character(Info(x, 'MSEtool')), character(1))
+Summary$MSEtoolSHA    <- vapply(Tuned[IsDone], \(x)
+                                as.character(Info(x, 'MSEtoolSHA')), character(1))
+Summary$MSEtoolBuilt  <- vapply(Tuned[IsDone], \(x)
+                                as.character(Info(x, 'MSEtoolBuilt')), character(1))
+Summary$Minutes       <- vapply(Tuned[IsDone], \(x)
+                                as.numeric(Info(x, 'Minutes')), numeric(1))
+Summary$MSEtoolSource <- ifelse(is.na(Summary$MSEtoolSHA),
+                                paste('built', Summary$MSEtoolBuilt),
                                 substr(Summary$MSEtoolSHA, 1, 8))
+
 Builds <- unique(Summary[c('MSEtool', 'MSEtoolSource')])
 if (nrow(Builds) > 1) {
   cli::cli_alert_warning("CMPs were tuned with {nrow(Builds)} different MSEtool versions or builds; check they are the same commit:")
