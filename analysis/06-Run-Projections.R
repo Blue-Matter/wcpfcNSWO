@@ -31,13 +31,14 @@ OM_DF <- ListSS3Runs() |>
 
 # OM_DF$RunMSE <- OM_DF$OM %in% c('00', '01')
 
-MSEFile <- function(OM, Group) file.path(MSEDir, OM, paste0(Group, '.mse'))
+MSEFile  <- function(OM, Group) {
+  file.path(MSEDir, OM, paste0(Group, '.mse'))
+}
 
-# Small files saved next to each .mse file, so it need not be read (~400 MB) to
-# check it or to summarise it again: the MP arguments of its CMPs (.args.rds)
-# and its performance indicators (.perf.rds). A small file older than its .mse
-# file is ignored (and replaced)
-SideFile <- function(File, Type) paste0(tools::file_path_sans_ext(File), '.', Type, '.rds')
+SideFile <- function(File, Type) {
+  paste0(tools::file_path_sans_ext(File), '.', Type, '.rds')
+}
+
 ReadSide <- function(File, Type) {
   Side <- SideFile(File, Type)
   if (file.exists(Side) && file.mtime(Side) >= file.mtime(File)) readRDS(Side)
@@ -45,7 +46,6 @@ ReadSide <- function(File, Type) {
 
 CMPArgs <- lapply(TunedCMPs, formals)
 
-# MP arguments (incl. tunepar) of the CMPs in a saved group
 SavedArgs <- function(File) {
   Args <- ReadSide(File, 'args')
   if (is.null(Args)) {
@@ -55,7 +55,6 @@ SavedArgs <- function(File) {
   Args
 }
 
-# CMPs of a saved group that are current: same MP arguments (incl. tunepar)
 CurrentCMPs <- function(File, CMPNames) {
   if (!file.exists(File)) return(character(0))
   Saved <- SavedArgs(File)
@@ -82,10 +81,7 @@ if (any(OM_DF$RunMSE)) {
         cli::cli_alert_info('{g}: current results exist')
         next
       }
-      # Only the new or re-tuned CMPs are projected, and combined with the
-      # current CMPs of the saved group. MSEtool's Subset() fails if it drops
-      # the first MP of an object with data.frames in its PPD (SP MPs; in
-      # JoinYear()), so the whole group is projected if its first CMP changed
+
       Keep    <- if (Overwrite) character(0) else CurrentCMPs(File, Groups[[g]])
       Partial <- length(Keep) > 0 && names(SavedArgs(File))[1] %in% Keep
       ToRun   <- if (Partial) setdiff(Groups[[g]], Keep) else Groups[[g]]
@@ -111,10 +107,6 @@ if (any(OM_DF$RunMSE)) {
 }
 
 # ---- Performance ----
-# Mean over simulations of each performance indicator (see Calc_PM_Stats()),
-# from the true F and SB in the OM: Status against the F target of the HCR of
-# each CMP, and against each F target; Status_SB against the threshold
-# reference point of the HCR of each CMP
 source('analysis/00a-PM-Specifications.R')
 
 MPFTarget <- stats::setNames(paste0('F', round(100 * TuneSummary$FTargetSPR)), TuneSummary$Name)
@@ -138,13 +130,11 @@ parallel::clusterEvalQ(cl, {
 })
 FTarget_FMSY <- parallel::parLapply(cl, Done$HistFile, \(f) PM_FTarget_FMSY(readRDS(f)))
 
-# Everything the performance indicators of a group depend on; the saved
-# performance of a group (.perf.rds) is re-used only if this is unchanged
 PerfKey <- function(j) {
   CMPNames <- Groups[[Jobs$Group[j]]]
   list(CMPArgs = CMPArgs[CMPNames], FTarget_FMSY = FTarget_FMSY[[Jobs$i[j]]],
        MPFTarget = MPFTarget[CMPNames], MPThRP = MPThRP[CMPNames],
-       Settings = list(LRP = LRP, StabilityThreshold = StabilityThreshold,
+       Settings = list(LRP = LRP, StatusThRP = StatusThRP, StabilityThreshold = StabilityThreshold,
                        NoChangeThreshold = NoChangeThreshold, CatchRefYears = CatchRefYears),
        Code = lapply(list(Calc_PM_Stats, Extract_MSE_Timeseries, PM_Window_Years, Calc_SP_Convergence),
                      \(f) deparse(f)),
@@ -158,7 +148,6 @@ Results <- lapply(seq_len(nrow(Jobs)), \(j) {
 ToDo <- which(vapply(Results, is.null, logical(1)))
 cli::cli_inform("Performance of {nrow(Jobs) - length(ToDo)} group{?s} re-used; calculating {length(ToDo)}.")
 
-# Each group is summarised on a parallel worker, reading its .mse file once
 if (length(ToDo)) {
   parallel::clusterExport(cl, c('Jobs', 'Done', 'Keys', 'SideFile'))
   Results[ToDo] <- parallel::parLapplyLB(cl, ToDo, \(j) {
@@ -167,7 +156,7 @@ if (length(ToDo)) {
     MSE  <- readRDS(Jobs$File[j])
     Stats <- Calc_PM_Stats(MSE, Lim = LRP, StabilityThreshold = StabilityThreshold,
                            NoChangeThreshold = NoChangeThreshold, FTarget_FMSY = Key$FTarget_FMSY,
-                           MPFTarget = Key$MPFTarget, MPThRP = Key$MPThRP, CatchRefYears = CatchRefYears)
+                           MPFTarget = Key$MPFTarget, ThRP = StatusThRP, MPThRP = Key$MPThRP, CatchRefYears = CatchRefYears)
     Mean <- tapply(Stats$Value, list(Stats$MP, Stats$PI), mean)
     Conv <- Calc_SP_Convergence(MSE)
     Out  <- list(Key = Key,
@@ -186,20 +175,16 @@ SPConvergence <- do.call(rbind, lapply(Results, `[[`, 'SPConvergence'))
 
 if (!is.null(PerformanceDF)) {
   PerformanceDF <- PerformanceDF[order(PerformanceDF$OM, match(PerformanceDF$CMP, names(TunedCMPs))), ]
-  print(PerformanceDF[, c('OM', 'CMP', 'Safety', 'Status', 'Stability', 'NoChange', names(CatchRefYears),
+  print(PerformanceDF[, c('OM', 'CMP', 'Safety', 'Status_F', 'Stability', 'NoChange', names(CatchRefYears),
                           'Yield_All')],
         row.names = FALSE, digits = 3)
   utils::write.csv(PerformanceDF, file.path(MSEDir, 'Performance.csv'), row.names = FALSE)
 
-  ## Base case: projections reproduce the tuning constraints (Safety and Status).
-  # The PI of the Safety constraint of each CMP is in TuneSummary$SafetyPI
-  # ('Safety', or 'Safety_NoBreach'; see IsCurrent() in 05b-Define-CMPs.R)
   Base <- PerformanceDF[PerformanceDF$OM == '00', ]
   if (nrow(Base)) {
-    # (Summary.csv written before SafetyPI was added: all tuned with PM_SafetyNoBreach)
     SafetyPI <- (TuneSummary$SafetyPI %||% rep('Safety_NoBreach', nrow(TuneSummary)))[
       match(Base$CMP, TuneSummary$Name)]
-    Check <- data.frame(CMP = Base$CMP, Status = Base$Status,
+    Check <- data.frame(CMP = Base$CMP, Status = Base$Status_F,
                         Safety = ifelse(SafetyPI == 'Safety', Base$Safety, Base$Safety_NoBreach))
     Check <- merge(Check, TuneSummary[, c('Name', 'Safety', 'Status')],
                    by.x = 'CMP', by.y = 'Name', suffixes = c('', '_Tuned'))
