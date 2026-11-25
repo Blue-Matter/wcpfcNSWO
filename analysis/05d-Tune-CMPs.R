@@ -1,19 +1,16 @@
-# Tune the candidate management procedures for the base case OM: maximise
+# Tune the candidate management procedures for the Base Case OM: maximise
 # catch subject to the Safety (P(SB > LRP) in any given year >= PSafety) and
-# Status (P(F <= F target of the HCR) >= PStatus) constraints. Run
-# 05c-Select-Configs.R first to select the MP settings not set by tuning
+# Status (P(F <= F target of the HCR) >= PStatus) constraints.
 #
-# The CMPs can be tuned on several machines: set Batch to a different value
-# (1, ..., nBatch) on each machine, then copy the .tune files of every machine
-# into objects/Tune and run 05e-Summarise-Tuning.R. Every machine must have the
-# same objects/Hist/00.hist, objects/Tune/Configs.rds, wcpfcNSWO commit, and
-# MSEtool version. A CMP with a current saved result is not tuned again
+# Run 05c-Select-Configs.R first to select the MP settings not set by tuning
+#
+
 source('analysis/05b-Define-CMPs.R')
 
 HistFile <- normalizePath('objects/Hist/00.hist')
 
-nBatch    <- 2         # number of batches (machines)
-Batch     <- 2         # batch tuned on this machine; NULL for all CMPs
+nBatch    <- 1         # number of batches (machines)
+Batch     <- 1         # batch tuned on this machine; NULL for all CMPs
 Overwrite <- FALSE     # re-tune CMPs with a current saved result
 DryRun    <- FALSE     # only estimate the number of projections and run time
 nWorkers  <- 9        # number of CMPs tuned at once, one per worker (each tuning runs sequentially
@@ -21,8 +18,6 @@ nWorkers  <- 9        # number of CMPs tuned at once, one per worker (each tunin
 
 Control <- MSEtool::TuneControl(Interval = TuneInterval, DryRun = DryRun)
 
-# CMPs alternate between batches; CMPs are ordered by TAC change limit, HCR,
-# index set and MP, so each batch has a similar mix of MPs
 CMPs$Batch <- rep_len(seq_len(nBatch), nrow(CMPs))
 BatchInd   <- if (is.null(Batch)) seq_len(nrow(CMPs)) else which(CMPs$Batch %in% Batch)
 cli::cli_inform("Tuning {length(BatchInd)} of {nrow(CMPs)} CMPs (batch {Batch %||% 'all'} of {nBatch}).")
