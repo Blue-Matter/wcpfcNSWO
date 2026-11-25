@@ -112,14 +112,17 @@ Extract_MSE_Timeseries <- function(MSE, Stock = 'Female', FTarget_FMSY = NULL) {
 #'   (NC22 Summary Report, Attachment 7).
 #' - `Safety_NoBreach`: probability that SB > `Lim` SB0 in every year, i.e. a
 #'   simulation that falls below the LRP in any year is a breach.
-#' - `Status`: probability that F <= F target (proportion of years), and
+#' - `Status_F`: probability that F <= F target (proportion of years), and
 #'   `FTarget_F`: median F target / F, with the F target of each MP
 #'   (`MPFTarget`), or the single F target in `TS` (`F_FTarget`).
 #' - `Status_<name>`, `FTarget_F_<name>` (e.g. `Status_F40`): the same for
 #'   each F target in `TS` (`F_<name>`; see [Extract_MSE_Timeseries()]), for
 #'   every MP.
-#' - `Status_SB`: probability that SB > the threshold reference point of each
-#'   MP (`MPThRP`, a fraction of SB0) in any given year (proportion of years).
+#' - `Status_<name>` for each element of `ThRP` (e.g. `Status_SB35`):
+#'   probability that SB > that threshold reference point (a fraction of SB0)
+#'   in any given year (proportion of years), the same threshold for every MP.
+#' - `Status_SB`: probability that SB > the threshold reference point of the
+#'   HCR of each MP (`MPThRP`) in any given year (proportion of years).
 #'
 #' F and SB are the true values in the OM, not the MP's estimates; the F
 #' target and threshold of each MP are those of its HCR.
@@ -149,10 +152,12 @@ Extract_MSE_Timeseries <- function(MSE, Stock = 'Female', FTarget_FMSY = NULL) {
 #'   unchanged when the change would be less than 1%).
 #' @param FTarget_FMSY The F target(s) relative to FMSY (see
 #'   [Calc_FTarget_FMSY()] and [Extract_MSE_Timeseries()]), used for the
-#'   default `TS`. Default `NULL` (no `Status` or `FTarget_F`).
+#'   default `TS`. Default `NULL` (no `Status_F` or `FTarget_F`).
 #' @param MPFTarget Optional named character vector: the name of the F target
-#'   in `FTarget_FMSY` of each MP (e.g. `c(IR_H1 = 'F40')`), for `Status` and
+#'   in `FTarget_FMSY` of each MP (e.g. `c(IR_H1 = 'F40')`), for `Status_F` and
 #'   `FTarget_F`.
+#' @param ThRP Optional named numeric vector of threshold reference points
+#'   (fractions of SB0), e.g. `c(SB35 = 0.35)`, for `Status_<name>`.
 #' @param MPThRP Optional named numeric vector: the threshold reference point
 #'   (fraction of SB0) of each MP (e.g. `c(IR_H1 = 0.35)`), for `Status_SB`.
 #' @param CatchRefYears Historical years of the reference catch: a numeric
@@ -164,7 +169,7 @@ Extract_MSE_Timeseries <- function(MSE, Stock = 'Female', FTarget_FMSY = NULL) {
 #' @returns A `data.frame` with columns `PI`, `MP`, `Sim`, and `Value`.
 #' @export
 Calc_PM_Stats <- function(MSE, Lim = 0.17, StabilityThreshold = 0.1, NoChangeThreshold = 0.01,
-                          FTarget_FMSY = NULL, MPFTarget = NULL, MPThRP = NULL, CatchRefYears = 2008:2010,
+                          FTarget_FMSY = NULL, MPFTarget = NULL, ThRP = NULL, MPThRP = NULL, CatchRefYears = 2008:2010,
                           TS = Extract_MSE_Timeseries(MSE, FTarget_FMSY = FTarget_FMSY)) {
   if (!is.list(CatchRefYears)) CatchRefYears <- list(Yield_Hist = CatchRefYears)
   CatchRef <- vapply(CatchRefYears, \(yrs)
@@ -214,10 +219,10 @@ Calc_PM_Stats <- function(MSE, Lim = 0.17, StabilityThreshold = 0.1, NoChangeThr
       d
     }))
     TS <- rbind(TS, OwnF)
-    Add('Status', PerSim('F_Own', StatusFUN))
+    Add('Status_F', PerSim('F_Own', StatusFUN))
     Add('FTarget_F', PerSim('F_Own', FTargetFFUN))
   } else if ('F_FTarget' %in% TS$Variable) {
-    Add('Status', PerSim('F_FTarget', StatusFUN))
+    Add('Status_F', PerSim('F_FTarget', StatusFUN))
     Add('FTarget_F', PerSim('F_FTarget', FTargetFFUN))
   }
 
@@ -227,7 +232,11 @@ Calc_PM_Stats <- function(MSE, Lim = 0.17, StabilityThreshold = 0.1, NoChangeThr
     Add(paste0('FTarget_F_', nm), PerSim(paste0('F_', nm), FTargetFFUN))
   }
 
-  # SB above the threshold reference point of each MP
+  # SB above each candidate threshold reference point, for every MP
+  for (nm in names(ThRP))
+    Add(paste0('Status_', nm), PerSim('SB_SB0', \(x) mean(x > ThRP[[nm]])))
+
+  # SB above the threshold reference point of the HCR of each MP
   if (!is.null(MPThRP)) {
     MPThRP <- MPThRP[intersect(names(MPThRP), unique(TS$MP))]
     d <- TS[TS$Variable == 'SB_SB0' & TS$MP %in% names(MPThRP) & TS$Year %in% Years, ]
