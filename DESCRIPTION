@@ -22,20 +22,26 @@ BugReports: https://github.com/Blue-Matter/wcpfcNSWO/issues
 Depends:
     MSEtool (>= 4.0.0)
 Imports:
+    cli,
     dplyr,
     flextable,
     ggplot2,
-    purrr
+    ggrepel,
+    purrr,
+    scales,
+    Slick
 Suggests:
     DLMtool,
     furrr,
     kableExtra,
     knitr,
+    patchwork,
     readxl,
     SAMtool,
     spict,
     tidyr
 Remotes:
     blue-matter/MSEtool,
+    blue-matter/Slick,
     DTUAqua/spict/spict
 Roxygen: list(markdown = TRUE)
