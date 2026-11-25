@@ -1,8 +1,4 @@
-# Select the MP settings not set by tuning or by the HCR (ConfigCandidates in
-# 05b-Define-CMPs.R) for each MP: the configuration with the highest catch when
-# tuned to the Safety and Status constraints. Selected on the base case OM, with
-# the HCR, index set, and TAC change limit of ConfigCMP, and used for all CMPs
-# of that MP in 05d-Tune-CMPs.R. Copy ConfigsFile to every machine used for tuning
+# Select the MP settings not set by tuning
 source('analysis/05b-Define-CMPs.R')
 
 HistFile <- normalizePath('objects/Hist/00.hist')
