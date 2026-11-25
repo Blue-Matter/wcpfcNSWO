@@ -60,6 +60,7 @@ middle, and last 10 years). The PIs of the candidate management objectives
 <span>  NoChangeThreshold <span class="op">=</span> <span class="fl">0.01</span>,</span>
 <span>  FTarget_FMSY <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  MPFTarget <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ThRP <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  MPThRP <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  CatchRefYears <span class="op">=</span> <span class="fl">2008</span><span class="op">:</span><span class="fl">2010</span>,</span>
 <span>  TS <span class="op">=</span> <span class="fu"><a href="Extract_MSE_Timeseries.html">Extract_MSE_Timeseries</a></span><span class="op">(</span><span class="va">MSE</span>, FTarget_FMSY <span class="op">=</span> <span class="va">FTarget_FMSY</span><span class="op">)</span></span>
@@ -93,13 +94,18 @@ unchanged when the change would be less than 1%).</p></dd>
 <dt id="arg-ftarget-fmsy">FTarget_FMSY<a class="anchor" aria-label="anchor" href="#arg-ftarget-fmsy"></a></dt>
 <dd><p>The F target(s) relative to FMSY (see
 <code><a href="Calc_FTarget_FMSY.html">Calc_FTarget_FMSY()</a></code> and <code><a href="Extract_MSE_Timeseries.html">Extract_MSE_Timeseries()</a></code>), used for the
-default <code>TS</code>. Default <code>NULL</code> (no <code>Status</code> or <code>FTarget_F</code>).</p></dd>
+default <code>TS</code>. Default <code>NULL</code> (no <code>Status_F</code> or <code>FTarget_F</code>).</p></dd>
 
 
 <dt id="arg-mpftarget">MPFTarget<a class="anchor" aria-label="anchor" href="#arg-mpftarget"></a></dt>
 <dd><p>Optional named character vector: the name of the F target
-in <code>FTarget_FMSY</code> of each MP (e.g. <code>c(IR_H1 = 'F40')</code>), for <code>Status</code> and
+in <code>FTarget_FMSY</code> of each MP (e.g. <code>c(IR_H1 = 'F40')</code>), for <code>Status_F</code> and
 <code>FTarget_F</code>.</p></dd>
+
+
+<dt id="arg-thrp">ThRP<a class="anchor" aria-label="anchor" href="#arg-thrp"></a></dt>
+<dd><p>Optional named numeric vector of threshold reference points
+(fractions of SB0), e.g. <code>c(SB35 = 0.35)</code>, for <code>Status_&lt;name&gt;</code>.</p></dd>
 
 
 <dt id="arg-mpthrp">MPThRP<a class="anchor" aria-label="anchor" href="#arg-mpthrp"></a></dt>
@@ -130,14 +136,17 @@ calculated.</p></dd>
 (NC22 Summary Report, Attachment 7).</p></li>
 <li><p><code>Safety_NoBreach</code>: probability that SB &gt; <code>Lim</code> SB0 in every year, i.e. a
 simulation that falls below the LRP in any year is a breach.</p></li>
-<li><p><code>Status</code>: probability that F &lt;= F target (proportion of years), and
+<li><p><code>Status_F</code>: probability that F &lt;= F target (proportion of years), and
 <code>FTarget_F</code>: median F target / F, with the F target of each MP
 (<code>MPFTarget</code>), or the single F target in <code>TS</code> (<code>F_FTarget</code>).</p></li>
 <li><p><code>Status_&lt;name&gt;</code>, <code>FTarget_F_&lt;name&gt;</code> (e.g. <code>Status_F40</code>): the same for
 each F target in <code>TS</code> (<code>F_&lt;name&gt;</code>; see <code><a href="Extract_MSE_Timeseries.html">Extract_MSE_Timeseries()</a></code>), for
 every MP.</p></li>
-<li><p><code>Status_SB</code>: probability that SB &gt; the threshold reference point of each
-MP (<code>MPThRP</code>, a fraction of SB0) in any given year (proportion of years).</p></li>
+<li><p><code>Status_&lt;name&gt;</code> for each element of <code>ThRP</code> (e.g. <code>Status_SB35</code>):
+probability that SB &gt; that threshold reference point (a fraction of SB0)
+in any given year (proportion of years), the same threshold for every MP.</p></li>
+<li><p><code>Status_SB</code>: probability that SB &gt; the threshold reference point of the
+HCR of each MP (<code>MPThRP</code>) in any given year (proportion of years).</p></li>
 </ul><p>F and SB are the true values in the OM, not the MP's estimates; the F
 target and threshold of each MP are those of its HCR.</p><ul><li><p><code>Stability</code>: probability that the TAC changes by no more than
 <code>StabilityThreshold</code> between management cycles.</p></li>

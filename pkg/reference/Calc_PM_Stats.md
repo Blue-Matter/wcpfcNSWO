@@ -17,6 +17,7 @@ Calc_PM_Stats(
   NoChangeThreshold = 0.01,
   FTarget_FMSY = NULL,
   MPFTarget = NULL,
+  ThRP = NULL,
   MPThRP = NULL,
   CatchRefYears = 2008:2010,
   TS = Extract_MSE_Timeseries(MSE, FTarget_FMSY = FTarget_FMSY)
@@ -50,14 +51,19 @@ Calc_PM_Stats(
   [`Calc_FTarget_FMSY()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/Calc_FTarget_FMSY.md)
   and
   [`Extract_MSE_Timeseries()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/Extract_MSE_Timeseries.md)),
-  used for the default `TS`. Default `NULL` (no `Status` or
+  used for the default `TS`. Default `NULL` (no `Status_F` or
   `FTarget_F`).
 
 - MPFTarget:
 
   Optional named character vector: the name of the F target in
-  `FTarget_FMSY` of each MP (e.g. `c(IR_H1 = 'F40')`), for `Status` and
-  `FTarget_F`.
+  `FTarget_FMSY` of each MP (e.g. `c(IR_H1 = 'F40')`), for `Status_F`
+  and `FTarget_F`.
+
+- ThRP:
+
+  Optional named numeric vector of threshold reference points (fractions
+  of SB0), e.g. `c(SB35 = 0.35)`, for `Status_<name>`.
 
 - MPThRP:
 
@@ -89,7 +95,7 @@ A `data.frame` with columns `PI`, `MP`, `Sim`, and `Value`.
 - `Safety_NoBreach`: probability that SB \> `Lim` SB0 in every year,
   i.e. a simulation that falls below the LRP in any year is a breach.
 
-- `Status`: probability that F \<= F target (proportion of years), and
+- `Status_F`: probability that F \<= F target (proportion of years), and
   `FTarget_F`: median F target / F, with the F target of each MP
   (`MPFTarget`), or the single F target in `TS` (`F_FTarget`).
 
@@ -98,9 +104,13 @@ A `data.frame` with columns `PI`, `MP`, `Sim`, and `Value`.
   [`Extract_MSE_Timeseries()`](https://wcpfcnswo.bluematterscience.com/pkg/reference/Extract_MSE_Timeseries.md)),
   for every MP.
 
+- `Status_<name>` for each element of `ThRP` (e.g. `Status_SB35`):
+  probability that SB \> that threshold reference point (a fraction of
+  SB0) in any given year (proportion of years), the same threshold for
+  every MP.
+
 - `Status_SB`: probability that SB \> the threshold reference point of
-  each MP (`MPThRP`, a fraction of SB0) in any given year (proportion of
-  years).
+  the HCR of each MP (`MPThRP`) in any given year (proportion of years).
 
 F and SB are the true values in the OM, not the MP's estimates; the F
 target and threshold of each MP are those of its HCR.
