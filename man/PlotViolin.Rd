@@ -67,16 +67,3 @@ simulation and the OM uncertainty. The mean of each OM can be overlaid as
 points, with a reference OM (e.g. the Base Case) highlighted, which shows
 the robustness of each MP across the OMs on the same plot.
 }
-\details{
-Candidate Slick arguments (not in \code{\link[Slick:plotBoxplot]{Slick::plotBoxplot()}}):
-\itemize{
-\item \code{pool}: \code{'pool'} pools the simulations of the OMs; \code{'mean'} (the
-behaviour of \code{plotBoxplot(byOM = FALSE)}) averages each simulation over
-the OMs.
-\item \code{x_by}, \code{fill_by}: group the MPs on the x-axis (e.g. by HCR) and colour
-them by a second attribute (e.g. MP type), dodged within each group.
-\item \code{OM_means}, \code{ref_OM}: overlay the mean in each OM and highlight one OM.
-\item \code{quants}: draw quantile lines inside each violin.
-\item \code{MPs}, \code{ylim}, \code{ylab}, and print styling via \code{\link[=theme_slick_print]{theme_slick_print()}}.
-}
-}

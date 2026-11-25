@@ -89,20 +89,3 @@ split into groups, with one panel per group and the MPs of each group shown
 together with ribbons in the colour of each MP (e.g. one panel per HCR, with
 one line and ribbon per CMP type), or shown with one panel per OM.
 }
-\details{
-Candidate Slick arguments (not in \code{\link[Slick:plotTimeseries]{Slick::plotTimeseries()}}):
-\itemize{
-\item \code{groups}: one panel per group of MPs, with the MPs of a group on the same
-panel (Slick shows either all MPs on one panel or one MP per panel);
-\item \code{MP_labels}, \code{MP_colors}: labels and colours of the MPs for this plot,
-and a legend instead of the repelled MP labels;
-\item \code{ref_year}: vertical line at the first year of management advice;
-\item \code{xlim}, \code{ylim}: axis limits (e.g. to show only recent historical years);
-\item \code{ref_lines}: labelled horizontal reference lines (e.g. the LRP);
-\item \code{byOM} with MPs in the colour of each MP (Slick hides the legend), and
-wrapped OM names;
-\item ribbons in the colour of the MP when there is one MP per panel (use
-\code{groups} with one MP per group; Slick's \code{byMP = TRUE} uses grey ribbons);
-\item font size and family of the Target/Limit labels.
-}
-}

@@ -51,8 +51,3 @@ Plots one Quilt performance indicator for each OM (columns) and MP (rows),
 with the value in each cell. Values below a minimum (e.g. the minimum
 probability of an objective) are shown in bold.
 }
-\details{
-Candidate Slick plot: \code{\link[Slick:plotQuilt]{Slick::plotQuilt()}} shows several PIs for the MPs,
-averaged over the OMs; this shows one PI for each OM, which is the view
-needed to compare the robustness of the MPs across OMs.
-}

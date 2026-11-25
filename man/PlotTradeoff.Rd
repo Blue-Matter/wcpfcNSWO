@@ -66,13 +66,3 @@ Plots the mean (over the selected OMs) of two performance indicators for each
 MP, using the data of \code{\link[Slick:plotTradeoff]{Slick::plotTradeoff()}}, with control over the colour
 and shape of the points, labels, reference lines, and axis limits.
 }
-\details{
-Candidate Slick arguments (not in \code{\link[Slick:plotTradeoff]{Slick::plotTradeoff()}}):
-\itemize{
-\item \code{MP_colors}, \code{color_by}, \code{shape_by}: colour and shape of the points by an
-MP attribute (e.g. MP type and TAC change limit), with a legend;
-\item \code{labels}: turn the MP labels off, or label a subset;
-\item \code{ref_x}, \code{ref_y}: reference lines (e.g. the minimum probability of an objective);
-\item \code{xlim}, \code{ylim}: axis limits (Slick always includes 0).
-}
-}
