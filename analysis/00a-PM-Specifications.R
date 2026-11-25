@@ -4,7 +4,7 @@
 LRP                <- 0.17       # limit reference point: SB / SB0
 StabilityThreshold <- 0.1        # maximum TAC change between management cycles for `Stability`
 NoChangeThreshold  <- 0.01       # maximum TAC change counted as no management change
-PI_Min             <- c(Safety = 0.8, Status = 0.5)  # minimum probabilities of the objectives
+PI_Min             <- c(Safety = 0.8, Status_F = 0.5)  # minimum probabilities of the objectives
 
 # Reference catch for the probability that catch >= historical catch
 CatchRefYears <- list(Yield_Hist   = 2008:2010,
@@ -15,6 +15,11 @@ CatchRefYears <- list(Yield_Hist   = 2008:2010,
 # each CMP, and against each of these
 StatusFTargetSPR <- c(0.40, 0.35, 0.30)
 names(StatusFTargetSPR) <- paste0('F', round(100 * StatusFTargetSPR))
+
+# Candidate threshold reference points (NC22 Summary Report, Attachment 7), as
+# SB / SB0.
+StatusThRP <- c(0.35, 0.30, 0.25)
+names(StatusThRP) <- paste0('SB', round(100 * StatusThRP))
 
 #' F targets relative to FMSY in an OM (Calc_FTarget_FMSY()), named e.g. `F40`
 PM_FTarget_FMSY <- function(Hist) {
