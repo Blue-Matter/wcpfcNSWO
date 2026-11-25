@@ -11,6 +11,7 @@ Calc_PM_Stats(
   NoChangeThreshold = 0.01,
   FTarget_FMSY = NULL,
   MPFTarget = NULL,
+  ThRP = NULL,
   MPThRP = NULL,
   CatchRefYears = 2008:2010,
   TS = Extract_MSE_Timeseries(MSE, FTarget_FMSY = FTarget_FMSY)
@@ -31,11 +32,14 @@ unchanged when the change would be less than 1\%).}
 
 \item{FTarget_FMSY}{The F target(s) relative to FMSY (see
 \code{\link[=Calc_FTarget_FMSY]{Calc_FTarget_FMSY()}} and \code{\link[=Extract_MSE_Timeseries]{Extract_MSE_Timeseries()}}), used for the
-default \code{TS}. Default \code{NULL} (no \code{Status} or \code{FTarget_F}).}
+default \code{TS}. Default \code{NULL} (no \code{Status_F} or \code{FTarget_F}).}
 
 \item{MPFTarget}{Optional named character vector: the name of the F target
-in \code{FTarget_FMSY} of each MP (e.g. \code{c(IR_H1 = 'F40')}), for \code{Status} and
+in \code{FTarget_FMSY} of each MP (e.g. \code{c(IR_H1 = 'F40')}), for \code{Status_F} and
 \code{FTarget_F}.}
+
+\item{ThRP}{Optional named numeric vector of threshold reference points
+(fractions of SB0), e.g. \code{c(SB35 = 0.35)}, for \verb{Status_<name>}.}
 
 \item{MPThRP}{Optional named numeric vector: the threshold reference point
 (fraction of SB0) of each MP (e.g. \code{c(IR_H1 = 0.35)}), for \code{Status_SB}.}
@@ -64,14 +68,17 @@ middle, and last 10 years). The PIs of the candidate management objectives
 (NC22 Summary Report, Attachment 7).
 \item \code{Safety_NoBreach}: probability that SB > \code{Lim} SB0 in every year, i.e. a
 simulation that falls below the LRP in any year is a breach.
-\item \code{Status}: probability that F <= F target (proportion of years), and
+\item \code{Status_F}: probability that F <= F target (proportion of years), and
 \code{FTarget_F}: median F target / F, with the F target of each MP
 (\code{MPFTarget}), or the single F target in \code{TS} (\code{F_FTarget}).
 \item \verb{Status_<name>}, \verb{FTarget_F_<name>} (e.g. \code{Status_F40}): the same for
 each F target in \code{TS} (\verb{F_<name>}; see \code{\link[=Extract_MSE_Timeseries]{Extract_MSE_Timeseries()}}), for
 every MP.
-\item \code{Status_SB}: probability that SB > the threshold reference point of each
-MP (\code{MPThRP}, a fraction of SB0) in any given year (proportion of years).
+\item \verb{Status_<name>} for each element of \code{ThRP} (e.g. \code{Status_SB35}):
+probability that SB > that threshold reference point (a fraction of SB0)
+in any given year (proportion of years), the same threshold for every MP.
+\item \code{Status_SB}: probability that SB > the threshold reference point of the
+HCR of each MP (\code{MPThRP}) in any given year (proportion of years).
 }
 
 F and SB are the true values in the OM, not the MP's estimates; the F
