@@ -22,7 +22,6 @@ RunTime <- parallel::parLapply(cl, SS3_DF$Path[SS3_DF$Run], function(dir, exe) {
 parallel::stopCluster(cl)
 
 # ---- Summary ----
-#' Key outputs of an SS3 run
 SS3Summary <- function(dir) {
   if (!file.exists(file.path(dir, 'Report.sso')))
     return(data.frame(Version = NA))
