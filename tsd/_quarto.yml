@@ -25,6 +25,7 @@ book:
     - forward-projections.qmd
     - performance-metrics.qmd
     - management-procedures.qmd
+    - results.qmd
     - references.qmd
 
 
@@ -38,3 +39,4 @@ format:
     - cosmo
     code-link: true
     toc-depth: 3
+    lightbox: auto

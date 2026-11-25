@@ -60,7 +60,7 @@ The catches of the individual fleets are then combined into the total catch in e
 ```{r}
 #| label: tbl-interim-advice
 #| echo: false
-#| tbl-cap: "The mean, CV, and maximum of the total catch (t, all fleets) in the initial projection years for the base case OM. The total catch combines reported catches (fixed) and assumed catches (random) of the individual fleets."
+#| tbl-cap: "The mean, CV, and maximum of the total catch (t, all fleets) in the initial projection years for the Base Case OM. The total catch combines reported catches (fixed) and assumed catches (random) of the individual fleets."
 knitr::kable(transform(IA[, c('Year', 'Mean', 'CV', 'Max')], Year = as.character(Year)),
              digits = c(0, 0, 3, 0), row.names = FALSE, format.args = list(big.mark = ','))
 ```
@@ -100,34 +100,50 @@ where $\sigma_R$ is the recruitment deviation standard deviation, $\rho$ is the 
 
 ```{r}
 #| include: false
-# sigma_R and rho of each included OM, from its historical recruitment deviations
+# sigma_R and rho of each included OM, from the recruitment deviations of its
+# SS3 run, calculated as in MSEtool::ImportSS (.GetSSRecDevStats): sigma_R
+# from the Main-period deviations and their SEs, rho from the plateau years
 RecRuns <- wcpfcNSWO::ListSS3Runs(SSDir_Base = '../SS3/Base-case')
-RecRuns <- RecRuns[RecRuns$Include & file.exists(file.path('../objects/Hist', paste0(RecRuns$OM, '.hist'))), ]
+RecRuns <- RecRuns[RecRuns$Include, ]
 RecDevTab <- do.call(rbind, lapply(seq_len(nrow(RecRuns)), \(i) {
-  SRR_i <- readRDS(file.path('../objects/Hist', paste0(RecRuns$OM[i], '.hist')))@OM@Stock$Female@SRR
+  OM_i  <- readRDS(file.path('../objects/Hist', paste0(RecRuns$OM[i], '.hist')))@OM
+  SRR_i <- OM_i@Stock$Female@SRR
   Rep   <- suppressMessages(MSEtool::ImportSSReport(RecRuns$Path[i], silent = TRUE)[[1]])
-  Yrs   <- MSEtool:::.GetSSPlateauYears(Rep, Rep$startyr:Rep$endyr)$plateau
+  YearsList <- list(YearsHist = Years(OM_i, 'H'), Seasons = OM_i@Seasons)
+  AnnYears  <- unique(floor(YearsList$YearsHist))
+  Stats <- MSEtool:::.GetSSRecDevStats(Rep, YearsList, OM_i@Stock$Female@Ages)
+  Pars <- MSEtool:::.GetSSRecDevPars(Rep)
+  Pars <- Pars[Pars$Era == 'Main' & Pars$Yr %in% AnnYears & is.finite(Pars$Value), ]
+  ACYrs <- MSEtool:::.GetSSPlateauYears(Rep, AnnYears)$plateau
+  stopifnot(Stats$Method == 'SE',
+            isTRUE(all.equal(Stats$SD, SRR_i@SD[1])), isTRUE(all.equal(Stats$AC, SRR_i@AC[1])))
   data.frame(OM       = paste0(RecRuns$OM[i], ': ', RecRuns$Description[i]),
-             Years    = paste(range(Yrs), collapse = '--'),
+             SDYears  = paste(range(Pars$Yr), collapse = '--'),
              SigmaR   = SRR_i@SD[1],
+             RawSD    = stats::sd(Pars$Value),
+             ACYears  = paste(range(ACYrs), collapse = '--'),
              AC       = SRR_i@AC[1],
-             SigmaRIn = Rep$sigma_R_in)
+             SigmaRIn = as.numeric(Rep$sigma_R_in)[1])
 }))
-BaseYears <- RecDevTab$Years[1]
+
+stopifnot(length(unique(RecDevTab$SDYears)) == 1, length(unique(RecDevTab$ACYears)) == 1,
+          length(unique(RecDevTab$SigmaRIn)) == 1)
+Base <- RecDevTab[1, ]
+r2   <- function(x) format(round(x, 2), nsmall = 2)
 ```
 
-$\sigma_R$ and $\rho$ are calculated for each OM from its historical recruitment deviations, estimated in the corresponding SS3 run, where $\sigma_R$ is the standard deviation and $\rho$ the lag-1 autocorrelation of the log recruitment deviations (@tbl-recdev-pars). 
+$\sigma_R$ and $\rho$ are calculated for each OM from the recruitment deviations estimated in the corresponding SS3 run (@tbl-recdev-pars).
 
-Only the years in which the recruitment deviations are informed by the data are used (`r BaseYears`), because the deviations in the early and final years are shrunk toward zero and would underestimate the variability. 
+$\sigma_R$ is calculated from the main-period recruitment deviations (`r Base$SDYears`). In the assessment, the recruitment deviations are estimated with a penalty that shrinks them toward zero, with a fixed standard deviation (the penalty $\sigma_R$) of `r Base$SigmaRIn` that sets how strongly the deviations are shrunk. Deviations that are poorly informed by the data are shrunk more, so the standard deviation of the estimated deviations underestimates the variability of recruitment. Following @methot2011, $\sigma_R$ is therefore corrected for this shrinkage by adding the mean of the squared standard errors of the estimated deviations to their variance: $\sigma_R = \sqrt{\operatorname{var}(\hat{\varepsilon}) + \overline{\text{SE}^2}}$. In the Base Case, the correction increases $\sigma_R$ from `r r2(Base$RawSD)` (the standard deviation of the estimated deviations) to `r r2(Base$SigmaR)`.
 
-The resulting $\sigma_R$ (`r round(SDProjParam, 2)` in the base case) is lower than the value assumed in the assessment (`r RecDevTab$SigmaRIn[1]`), so the projected recruitment is less variable than the assessment's prior assumption.
+$\rho$ is the lag-1 autocorrelation of the log recruitment deviations in the years in which they are fully informed by the data, i.e., the years with full bias adjustment in the assessment (`r Base$ACYears`).
 
 ```{r}
 #| label: tbl-recdev-pars
 #| echo: false
-#| tbl-cap: "The standard deviation ($\\sigma_R$) and lag-1 autocorrelation ($\\rho$) of the recruitment deviations used in the projections for each OM, calculated from the historical recruitment deviations estimated in the corresponding SS3 run, and the $\\sigma_R$ assumed in the assessment."
-knitr::kable(RecDevTab, digits = 2, row.names = FALSE,
-             col.names = c('OM', 'Years', '$\\sigma_R$', '$\\rho$', 'Assessment $\\sigma_R$'))
+#| tbl-cap: "The standard deviation ($\\sigma_R$, shrinkage-corrected) and lag-1 autocorrelation ($\\rho$) of the log recruitment deviations used in the projections for each OM."
+knitr::kable(RecDevTab[c('OM', 'SigmaR', 'AC')], digits = 2, row.names = FALSE,
+             col.names = c('OM', '$\\sigma_R$', '$\\rho$'))
 ```
 
 
@@ -135,7 +151,7 @@ knitr::kable(RecDevTab, digits = 2, row.names = FALSE,
 
 The data used by the CMPs (catches and CPUE indices) are simulated from the OM with multiplicative observation error.
 
-For catch, the observation error is conditioned on the historical fit between the OM catch and the catch data. The catch in the OMs matches the catch data closely (@sec-om-conditioning), so the catch data provided to the CMPs match the catches in the OM.
+For catch, the observation error is conditioned on the historical fit between the OM catch and the catch data. The catch in the OMs matches the catch data, so the catch data provided to the CMPs match the catches in the OM (i.e., there is no observation error on the catches).
 
 ```{r}
 #| include: false
@@ -154,7 +170,7 @@ IndexObsSummary <- purrr::map_dfr(Survey@Name, function(ix) {
 
 For the CPUE indices, the observation error is conditioned on the residuals between the observed index and the corresponding vulnerable abundance in the OM, including the lag-1 autocorrelation of the residuals. The index observation error in the projection period follows the same truncated, autocorrelated log-normal process described above for the recruitment deviations, continuing from the last historical residual. All indices are assumed to be proportional to vulnerable abundance (i.e., no hyperstability or hyperdepletion).
 
-Indices are simulated in the projection period only if they have data at the end of the historical period. @tbl-indexobserror shows the standard deviation and lag-1 autocorrelation of the observation error for these indices in the base case OM. The conditioned values vary among the OMs, since each OM is conditioned on its own historical fit.
+Indices are simulated in the projection period only if they have data at the end of the historical period. @tbl-indexobserror shows the standard deviation and lag-1 autocorrelation of the observation error for these indices in the Base Case OM. The conditioned values vary among the OMs, since each OM is conditioned on its own historical fit.
 
 ```{r}
 #| label: tbl-indexobserror

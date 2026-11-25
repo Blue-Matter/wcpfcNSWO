@@ -4,7 +4,13 @@ suppress-bibliography: true
 
 # Introduction
 
-This Trial Specifications Document (TSD) describes the design and technical details of the Management Strategy Evaluation (MSE) of North Pacific swordfish (*Xiphias gladius*; NSWO), including the operating models, candidate management procedures, and performance metrics used to evaluate them.
+This Trial Specifications Document (TSD) describes the design and technical details of the Management Strategy Evaluation (MSE) of North Pacific swordfish (*Xiphias gladius*; NSWO). It covers:
+
+- operating models (@sec-operating-models);
+- forward projections (@sec-forward-projections);
+- performance metrics (@sec-performance-metrics);
+- candidate management procedures and their tuning (@sec-cmps);
+- presentation of the results (@sec-results).
 
 The TSD is a **living document** that will be updated as the MSE progresses to reflect the current state of the analysis.
 
@@ -14,5 +20,4 @@ For more information on the North Pacific Swordfish MSE process see the project 
 
 The NSWO MSE is built and maintained by [Blue Matter Science](https://bluematterscience.com) using the [openMSE](https://openMSE.com) framework.
 
-The analysis is fully reproducible, and all materials are available in the associated [GitHub repository](https://github.com/Blue-Matter/wcpfcNSWO).
-
+The analysis is fully reproducible, and all materials are available in the associated [GitHub repository](https://github.com/Blue-Matter/wcpfcNSWO). The analysis scripts are in the `analysis` folder and are run in the order of their numbers.

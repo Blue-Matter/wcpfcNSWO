@@ -4,7 +4,7 @@ suppress-bibliography: true
 
 ```{r}
 #| include: false
-knitr::read_chunk("../analysis/03-OM-Plots.R")
+knitr::read_chunk("../analysis/04a-OM-Plots.R")
 ```
 
 ```{r load_files}
@@ -34,56 +34,71 @@ SSEnd <- SSRep$endyr
 
 The 2023 ISC stock assessment of North Pacific swordfish, which was fitted with Stock Synthesis 3 (SS3; @methot2013), was used to generate the operating models (OMs). 
 
-The assessment is a two-sex model with `r SSRep$nseasons` quarterly time steps per year, covering `r SSRep$startyr`--`r SSRep$endyr`. It includes `r nFishFleet` fishing fleets and `r sum(!SSRep$IsFishFleet)` CPUE indices (@fig-assess-data; @tbl-indices). Steepness of the Beverton-Holt stock-recruitment relationship is fixed at `r SSRep$parameters$Value[SSRep$parameters$Label == 'SR_BH_steep']`. See the [assessment report](https://isc.fra.go.jp/pdf/ISC23/ISC23_ANNEX11-Stock_Assessment_Report_for_North_Pacific_Ocean_Swordfish_FINAL.pdf) for further details on the assessment structure and assumptions.
+The assessment is a two-sex model with `r SSRep$nseasons` quarterly time steps per year, covering `r SSRep$startyr`--`r SSRep$endyr`. It includes `r nFishFleet` fishing fleets and `r sum(!SSRep$IsFishFleet)` CPUE indices (@fig-assess-data; @tbl-indices). See the [assessment report](https://isc.fra.go.jp/pdf/ISC23/ISC23_ANNEX11-Stock_Assessment_Report_for_North_Pacific_Ocean_Swordfish_FINAL.pdf) for further details on the assessment structure and assumptions.
 
-The OMs were constructed by importing the SS3 output of each assessment run, available from the [WCNPOSWO-2023 repository](https://github.com/noaa-pifsc/WCNPOSWO-2023), into the North Pacific swordfish MSE framework.
+The OMs were constructed by importing the SS3 output of each assessment run into the North Pacific swordfish MSE framework. The SS3 input files of the assessment runs are available from the [WCNPOSWO-2023 repository](https://github.com/noaa-pifsc/WCNPOSWO-2023).
+
+```{r}
+#| include: false
+# SS3 runs re-run with the latest SS3 version (analysis/01b-Run-SS3.R)
+SS3Rerun  <- utils::read.csv(file.path('..', 'SS3', 'SS3_Run_Summary.csv'), colClasses = c(OM = 'character'))
+SS3Base   <- SS3Rerun[SS3Rerun$OM == '00', ]
+SS3NewVer <- paste(unique(SS3Rerun$Version), collapse = ', ')
+fmt0 <- function(x) format(round(x), big.mark = ',')
+```
+
+The assessment runs were fitted with SS3 version `r sub(';.*', '', SSRep$SS_version)`, which has a bug in the calculation of spawning biomass. All runs were therefore re-run with SS3 version `r SS3NewVer`, using the original input files, and the OMs were constructed from the output of the re-run models. With the bug fixed, the unfished spawning biomass ($SB_0$) is calculated correctly; in the Base Case, $SB_0$ is `r fmt0(SS3Base$SB0)` t, compared with `r fmt0(SS3Base$SB0_old)` t in the original assessment run.
 
 ```{r}
 #| echo: false
 #| label: fig-assess-data
-#| fig-cap: "Overview of the data used in the 2023 base case stock assessment."
+#| fig-cap: "Overview of the data used in the 2023 Base Case stock assessment."
 #| fig-height: 8
 r4ss::SSplotData(SSRep, subplots = 1)
 ```
 
 ### Catch Units
 
-In the assessment, the catch of `r nNumberFleet` of the `r nFishFleet` fishing fleets is in numbers of fish (thousands), and the catch of the remaining fleets is in biomass (t). Because the total allowable catch (TAC) management advice produced by the candidate management procedures (CMPs) is in units of biomass (tons), the catch of every fleet was imported in biomass, using the catch biomass predicted by SS3 for the fleets with catch in numbers. 
+In the assessment, the catch of `r nNumberFleet` of the `r nFishFleet` fishing fleets is in numbers of fish (thousands), and the catch of the remaining fleets is in biomass (t). Because the total allowable catch (TAC) management advice produced by the candidate management procedures (CMPs) is in units of biomass (t), the catch of every fleet was imported in biomass, using the catch biomass predicted by SS3 for the fleets with catch in numbers. 
 
 ### Fleet Structure
 
-To reduce run time, the `r nFishFleet` fishing fleets were combined into a single fleet in the operating models. The combined fleet reproduces the historical fishing mortality-at-age of the individual fleets, with selectivity, retention, and weight-at-age weighted by the fishing mortality of each fleet. This results in exactly the same fishery and population dynamics as an operating model that includes the `r nFishFleet` fleet structure. 
+To reduce run time, the `r nFishFleet` fishing fleets were combined into a single fleet in the operating models. The combined fleet reproduces the historical fishing mortality-at-age of the individual fleets, with selectivity, retention, and weight-at-age weighted by the fishing mortality of each fleet. This results in exactly the same fishery and population dynamics as an operating model with the `r nFishFleet` individual fleets. 
 In the projection period, the relative contribution of each fleet (i.e., TAC allocation) is therefore assumed to be fixed at its recent pattern. 
 
 ```{r}
 #| echo: false
 #| label: fig-catch-data
-#| fig-cap: "Total annual catch data in the base case OM."
+#| fig-cap: "Total annual catch data in the Base Case OM."
 <<catch_data>>
 ```
 
 ### Indices of Abundance
 
-@tbl-indices lists the CPUE indices in the assessment. 
-The Japanese longline indices (Area 1 and Area 2; both split into an Early and Late phase) were selected to be used by the CMPs. 
+@tbl-indices lists the CPUE indices in the assessment.
+The indices that continue to the terminal year are provided to the CMPs: 
 
-The index-based CMPs use the two that continue to the terminal year (S2 and S4; @fig-index-fits). The surplus production CMPs also use the earlier Japanese longline series (S1 and S3; see @sec-cmps).
+- the late-phase Japanese longline indices for Area 1 and Area 2 (S2 and S4);
+- the Chinese Taipei distant-water longline index (S5);
+- the US shallow-set longline index (S8) (@fig-index-fits; see @sec-cmps).
 
-Two of the indices (S5 and S8) were not fitted in the base case assessment (lambda = 0), and therefore were not included in the data passed to the CMPs. 
+The early-phase Japanese longline indices (S1 and S3) end in 1993 and are not used by the CMPs.
 
-S6, an index of recruitment, was also not used by the CMPs. This index has a higher CV than the Japanese longline indices, and as it does not track the adult population it did not provide any additional information that could improve the performance of the CMPs.
+S5 and S8 were not fitted in the Base Case assessment (lambda = 0). However, fitting all indices was found to have little effect on the estimated stock status. Therefore S5 and S8 are provided to the CMPs, together with S2 and S4, so that CMPs can be developed that use these indices.
+
+S6, an index of recruitment, is simulated in the projections and available to the CMPs, but it is not used by them. Using S6 in the CMPs was tested during the MSE development, but it did not improve their performance, largely because it does not track the adult abundance. The indices used by the CMPs are described in @sec-cmps-status.
 
 ```{r}
 #| echo: false
 #| label: tbl-indices
-#| tbl-cap: "The CPUE indices in the base case assessment, the years with data, the units, the lambda (weight in the likelihood) in the base case assessment, and the CMPs that use each index."
+#| tbl-cap: "The CPUE indices in the Base Case assessment, the years with data, the units, and the lambda (weight in the likelihood) in the Base Case assessment."
 <<index_table>>
 ```
 
 ```{r}
 #| echo: false
 #| label: fig-index-fits
-#| fig-cap: "The two Japanese longline indices used by the index-based CMPs (S2: Area 1, S4: Area 2) and the corresponding vulnerable abundance in the base case OM. The model-based surplus production CMPs also used the earlier phases of these two indices (S1 and S3)."
+#| fig-cap: "The indices used by the CMPs (S2 and S4: Japanese longline Areas 1 and 2; S5: Chinese Taipei distant-water longline; S8: US shallow-set longline) and the corresponding vulnerable abundance in the Base Case OM. S5 and S8 were not fitted in the Base Case assessment."
 <<index_fits>>
 ```
 
@@ -93,51 +108,98 @@ S6, an index of recruitment, was also not used by the CMPs. This index has a hig
 #| include: false
 ```
 
-The 2023 assessment included sensitivity runs with alternative life-history parameters (natural mortality, steepness, growth, and maturity), catch assumptions, model settings, and CPUE indices. OMs were constructed from the base case and the `r nrow(SS3Runs) - 1` sensitivity runs with alternative life-history parameters (@tbl-ss3-runs; @tbl-ss3-pars). The other sensitivity runs are not currently included in the MSE.
+The Base Case OM (OM 00) is constructed from the Base Case of the 2023 assessment described above, and the CMPs are tuned to this Base Case OM (see @sec-tuning-methodology for details on the CMP tuning).
 
-Three of these runs are not included in the MSE:
+The `r nrow(OM_DF) - 1` sensitivity OMs included in the MSE are constructed in the same way from alternative SS3 runs that were included in the assessment, and are used to evaluate the robustness of the tuned CMPs to uncertainty in the stock dynamics that is not captured by the Base Case OM. 
 
-- **Run 03** (steepness 0.70): the control file sets steepness to 0.70, but the starter file initialises the parameters from the base case parameter file, where steepness is 0.9. Because steepness is fixed, the fitted model has steepness of `r ss3_par('03', 'h')` and the SS3 output is identical to the base case, so the run does not represent the steepness sensitivity.
-- **Runs 05** (steepness 0.99) **and 06** (maximum size 10% larger): the SS3 fits estimate an implausibly large stock, with ln(R0) of `r ss3_par('05', 'LnR0')` and `r ss3_par('06', 'LnR0')` compared with `r ss3_par('00', 'LnR0')` in the base case, and unfished spawning biomass of the order of $10^{`r floor(log10(SS3Pars$SB0[SS3Pars$OM == '05']))`}$ and $10^{`r floor(log10(SS3Pars$SB0[SS3Pars$OM == '06']))`}$ t. The stock in these OMs is therefore effectively unfished and unaffected by the catch.
+The sensitivity (robustness) OMs explore two sources of uncertainty:
+
+1. **Life-history parameters**: the sensitivity runs of the 2023 assessment with alternative natural mortality, steepness, growth, and maturity (runs 01--10; runs 05 and 06 are not included, see below).
+2. **Increasing catchability**: two runs that assume the catchability of the indices of abundance has increased over time (effort creep) by 1% (run 20a) and 2% (run 20b) per year. These scenarios follow those used in the IATTC MSE for bigeye tuna in the eastern Pacific Ocean, where annual increases in longline catchability of 0%, 1%, and 2% are used to represent uncertainty in effort creep [@xuManagementStrategyEvaluation2026]. These runs are the Base Case fitted to the indices deflated by $(1 + c)^{y - y_0}$, where $c$ is the annual effort creep and $y_0$ the first year of each index. The OMs are conditioned on the deflated indices, but the CMPs use the observed indices, so the indices seen by the CMPs over-estimate the increase in abundance (or under-estimate the decline) in these OMs. The effort creep applies only to the historical period.
+
+@tbl-ss3-runs lists the `r nrow(SS3Runs) - 1` life-history and catchability runs and their key parameters.
+
+Two of these runs (05 with steepness 0.99 and 06 with maximum size 10% larger) are not included in the MSE. In these models the SS3 fits estimated an implausibly large stock, with ln(R0) of `r ss3_par('05', 'LnR0')` and `r ss3_par('06', 'LnR0')` compared with `r ss3_par('00', 'LnR0')` in the Base Case, and unfished spawning biomass of the order of $10^{`r floor(log10(SS3Pars$SB0[SS3Pars$OM == '05']))`}$ and $10^{`r floor(log10(SS3Pars$SB0[SS3Pars$OM == '06']))`}$ t. The stock in these OMs is therefore effectively unfished and unaffected by the catch.
 
 ```{r}
 #| echo: false
 #| label: tbl-ss3-runs
-#| tbl-cap: "The SS3 runs of the 2023 assessment used to construct OMs, and whether each OM is included in the MSE."
+#| tbl-cap: "The SS3 runs considered as OMs (the Base Case and the life-history and catchability sensitivity runs) and their key parameters: steepness (h), mean female natural mortality (M, per year, over ages), female length at the maximum reference age (L~Amax~), female von Bertalanffy K, female length at 50% maturity (L~50~), and unfished spawning biomass (SB~0~). † Not included in the MSE because the model estimated an implausibly large stock (see text)."
 <<ss3_runs_table>>
 ```
 
-```{r}
-#| echo: false
-#| label: tbl-ss3-pars
-#| tbl-cap: "Key parameters of the SS3 runs used to construct OMs: steepness, mean female natural mortality (per year, over ages), female length at the maximum reference age, female von Bertalanffy K, female length at 50% maturity, and unfished spawning biomass. Parameters that are the same as in the base case are shown as ”."
-<<ss3_pars_table>>
-```
+@tbl-stock-status summarizes the estimated stock status (SB/SB0 & SB/SBMSY), relative fishing mortality (F/FMSY), and the MSY-based reference points, including the ratio of SBMSY to the equilibrium unfished spawning biomass (SB0), for the Base Case and the `r nrow(OM_DF) - 1` sensitivity OMs that are included in the MSE.
 
-@tbl-stock-status summarizes the estimated stock status (SB/SB0 & SB/SBMSY), relative fishing mortality (F/FMSY), and the ratio of SBMSY to the equilibrium unfished spawning biomass (SB0), for the Base Case and the 6 sensitivity OMs that are included in the MSE. The MSY-based reference points for each OM are shown in @tbl-ref-points.
+Time series of SB/SB0, SB/SBMSY, and F/FMSY are shown for the Base Case (00) and the sensitivity OMs for each source of uncertainty: 
 
-@fig-trajectories shows time series plots of SB/SB0, SB/SBMSY, and F/FMSY for the Base Case and the 6 sensitivity OMs. 
+ - natural mortality (01 & 02; @fig-traj-m);
+ - steepness (03 & 04; @fig-traj-h);
+ - growth (07; @fig-traj-growth);
+ - maturity (08, 09 & 10; @fig-traj-maturity);
+ - increasing catchability (20a & 20b; @fig-traj-q).
+ 
 
 ```{r}
 #| echo: false
 #| label: tbl-stock-status
-#| tbl-cap: !expr "paste0('Stock status in ', TerminalYear, ' (mean over the quarters) for each OM: spawning biomass relative to the equilibrium unfished spawning biomass (SB/SB0) and to SBMSY, fishing mortality relative to FMSY, and SBMSY relative to SB0.')"
+#| tbl-cap: !expr "paste0('Stock status in ', TerminalYear, ' (mean over the quarters) and the MSY reference points for each OM: spawning biomass relative to the equilibrium unfished spawning biomass (SB/SB0) and to SBMSY, fishing mortality relative to FMSY, SBMSY relative to SB0, the apical fishing mortality at MSY (FMSY, per year), female spawning biomass at MSY (SBMSY), and the annual catch at MSY (MSY). The OMs are described in @tbl-ss3-runs.')"
 <<stock_status_table>>
 ```
 
-```{r}
-#| echo: false
-#| label: tbl-ref-points
-#| tbl-cap: "The MSY reference points for each OM. FMSY is the apical fishing mortality (per year) at MSY, SBMSY is female spawning biomass, and MSY is the annual catch."
-<<refpoints_table>>
+```{r trajectories}
+#| include: false
 ```
 
 ```{r}
 #| echo: false
-#| label: fig-trajectories
-#| fig-cap: "Historical spawning biomass relative to the equilibrium unfished spawning biomass (top) and to SBMSY (middle), and fishing mortality relative to FMSY (bottom), for each OM. The dashed lines show the LRP (17% SB0), SBMSY, and FMSY."
-#| fig-height: 9
-<<trajectories>>
+#| label: fig-traj-m
+#| fig-cap: !expr paste0('Historical spawning biomass relative to the equilibrium unfished spawning biomass (SB/SB0) and to SBMSY, and fishing mortality relative to FMSY, for the Base Case (black) and the OMs with alternative natural mortality. The dashed lines show the LRP (', 100 * LRP, "% SB0), SBMSY, and FMSY.")
+#| fig-height: 3.8
+<<trajectories_m>>
 ```
 
+```{r}
+#| echo: false
+#| label: fig-traj-h
+#| fig-cap: !expr paste0('Historical spawning biomass relative to the equilibrium unfished spawning biomass (SB/SB0) and to SBMSY, and fishing mortality relative to FMSY, for the Base Case (black) and the OMs with alternative steepness. The dashed lines show the LRP (', 100 * LRP, "% SB0), SBMSY, and FMSY.")
+#| fig-height: 3.8
+<<trajectories_h>>
+```
 
+```{r}
+#| echo: false
+#| label: fig-traj-growth
+#| fig-cap: !expr paste0('Historical spawning biomass relative to the equilibrium unfished spawning biomass (SB/SB0) and to SBMSY, and fishing mortality relative to FMSY, for the Base Case (black) and the OM with alternative growth. The dashed lines show the LRP (', 100 * LRP, "% SB0), SBMSY, and FMSY.")
+#| fig-height: 3.8
+<<trajectories_growth>>
+```
+
+```{r}
+#| echo: false
+#| label: fig-traj-maturity
+#| fig-cap: !expr paste0('Historical spawning biomass relative to the equilibrium unfished spawning biomass (SB/SB0) and to SBMSY, and fishing mortality relative to FMSY, for the Base Case (black) and the OMs with alternative maturity. The dashed lines show the LRP (', 100 * LRP, "% SB0), SBMSY, and FMSY.")
+#| fig-height: 3.8
+<<trajectories_maturity>>
+```
+
+```{r}
+#| echo: false
+#| label: fig-traj-q
+#| fig-cap: !expr paste0('Historical spawning biomass relative to the equilibrium unfished spawning biomass (SB/SB0) and to SBMSY, and fishing mortality relative to FMSY, for the Base Case (black) and the effort creep OMs. The dashed lines show the LRP (', 100 * LRP, "% SB0), SBMSY, and FMSY.")
+#| fig-height: 3.8
+<<trajectories_q>>
+```
+
+### Effort Creep OMs
+
+In the effort creep OMs (20a and 20b), SS3 is fitted to indices deflated by 1% and 2% per year, i.e. the indices that would be obtained if they were standardized for an assumed increase in catchability over the time series (@fig-creep-indices). The same increase in catchability is assumed for all indices.
+
+The deflated indices are equal to the observed indices in the first year of each index, and decline relative to them over time, so the effort creep runs estimate a larger decline in abundance over the period of the indices. To explain this decline with the same catch history, the stock is estimated to have started from a much higher state: SB/SB0 in `r FirstYear` is `r first_sb('20a')` in run 20a and `r first_sb('20b')` in run 20b, compared with `r first_sb('00')` in the Base Case (@fig-traj-q). In `r TerminalYear`, SB/SB0 is `r base_value('SB_SB0')` in the Base Case, and `r term_sb('20a')` and `r term_sb('20b')` in runs 20a and 20b.
+
+```{r}
+#| echo: false
+#| label: fig-creep-indices
+#| fig-cap: "The indices used to condition the Base Case and the effort creep OMs. The Base Case is conditioned on the observed indices, and 20a and 20b on the observed indices deflated for an assumed increase in catchability of 1% and 2% per year from the first year of each index."
+#| fig-height: 8
+<<creep_indices>>
+```

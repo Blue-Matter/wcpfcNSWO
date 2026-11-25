@@ -9,81 +9,97 @@ suppress-bibliography: true
 library(MSEtool)
 OM <- readRDS("../objects/OM/00.om")
 
-# reference levels, as set in analysis/05b-Define-CMPs.R (tuning) and
-# analysis/07-Create-Slick.R (performance metrics)
+# reference levels of the performance indicators (analysis/00a-PM-Specifications.R)
+library(wcpfcNSWO)
+source("../analysis/00a-PM-Specifications.R")
+
+# HCRs (analysis/05b-Define-CMPs.R), without running the script
 Assigned <- function(File, Names) {
+  Env <- new.env(parent = globalenv())
   for (e in parse(File))
     if (is.call(e) && identical(e[[1]], as.name("<-")) && is.name(e[[2]]) &&
         as.character(e[[2]]) %in% Names)
-      eval(e, envir = globalenv())
+      eval(e, Env)
+  Env
 }
-Assigned("../analysis/05b-Define-CMPs.R", c("LRP", "PSafety", "PStatus", "TACChange"))
-Assigned("../analysis/07-Create-Slick.R", c("FTargetSPR", "StabilityThreshold", "NoChangeThreshold", "CatchRefYears"))
-FTargetLabel <- paste0("F$_{", 100 * FTargetSPR, "\\%}$")
-CatchRefLabel <- paste(range(CatchRefYears), collapse = "--")
+Env05b <- Assigned("../analysis/05b-Define-CMPs.R", c("HCRs", "PSafety", "PStatus"))
+HCRs <- Env05b$HCRs
+
+FLab <- function(SPR) paste0("F$_{", round(100 * SPR), "\\%}$")
+FTargetText <- paste(FLab(StatusFTargetSPR), collapse = ", ")
+ThRPText <- paste0(paste(round(100 * StatusThRP), collapse = "%, "), "% $SB_0$")
+yr_range <- function(x) paste(range(x), collapse = "--")
+CatchRefText <- vapply(CatchRefYears, yr_range, character(1))
 
 MPYears <- seq(MPStartYear(OM), by = 1, length.out = max(floor(Years(OM, "P"))) - MPStartYear(OM) + 1)
 Windows <- list(Short  = utils::head(MPYears, 10),
                 Medium = setdiff(MPYears, c(utils::head(MPYears, 10), utils::tail(MPYears, 10))),
                 Long   = utils::tail(MPYears, 10))
-yr_range <- function(x) paste(range(x), collapse = "--")
 
-SlickFile <- "../objects/slick.rds"
-HasSlick  <- file.exists(SlickFile)
-if (HasSlick) slick <- readRDS(SlickFile)
+slick <- readRDS("../objects/slick.rds")
 ```
 
 ## Management Objectives
 
-The CMPs are evaluated against the following management objectives (@tbl-pm-summary):
+The CMPs are evaluated against the candidate management objectives specified in the candidate inputs for the MSE [@WCPFC2026, Attachment 7, Table 1] (@tbl-pm-summary):
 
-1. **Safety:** Maintain spawning biomass above the limit reference point (LRP;  `r LRP`$SB_0$) with at least 80% probability. A simulation in which spawning biomass falls below the LRP in any year of the evaluation period is considered a breach.
+1. **Safety:** Maintain spawning biomass above the limit reference point (LRP; `r 100 * LRP`% $SB_0$) with at least `r PI_Min[["Safety"]] * 100`% probability.
 
-2. **Status:** Maintain fishing mortality at or below the target value (`r FTargetLabel`) with at least 50% probability.
+2. **Status:** Maintain fishing mortality at or below the target reference point with at least `r PI_Min[["Status_F"]] * 100`% probability. The candidate target reference points are `r FTargetText`, the F targets of the HCRs (@sec-hcrs). Status is evaluated against the F target of the HCR of each CMP, and is also reported against each of the candidate target reference points. Following the advice of the ISC that the Status indicator should incorporate biomass as well as fishing mortality [@WCPFC2026, para. 46], the probability that spawning biomass is above each of the candidate threshold reference points (`r ThRPText`) is also reported with the Status metrics.
 
-3. **Stability:** Changes in the TAC between management periods should be relatively gradual. This is measured by the probability that the TAC changes by no more than `r 100 * StabilityThreshold`% between consecutive management periods, and by the probability of no management change (the TAC changes by no more than `r 100 * NoChangeThreshold`%; the CMPs leave the TAC unchanged when the change would be less than 1%).
+3. **Stability:** Changes in the TAC between management periods should be relatively gradual.
 
-4. **Yield:** Maintain catches above the average historical catch level, measured by the probability that the annual catch is at least the mean catch in `r CatchRefLabel`. The mean annual catch is also reported.
+4. **Yield:** Maintain catches above average historical catch levels.
 
-The CMPs are tuned in the base case OM to maximise the mean annual catch subject to the Safety objective (probability of at least `r PSafety`) and the Status objective (probability of at least `r PStatus`; @sec-tuning-methodology). The Stability and Yield metrics are not used in the tuning; the trade-off between TAC stability and catch is shown by the variants of each CMP type with different limits on the change in the TAC.
+The CMPs are tuned in the Base Case OM to maximise the mean annual catch subject to the Safety objective (probability of at least `r Env05b$PSafety`) and the Status objective (probability of at least `r Env05b$PStatus` against the F target of the HCR of the CMP; @sec-tuning-methodology). The Stability and Yield metrics are not used in the tuning; the trade-off between TAC stability and catch is shown by the two TAC change limits of each CMP.
 
 ```{r}
 #| echo: false
 #| label: tbl-pm-summary
 #| tbl-cap: "The candidate management objectives and the corresponding performance metrics."
-knitr::kable(
-  data.frame(
-    Category  = c('Safety', 'Status', 'Stability', '', 'Yield', ''),
-    Objective = c('Maintain SSB above the LRP with at least 80% probability',
-                  'Maintain fishing intensity (F) at the target value with at least 50% probability',
-                  'Change in TAC between years should be relatively gradual', '',
-                  'Maintain catches above average historical catch levels', ''),
-    Metric    = c(paste0('Probability that SB > LRP (', 100 * LRP, '% $SB_0$) in every year of the evaluation period'),
-                  paste0('Probability that F $\\leq$ ', FTargetLabel, ' & median ', FTargetLabel, '/F'),
-                  paste0('Probability that the change in TAC between consecutive management periods is $\\leq$ ', 100 * StabilityThreshold, '%'),
-                  paste0('Probability of no management change: probability that the change in TAC between consecutive management periods is $\\leq$ ', 100 * NoChangeThreshold, '%'),
-                  paste0('Probability that the annual catch is $\\geq$ the mean ', CatchRefLabel, ' catch'),
-                  'Mean annual catch (maximized tuning objective)')
-  ),
-  col.names = c('Category', 'Management Objective', 'Performance Metric')
+# raw HTML table (for the category group rows), so the math uses \( \) delimiters
+SB0Text <- "\\(SB_0\\)"
+PMTab <- data.frame(
+  Category  = c("Safety", "Status", "Status", "Status", "Stability", "Stability", "Yield", "Yield", "Yield"),
+  Objective = c(paste0("Maintain SB above the LRP with at least ", PI_Min[["Safety"]] * 100, "% probability"),
+                paste0("Maintain F at or below the target reference point with at least ", PI_Min[["Status_F"]] * 100, "% probability"), "",
+                "Maintain SB above the threshold reference point (ThRP)",
+                "Change in TAC between management periods should be relatively gradual", "",
+                "Maintain catches above average historical catch levels", "", ""),
+  Metric    = c(paste0("Probability that SB > LRP (", 100 * LRP, "% ", SB0Text, ") in any given year"),
+                "Probability that F \\(\\leq\\) F target of the HCR of the CMP",
+                "Median F target / F",
+                paste0("Probability that SB > ThRP (", gsub("$SB_0$", SB0Text, ThRPText, fixed = TRUE), ") in any given year"),
+                paste0("Probability that the change in TAC between consecutive management cycles is \\(\\leq\\) ", 100 * StabilityThreshold, "%"),
+                paste0("Probability of no management change (change in TAC \\(\\leq\\) ", 100 * NoChangeThreshold, "%)"),
+                paste0("Probability that the annual catch is \\(\\geq\\) the mean ", CatchRefText[[1]], " catch"),
+                paste0("Probability that the annual catch is \\(\\geq\\) the mean ", CatchRefText[[2]], " catch"),
+                "Mean annual catch (maximised in the tuning)")
 )
+Groups <- rle(PMTab$Category)
+kableExtra::kable_styling(
+  knitr::kable(PMTab[c("Objective", "Metric")], format = "html", escape = FALSE, row.names = FALSE,
+               col.names = c("Management Objective", "Performance Metric")),
+  full_width = TRUE) |>
+  kableExtra::pack_rows(index = stats::setNames(Groups$lengths, Groups$values), indent = FALSE,
+                        label_row_css = "border-top: 2px solid #666; background-color: #f2f2f2;")
 ```
 
 ## Primary Performance Metrics
 
-All performance metrics are calculated over the `r length(MPYears)` years in which the CMPs set the TAC (`r yr_range(MPYears)`), for each OM and CMP. The following notation is used:
+All performance metrics are calculated over the `r length(MPYears)` years in which the CMPs set the TAC (`r yr_range(MPYears)`), for each OM and CMP, from the true spawning biomass, fishing mortality, and catch in the OM (not the CMPs' estimates). Spawning biomass and fishing mortality are averaged over the quarters of each calendar year, and catch is summed. The following notation is used:
 
 - $s = 1, \ldots, S$ indexes the simulations and $y \in \mathcal{Y}$ the $N_Y$ = `r length(MPYears)` years;
-- $B_{s,y}$ is the annual spawning biomass relative to $SB_0$;
+- $SB_{s,y}$ is the annual female spawning biomass, $SB_0$ the equilibrium unfished spawning biomass, and $SB_{\text{MSY}}$ the spawning biomass at MSY;
 - $F_{s,y}$ is the annual apical fishing mortality;
 - $C_{s,y}$ is the annual catch (total removals of all fleets, in t);
 - $\text{TAC}_{s,c}$ is the TAC set in management cycle $c = 1, \ldots, N_C$, and $\Delta_{s,c} = \lvert \text{TAC}_{s,c} - \text{TAC}_{s,c-1} \rvert / \text{TAC}_{s,c-1}$ is the relative change in the TAC;
 - $\mathrm{I}(\cdot)$ is 1 if the condition is true and 0 otherwise.
- 
-**Safety**: the probability that spawning biomass remains above the LRP in every year:
+
+**Safety**: the probability that spawning biomass is above the LRP in any given year:
 
 $$
-P_{\text{Safety}} = \frac{1}{S} \sum_{s} \mathrm{I}\left(\min_{y \in \mathcal{Y}} B_{s,y} > `r LRP`\right)
+P_{\text{Safety}} = \frac{1}{S N_Y} \sum_{s} \sum_{y} \mathrm{I}\left(SB_{s,y}/SB_0 > `r LRP`\right)
 $$
 
 **Status**: the probability that fishing mortality is at or below the F target, and the median ratio of the F target to fishing mortality:
@@ -96,9 +112,17 @@ $$
 \frac{F_{\text{target}}}{F} = \frac{1}{S} \sum_{s} \operatorname*{median}_{y} \left(\frac{F_{\text{target}}}{F_{s,y}}\right)
 $$
 
-where $F_{\text{target}}$ is `r FTargetLabel`, the apical fishing mortality that reduces the female spawning potential ratio to `r 100 * FTargetSPR`%. 
+where $F_{\text{target}}$ is the F target of the HCR of the CMP (`r FTargetText`), the apical fishing mortality that reduces the female spawning potential ratio to the target level. $F_{\text{target}}$ is calculated for each OM and simulation, relative to $F_{\text{MSY}}$, in the last year with both reference points, and the annual $F/F_{\text{target}}$ is calculated from the annual $F/F_{\text{MSY}}$.
 
-**Stability**: the probability that the TAC changes by no more than `r 100 * StabilityThreshold`% between management cycles, and the probability of no management change, i.e. that the TAC changes by no more than `r 100 * NoChangeThreshold`%:
+The probability that spawning biomass is above a threshold reference point (ThRP) is also reported with the Status metrics, for each of the candidate ThRPs (`r ThRPText`):
+
+$$
+P_{\text{SB > ThRP}} = \frac{1}{S N_Y} \sum_{s} \sum_{y} \mathrm{I}\left(SB_{s,y}/SB_0 > \text{ThRP}\right)
+$$
+
+Like the other metrics, this is calculated from the true spawning biomass in the OM. The same ThRPs are used for every CMP, so the metric does not depend on the ThRP of the HCR of the CMP, and CMPs with different HCRs can be compared against the same thresholds.
+
+**Stability**: the probability that the TAC changes by no more than `r 100 * StabilityThreshold`% between management cycles, and the probability of no management change, i.e. that the TAC changes by no more than `r 100 * NoChangeThreshold`% (the CMPs leave the TAC unchanged when the change would be less than 1%):
 
 $$
 P_{\text{Stability}} = \frac{1}{S N_C} \sum_{s} \sum_{c} \mathrm{I}\left(\Delta_{s,c} \leq `r StabilityThreshold`\right)
@@ -108,7 +132,9 @@ $$
 P_{\text{No change}} = \frac{1}{S N_C} \sum_{s} \sum_{c} \mathrm{I}\left(\Delta_{s,c} \leq `r NoChangeThreshold`\right)
 $$
 
-**Yield**: the probability that the annual catch is at least the mean historical catch in `r CatchRefLabel` ($\bar{C}_{\text{ref}}$, in the OM), and the mean annual catch:
+Because the TAC change limit of the CMPs is either `r 100 * StabilityThreshold`% or larger, $P_{\text{Stability}}$ is 1 for the CMPs with a `r 100 * StabilityThreshold`% limit.
+
+**Yield**: the probability that the annual catch is at least the mean historical catch in the reference years ($\bar{C}_{\text{ref}}$, from the OM), for two reference periods (`r CatchRefText[[1]]` and `r CatchRefText[[2]]`), and the mean annual catch:
 
 $$
 P_{\text{Yield}} = \frac{1}{S N_Y} \sum_{s} \sum_{y} \mathrm{I}\left(C_{s,y} \geq \bar{C}_{\text{ref}}\right)
@@ -119,6 +145,16 @@ $$
 $$
 
 ## Secondary Performance Metrics {#sec-secondary-pms}
+
+**Status against each candidate target reference point**: $P_{\text{Status}}$ and $F_{\text{target}}/F$ are also calculated for each of `r FTargetText`, for every CMP, so CMPs with different HCRs can be compared against the same target.
+
+**Probability that SB is above the ThRP of the HCR**: $P_{\text{SB > ThRP}}$ calculated with the ThRP of the HCR of each CMP, i.e. the proportion of years in which the true stock status is above the point where the HCR starts to reduce fishing (@sec-hcrs).
+
+**Probability of no breach of the LRP**: the probability that spawning biomass remains above the LRP in every year; a simulation in which spawning biomass falls below the LRP in any year is a breach:
+
+$$
+P_{\text{No breach}} = \frac{1}{S} \sum_{s} \mathrm{I}\left(\min_{y \in \mathcal{Y}} SB_{s,y}/SB_0 > `r LRP`\right)
+$$
 
 **Average TAC variability**: the mean absolute relative change in the TAC between management cycles:
 
@@ -132,32 +168,37 @@ $$
 P_{\text{Kobe}} = \frac{1}{S N_Y} \sum_{s} \sum_{y} \mathrm{I}\left(\frac{SB_{s,y}}{SB_{\text{MSY}}} > 1 \ \text{and} \ \frac{F_{s,y}}{F_{\text{MSY}}} < 1\right)
 $$
 
-## Summary of All Performance Metrics
+**Stock status**: the mean $SB/SB_0$, the lowest annual $SB/SB_0$, and the mean $SB/SB_{\text{MSY}}$ and $F/F_{\text{MSY}}$.
 
-Safety (no breach within the window), mean catch, and $SB/SB_0$ are also calculated for three time windows:
+**Relative yield**: the mean annual catch relative to the CMP with the highest mean annual catch in the same OM.
+
+## Time Windows
+
+Safety, mean catch, and mean $SB/SB_0$ are also calculated for three time windows:
 
 1. Short: the first 10 years (`r yr_range(Windows$Short)`);
-2. Medium: the second 10 years (`r yr_range(Windows$Medium)`);
+2. Medium: the years between the short and long windows (`r yr_range(Windows$Medium)`);
 3. Long: the last 10 years (`r yr_range(Windows$Long)`).
 
-All the performance metrics reported for every CMP and OM combination are listed in @tbl-pm-secondary.
+The metrics calculated over all `r length(MPYears)` years can hide differences in when the outcomes occur. The windows show how the outcomes change over the projection period:
+
+- **Safety** shows when the risk to the stock occurs. For example, a CMP can meet the Safety objective over the whole period while most of the years below the LRP occur early or late in the period.
+- **Mean catch** shows how the catch is distributed over time. For example, it distinguishes CMPs with high initial catches that decline later from CMPs with lower initial catches that increase.
+- **Mean $SB/SB_0$** shows the trajectory of the stock, i.e., whether it is rebuilding, stable, or declining under each CMP.
+
+## Summary of All Performance Metrics
+
+All the performance metrics reported for every CMP and OM combination are listed in @tbl-pm-secondary, with the codes used in the Slick app (@sec-results). 
 
 ```{r}
 #| echo: false
 #| label: tbl-pm-secondary
 #| tbl-cap: "Performance metrics computed for every CMP and OM combination."
-#| eval: !expr HasSlick
 bp <- slick@Boxplot
 knitr::kable(
-  data.frame(Label = Slick::Label(bp), Description = Slick::Description(bp)),
-  col.names = c('Metric', 'Description'),
+  data.frame(Code = paste0('`', Slick::Code(bp), '`'), Label = Slick::Label(bp), Description = Slick::Description(bp)),
+  col.names = c('Code', 'Metric', 'Description'),
   row.names = FALSE
 )
 ```
 
-```{r}
-#| echo: false
-#| results: asis
-if (!HasSlick)
-  cat("*The table of performance metrics will be added once the results are available.*")
-```

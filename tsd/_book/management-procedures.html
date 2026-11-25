@@ -29,7 +29,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./references.html" rel="next">
+<link href="./results.html" rel="next">
 <link href="./performance-metrics.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -44,7 +44,10 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="site_libs/bootstrap/bootstrap-a55b41f70a3cc1b3f7c96c7da63be89b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
 <link href="site_libs/bootstrap/bootstrap-dark-a55b41f70a3cc1b3f7c96c7da63be89b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-a55b41f70a3cc1b3f7c96c7da63be89b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light"><script id="quarto-search-options" type="application/json">{
+<link href="site_libs/bootstrap/bootstrap-a55b41f70a3cc1b3f7c96c7da63be89b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script src="site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
   "collapse-after": 3,
@@ -70,8 +73,7 @@ ul.task-list li input[type="checkbox"] {
     "search-submit-button-title": "Submit",
     "search-label": "Search"
   }
-}</script><script src="site_libs/kePrint-0.0.1/kePrint.js"></script><link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script><script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script><script type="text/javascript">
+}</script><script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script><script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script><script type="text/javascript">
 const typesetMath = (el) => {
   if (window.MathJax) {
     // MathJax Typeset
@@ -171,6 +173,12 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./results.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Presentation of Results</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./references.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">References</span></a>
   </div>
@@ -183,17 +191,37 @@ window.Quarto = {
         <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">Table of contents</h2>
    
   <ul>
-<li><a href="#sec-hcrs" id="toc-sec-hcrs" class="nav-link active" data-scroll-target="#sec-hcrs"><span class="header-section-number">5.1</span> Harvest Control Rules</a></li>
-  <li><a href="#sec-cmps-status" id="toc-sec-cmps-status" class="nav-link" data-scroll-target="#sec-cmps-status"><span class="header-section-number">5.2</span> Estimated Stock Status</a></li>
-  <li><a href="#sec-cmps-indexrate" id="toc-sec-cmps-indexrate" class="nav-link" data-scroll-target="#sec-cmps-indexrate"><span class="header-section-number">5.3</span> Index Rate</a></li>
-  <li><a href="#sec-cmps-indextarget" id="toc-sec-cmps-indextarget" class="nav-link" data-scroll-target="#sec-cmps-indextarget"><span class="header-section-number">5.4</span> Index Target</a></li>
-  <li><a href="#sec-cmps-sp" id="toc-sec-cmps-sp" class="nav-link" data-scroll-target="#sec-cmps-sp"><span class="header-section-number">5.5</span> Surplus Production</a></li>
-  <li><a href="#sec-cmps-tac-change" id="toc-sec-cmps-tac-change" class="nav-link" data-scroll-target="#sec-cmps-tac-change"><span class="header-section-number">5.6</span> TAC Change Limits</a></li>
+<li><a href="#sec-cmps-cycle" id="toc-sec-cmps-cycle" class="nav-link active" data-scroll-target="#sec-cmps-cycle"><span class="header-section-number">5.1</span> The Management Cycle</a></li>
   <li>
-<a href="#sec-tuning-methodology" id="toc-sec-tuning-methodology" class="nav-link" data-scroll-target="#sec-tuning-methodology"><span class="header-section-number">5.7</span> Tuning Methodology</a>
+<a href="#sec-hcrs" id="toc-sec-hcrs" class="nav-link" data-scroll-target="#sec-hcrs"><span class="header-section-number">5.2</span> Harvest Control Rules</a>
   <ul class="collapse">
-<li><a href="#step-1-cmp-settings" id="toc-step-1-cmp-settings" class="nav-link" data-scroll-target="#step-1-cmp-settings"><span class="header-section-number">5.7.1</span> Step 1: CMP Settings</a></li>
-  <li><a href="#step-2-tuning-parameter" id="toc-step-2-tuning-parameter" class="nav-link" data-scroll-target="#step-2-tuning-parameter"><span class="header-section-number">5.7.2</span> Step 2: Tuning Parameter</a></li>
+<li><a href="#sec-hcr-multiplier" id="toc-sec-hcr-multiplier" class="nav-link" data-scroll-target="#sec-hcr-multiplier"><span class="header-section-number">5.2.1</span> HCR Multiplier</a></li>
+  </ul>
+</li>
+  <li>
+<a href="#sec-cmps-status" id="toc-sec-cmps-status" class="nav-link" data-scroll-target="#sec-cmps-status"><span class="header-section-number">5.3</span> Estimated Stock Status</a>
+  <ul class="collapse">
+<li><a href="#indices" id="toc-indices" class="nav-link" data-scroll-target="#indices"><span class="header-section-number">5.3.1</span> Indices</a></li>
+  <li><a href="#index-level-at-sb_0" id="toc-index-level-at-sb_0" class="nav-link" data-scroll-target="#index-level-at-sb_0"><span class="header-section-number">5.3.2</span> Index Level at <span class="math inline">\(SB_0\)</span></a></li>
+  <li><a href="#current-status-of-each-index" id="toc-current-status-of-each-index" class="nav-link" data-scroll-target="#current-status-of-each-index"><span class="header-section-number">5.3.3</span> Current Status of Each Index</a></li>
+  <li><a href="#sec-cmps-combined-status" id="toc-sec-cmps-combined-status" class="nav-link" data-scroll-target="#sec-cmps-combined-status"><span class="header-section-number">5.3.4</span> Combined Stock Status</a></li>
+  </ul>
+</li>
+  <li>
+<a href="#technical-description-of-cmps" id="toc-technical-description-of-cmps" class="nav-link" data-scroll-target="#technical-description-of-cmps"><span class="header-section-number">5.4</span> Technical Description of CMPs</a>
+  <ul class="collapse">
+<li><a href="#sec-cmps-indexrate" id="toc-sec-cmps-indexrate" class="nav-link" data-scroll-target="#sec-cmps-indexrate"><span class="header-section-number">5.4.1</span> Index Rate</a></li>
+  <li><a href="#sec-cmps-indextarget" id="toc-sec-cmps-indextarget" class="nav-link" data-scroll-target="#sec-cmps-indextarget"><span class="header-section-number">5.4.2</span> Index Target</a></li>
+  <li><a href="#sec-cmps-sp" id="toc-sec-cmps-sp" class="nav-link" data-scroll-target="#sec-cmps-sp"><span class="header-section-number">5.4.3</span> Surplus Production</a></li>
+  </ul>
+</li>
+  <li><a href="#sec-cmps-tac-change" id="toc-sec-cmps-tac-change" class="nav-link" data-scroll-target="#sec-cmps-tac-change"><span class="header-section-number">5.5</span> TAC Change Limits</a></li>
+  <li>
+<a href="#sec-tuning-methodology" id="toc-sec-tuning-methodology" class="nav-link" data-scroll-target="#sec-tuning-methodology"><span class="header-section-number">5.6</span> Tuning Methodology</a>
+  <ul class="collapse">
+<li><a href="#sec-tuning-configs" id="toc-sec-tuning-configs" class="nav-link" data-scroll-target="#sec-tuning-configs"><span class="header-section-number">5.6.1</span> Step 1: CMP Settings</a></li>
+  <li><a href="#step-2-tuning-parameter" id="toc-step-2-tuning-parameter" class="nav-link" data-scroll-target="#step-2-tuning-parameter"><span class="header-section-number">5.6.2</span> Step 2: Tuning Parameter</a></li>
+  <li><a href="#sec-tuning-results" id="toc-sec-tuning-results" class="nav-link" data-scroll-target="#sec-tuning-results"><span class="header-section-number">5.6.3</span> Tuning Results</a></li>
   </ul>
 </li>
   </ul></nav>
@@ -214,152 +242,152 @@ window.Quarto = {
   
 
 
-</header><p>The MSE currently includes three types of candidate management procedures (CMPs):</p>
+</header><p>The MSE includes three types of candidate management procedures (CMPs):</p>
 <ol type="1">
 <li>
-<strong>Index Rate (IR)</strong>: an index-based CMP that sets the TAC as a catch/index rate multiplied by the current index;</li>
+<strong>Index Rate (IR)</strong>: an empirical (model-free) CMP that sets the TAC as a catch/index rate multiplied by the current values of the indices of abundance;</li>
 <li>
-<strong>Index Target (IT)</strong>: an index-based CMP that sets the TAC as a reference catch, reduced when the index falls below the threshold;</li>
+<strong>Index Target (IT)</strong>: an empirical, constant-catch CMP that sets the TAC at a tuned target catch, reduced when the indices fall below the threshold;</li>
 <li>
-<strong>Surplus Production (SP)</strong>: a model-based CMP that fits a surplus production model and sets the TAC from the estimated stock status and <span class="math inline">\(F_{\text{MSY}}\)</span>.</li>
+<strong>Surplus Production (SP)</strong>: a model-based CMP that fits a surplus production model to the catch and indices and sets the TAC from the estimated stock status and <span class="math inline">\(F_{\text{MSY}}\)</span>.</li>
 </ol>
-<p>Each CMP type uses one of 3 harvest control rules (HCRs; <a href="#sec-hcrs" class="quarto-xref"><span>Section 5.1</span></a>), selected for that type together with its other settings (<a href="#sec-tuning-methodology" class="quarto-xref"><span>Section 5.7</span></a>).</p>
-<p>The variants of each type differ in the limit on the change in the TAC between management cycles (10%, 20%, 40%), for a total of 9 CMPs, which show the trade-off between TAC stability and catch.</p>
-<p>Each CMP is named by its type, HCR, and TAC change limit; e.g., <em>IR_H2_20</em> is the Index Rate CMP with HCR 2 and a 20% limit on the change in the TAC.</p>
-<p>All CMPs set a single TAC for the total catch (removals, in t) of all fleets. The CMPs use data aggregated to calendar years: annual catches (summed over the quarters) and annual indices (averaged over the quarters with data).</p>
-<section id="sec-hcrs" class="level2" data-number="5.1"><h2 data-number="5.1" class="anchored" data-anchor-id="sec-hcrs">
-<span class="header-section-number">5.1</span> Harvest Control Rules</h2>
-<p>The candidate HCRs (<a href="#tbl-hcrs" class="quarto-xref">Table&nbsp;<span>5.1</span></a>) were specified in terms of stock status, <span class="math inline">\(SB_{\text{current}}/SB_0\)</span>, where <span class="math inline">\(SB_0\)</span> is the equilibrium unfished spawning biomass, and fishing mortality. Below the limit reference point (LRP), fishing mortality is reduced to a minimum level, <span class="math inline">\(F_{\text{min}}\)</span>; between the LRP and the threshold reference point (ThRP), it increases linearly to the target, <span class="math inline">\(F_{\text{TARGET}}\)</span>; and above the ThRP it is constant at the target. <span class="math inline">\(F_{X\%}\)</span> is the fishing mortality that reduces the spawning potential ratio to <span class="math inline">\(X\%\)</span>.</p>
-<div id="tbl-hcrs" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-tbl figure"><figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-hcrs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;5.1: The candidate harvest control rules.
-</figcaption><div aria-describedby="tbl-hcrs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<table class="caption-top table">
+<p>Each CMP type is combined with each of the 6 candidate harvest control rules (HCRs; <a href="#sec-hcrs" class="quarto-xref"><span>Section 5.2</span></a>) and 2 limits on the change in the TAC between management cycles (10% and 20%; <a href="#sec-cmps-tac-change" class="quarto-xref"><span>Section 5.5</span></a>), for a total of 36 CMPs (<a href="#tbl-cmp-design" class="quarto-xref">Table&nbsp;<span>5.1</span></a>). All CMPs use the same 4 indices of abundance (S2, S4, S5, S8; <a href="#sec-cmps-status" class="quarto-xref"><span>Section 5.3</span></a>).</p>
+<p>During development, the CMPs were tested with four sets of the available indices: the Japanese late longline indices alone (S2, S4), the Japanese indices with the US shallow-set index (S2, S4, S8), the Japanese indices with the Taiwanese index (S2, S4, S5), and all 4 indices. The choice of index set made little difference to the performance of the CMPs in these runs. To avoid presenting 144 CMPs, the set with all 4 indices was used because it uses all the available information and makes the TAC less dependent on the CPUE series of any single fleet.</p>
+<p>Each CMP is named by its type, HCR, and TAC change limit; e.g., <em>IR_H2_10</em> is the Index Rate CMP with HCR 2 and a 10% limit on the change in the TAC.</p>
+<p>All CMPs set a single annual TAC for the total catch (removals, in t) of all fleets, which is split among the fleets and quarters in proportion to their recent catch (<a href="forward-projections.html" class="quarto-xref"><span>Chapter 3</span></a>). The CMPs use data aggregated to calendar years: annual catches (summed over the quarters) and annual indices (averaged over the quarters with data). The TAC is calculated every 3 years, with a 2-year data lag (<a href="forward-projections.html" class="quarto-xref"><span>Chapter 3</span></a>), and is constant within each management cycle.</p>
+<div class="cell">
+<div id="tbl-cmp-design" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure"><figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-cmp-design-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5.1: The factors that define the candidate management procedures. Every combination of the levels is included.
+</figcaption><div aria-describedby="tbl-cmp-design-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
 <colgroup>
-<col style="width: 20%">
-<col style="width: 20%">
-<col style="width: 20%">
-<col style="width: 20%">
-<col style="width: 20%">
+<col style="width: 23%">
+<col style="width: 25%">
+<col style="width: 50%">
 </colgroup>
 <thead><tr class="header">
-<th>HCR</th>
-<th><span class="math inline">\(F_{\text{TARGET}}\)</span></th>
-<th>Control Point 1 (ThRP)</th>
-<th>Control Point 2 (LRP)</th>
-<th><span class="math inline">\(F_{\text{min}}\)</span></th>
+<th style="text-align: left;">Factor</th>
+<th style="text-align: left;">Code</th>
+<th style="text-align: left;">Levels</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td>1</td>
-<td><span class="math inline">\(F_{40\%}\)</span></td>
-<td>35% <span class="math inline">\(SB_0\)</span>
-</td>
-<td>17% <span class="math inline">\(SB_0\)</span>
-</td>
-<td><span class="math inline">\(F_{90\%}\)</span></td>
+<td style="text-align: left;">CMP type</td>
+<td style="text-align: left;">IR, IT, SP</td>
+<td style="text-align: left;">Index Rate, Index Target, Surplus Production</td>
 </tr>
 <tr class="even">
-<td>2</td>
-<td><span class="math inline">\(F_{40\%}\)</span></td>
-<td>30% <span class="math inline">\(SB_0\)</span>
-</td>
-<td>17% <span class="math inline">\(SB_0\)</span>
-</td>
-<td><span class="math inline">\(F_{90\%}\)</span></td>
+<td style="text-align: left;">Harvest control rule</td>
+<td style="text-align: left;">H1, H2, H3, H4, H5, H6</td>
+<td style="text-align: left;">HCR 1, HCR 2, HCR 3, HCR 4, HCR 5, HCR 6</td>
 </tr>
 <tr class="odd">
-<td>3</td>
-<td><span class="math inline">\(F_{40\%}\)</span></td>
-<td>25% <span class="math inline">\(SB_0\)</span>
-</td>
-<td>17% <span class="math inline">\(SB_0\)</span>
-</td>
-<td><span class="math inline">\(F_{90\%}\)</span></td>
-</tr>
-<tr class="even">
-<td>4</td>
-<td><span class="math inline">\(F_{35\%}\)</span></td>
-<td>30% <span class="math inline">\(SB_0\)</span>
-</td>
-<td>17% <span class="math inline">\(SB_0\)</span>
-</td>
-<td><span class="math inline">\(F_{90\%}\)</span></td>
-</tr>
-<tr class="odd">
-<td>5</td>
-<td><span class="math inline">\(F_{35\%}\)</span></td>
-<td>25% <span class="math inline">\(SB_0\)</span>
-</td>
-<td>17% <span class="math inline">\(SB_0\)</span>
-</td>
-<td><span class="math inline">\(F_{90\%}\)</span></td>
-</tr>
-<tr class="even">
-<td>6</td>
-<td><span class="math inline">\(F_{30\%}\)</span></td>
-<td>25% <span class="math inline">\(SB_0\)</span>
-</td>
-<td>17% <span class="math inline">\(SB_0\)</span>
-</td>
-<td><span class="math inline">\(F_{90\%}\)</span></td>
+<td style="text-align: left;">TAC change limit</td>
+<td style="text-align: left;">10, 20</td>
+<td style="text-align: left;">10%, 20%</td>
 </tr>
 </tbody>
 </table>
 </div>
+</div>
 </figure>
 </div>
-<p>The CMPs use the shape of these HCRs, but they do not set fishing mortality directly:</p>
+</div>
+<section id="sec-cmps-cycle" class="level2" data-number="5.1"><h2 data-number="5.1" class="anchored" data-anchor-id="sec-cmps-cycle">
+<span class="header-section-number">5.1</span> The Management Cycle</h2>
+<p>In each management cycle, the CMPs follow the same sequence of steps:</p>
+<ol type="1">
+<li>
+<strong>Data</strong>: the TAC is calculated in the year before the management cycle starts, from the catch and index data up to 2 years before that (e.g., the data up to 2025 for the TAC calculated in 2027 for 2028–2030; <a href="forward-projections.html#tbl-mgmt-schedule" class="quarto-xref">Table&nbsp;<span>3.1</span></a>).</li>
+<li>
+<strong>Stock status</strong>: the CMP estimates the current stock status, either from the indices relative to their level at <span class="math inline">\(SB_0\)</span> (Index Rate and Index Target) or from the fitted surplus production model (Surplus Production).</li>
+<li>
+<strong>HCR</strong>: the estimated stock status determines the HCR multiplier, which reduces the fishing intensity (or catch) when the estimated status is below the threshold reference point (ThRP).</li>
+<li>
+<strong>Trial TAC</strong>: the multiplier is applied to a quantity specific to each CMP type (a catch/index rate, a reference catch, or <span class="math inline">\(F_{\text{MSY}}\)</span>), scaled by the tuning parameter, to give a trial TAC.</li>
+<li>
+<strong>TAC change limit</strong>: the change from the previous TAC is limited to the TAC change limit of the CMP, and the TAC is left unchanged if the change would be less than 1%.</li>
+</ol>
+<p>The steps differ among the CMP types, and are described in full in <a href="#sec-cmps-indexrate" class="quarto-xref"><span>Section 5.4.1</span></a>, <a href="#sec-cmps-indextarget" class="quarto-xref"><span>Section 5.4.2</span></a>, <a href="#sec-cmps-sp" class="quarto-xref"><span>Section 5.4.3</span></a>, and <a href="#sec-cmps-tac-change" class="quarto-xref"><span>Section 5.5</span></a>.</p>
+</section><section id="sec-hcrs" class="level2" data-number="5.2"><h2 data-number="5.2" class="anchored" data-anchor-id="sec-hcrs">
+<span class="header-section-number">5.2</span> Harvest Control Rules</h2>
+<p>The candidate HCRs (<a href="#tbl-hcrs" class="quarto-xref">Table&nbsp;<span>5.2</span></a>) are defined in terms of stock status, <span class="math inline">\(SB/SB_0\)</span>, where <span class="math inline">\(SB_0\)</span> is the equilibrium unfished spawning biomass, and fishing mortality <span class="citation" data-cites="WCPFC2026">(WCPFC 2026, Attachment 7, Table 2)</span>:</p>
 <ul>
-<li>
-<strong>Stock status is estimated, not known.</strong> The CMPs do not observe spawning biomass, <span class="math inline">\(SB_0\)</span>, or fishing mortality. Stock status is estimated from the indices of abundance (Index Rate and Index Target) or from a surplus production model (Surplus Production; <a href="#sec-cmps-status" class="quarto-xref"><span>Section 5.2</span></a>), and the control points are applied to this estimate.</li>
-<li>
-<strong>The HCR sets a multiplier, not an F.</strong> The output of the HCR is a multiplier on a quantity specific to each CMP type, from which the TAC is calculated: the catch/index rate (Index Rate), a reference catch (Index Target), or a multiple of the <span class="math inline">\(F_{\text{MSY}}\)</span> estimated by the surplus production model (Surplus Production). Only the Surplus Production CMPs estimate reference points, and these estimates are uncertain (<a href="#sec-cmps-sp" class="quarto-xref"><span>Section 5.5</span></a>).</li>
-<li>
-<strong>The level of fishing is set by tuning.</strong> The fishing intensity above the ThRP is set by the tuning parameter (<a href="#sec-tuning-methodology" class="quarto-xref"><span>Section 5.7</span></a>). The selected HCR for each CMP type is the one that gives the highest catch when tuned (step 1 in <a href="#sec-tuning-methodology" class="quarto-xref"><span>Section 5.7</span></a>).</li>
-<li>
-<strong><span class="math inline">\(F_{\text{min}}\)</span> is a relative reduction.</strong> At and below the LRP, the fishing intensity is reduced to <span class="math inline">\(F_{90\%}/F_{40\%}\)</span> = 0.1 of its level above the ThRP, the ratio of <span class="math inline">\(F_{\text{min}}\)</span> to <span class="math inline">\(F_{\text{TARGET}}\)</span> from the per-recruit analysis of the base case OM in the terminal year of the assessment.</li>
+<li>above the threshold reference point (ThRP), fishing mortality is at the target, <span class="math inline">\(F_{\text{target}}\)</span>;</li>
+<li>between the ThRP and the limit reference point (LRP; 17% <span class="math inline">\(SB_0\)</span>), fishing mortality decreases linearly from <span class="math inline">\(F_{\text{target}}\)</span> to a minimum level, <span class="math inline">\(F_{\text{min}}\)</span>;</li>
+<li>at and below the LRP, fishing mortality is <span class="math inline">\(F_{\text{min}}\)</span>.</li>
 </ul>
-<p>The fishing mortality that results in the OM therefore depends on how well the TAC matches the true state of the stock, and can differ from the fishing intensity intended by the HCR.</p>
-<p>The HCR multiplier for each CMP type is (<a href="#fig-hcrs" class="quarto-xref">Figure&nbsp;<span>5.1</span></a>):</p>
-<ul>
-<li>
-<strong>Index Rate</strong> and <strong>Surplus Production</strong>: the fishing intensity (the catch/index rate, or <span class="math inline">\(F\)</span> relative to the estimated <span class="math inline">\(F_{\text{MSY}}\)</span>) is multiplied by 0.1 at and below the LRP, increases linearly to 1 at the ThRP, and is 1 above the ThRP.</li>
-<li>
-<strong>Index Target</strong>: the catch is constant above the ThRP, and decreases linearly to 0.1 <span class="math inline">\(\times\)</span> LRP/ThRP of that catch at the LRP (<a href="#tbl-it-floor" class="quarto-xref">Table&nbsp;<span>5.2</span></a>).</li>
-</ul>
-<p>The minimum multiplier is lower for the Index Target CMPs because their multiplier applies to a catch rather than to a fishing intensity. Above the ThRP, the Index Target CMPs keep the catch constant rather than the fishing intensity, so the fishing intensity decreases as the stock increases.</p>
+<p><span class="math inline">\(F_{X\%}\)</span> is the fishing mortality that reduces the spawning potential ratio to <span class="math inline">\(X\%\)</span>. <span class="math inline">\(F_{\text{min}}\)</span> is <span class="math inline">\(F_{90\%}\)</span> for all HCRs.</p>
 <div class="cell">
-<div id="tbl-it-floor" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-tbl figure"><figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-it-floor-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;5.2: The HCR multiplier at and below the LRP for each HCR and CMP type.
-</figcaption><div aria-describedby="tbl-it-floor-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="tbl-hcrs" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure"><figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-hcrs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5.2: The candidate harvest control rules. The F target and biomass threshold ThRP define each HCR; the LRP and Fmin are the same for all HCRs.
+</figcaption><div aria-describedby="tbl-hcrs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
 <table class="cell caption-top table table-sm table-striped small">
 <thead><tr class="header">
-<th style="text-align: left;">HCR</th>
+<th style="text-align: right;">HCR</th>
+<th style="text-align: left;"><span class="math inline">\(F_{\text{target}}\)</span></th>
 <th style="text-align: left;">ThRP</th>
-<th style="text-align: right;">Index Rate and Surplus Production</th>
-<th style="text-align: right;">Index Target</th>
+<th style="text-align: left;">LRP</th>
+<th style="text-align: left;"><span class="math inline">\(F_{\text{min}}\)</span></th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">HCR 1</td>
-<td style="text-align: left;">35%</td>
-<td style="text-align: right;">0.1</td>
-<td style="text-align: right;">0.049</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;"><span class="math inline">\(F_{40\%}\)</span></td>
+<td style="text-align: left;">35% <span class="math inline">\(SB_0\)</span>
+</td>
+<td style="text-align: left;">17% <span class="math inline">\(SB_0\)</span>
+</td>
+<td style="text-align: left;"><span class="math inline">\(F_{90\%}\)</span></td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">HCR 2</td>
-<td style="text-align: left;">30%</td>
-<td style="text-align: right;">0.1</td>
-<td style="text-align: right;">0.057</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;"><span class="math inline">\(F_{40\%}\)</span></td>
+<td style="text-align: left;">30% <span class="math inline">\(SB_0\)</span>
+</td>
+<td style="text-align: left;">17% <span class="math inline">\(SB_0\)</span>
+</td>
+<td style="text-align: left;"><span class="math inline">\(F_{90\%}\)</span></td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">HCR 3</td>
-<td style="text-align: left;">25%</td>
-<td style="text-align: right;">0.1</td>
-<td style="text-align: right;">0.068</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;"><span class="math inline">\(F_{40\%}\)</span></td>
+<td style="text-align: left;">25% <span class="math inline">\(SB_0\)</span>
+</td>
+<td style="text-align: left;">17% <span class="math inline">\(SB_0\)</span>
+</td>
+<td style="text-align: left;"><span class="math inline">\(F_{90\%}\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: left;"><span class="math inline">\(F_{35\%}\)</span></td>
+<td style="text-align: left;">30% <span class="math inline">\(SB_0\)</span>
+</td>
+<td style="text-align: left;">17% <span class="math inline">\(SB_0\)</span>
+</td>
+<td style="text-align: left;"><span class="math inline">\(F_{90\%}\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: left;"><span class="math inline">\(F_{35\%}\)</span></td>
+<td style="text-align: left;">25% <span class="math inline">\(SB_0\)</span>
+</td>
+<td style="text-align: left;">17% <span class="math inline">\(SB_0\)</span>
+</td>
+<td style="text-align: left;"><span class="math inline">\(F_{90\%}\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td style="text-align: left;"><span class="math inline">\(F_{30\%}\)</span></td>
+<td style="text-align: left;">25% <span class="math inline">\(SB_0\)</span>
+</td>
+<td style="text-align: left;">17% <span class="math inline">\(SB_0\)</span>
+</td>
+<td style="text-align: left;"><span class="math inline">\(F_{90\%}\)</span></td>
 </tr>
 </tbody>
 </table>
@@ -368,38 +396,55 @@ Table&nbsp;5.2: The HCR multiplier at and below the LRP for each HCR and CMP typ
 </figure>
 </div>
 </div>
-<div class="cell">
-<div class="cell-output-display">
-<div id="fig-hcrs" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-hcrs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="management-procedures_files/figure-html/fig-hcrs-1.png" class="img-fluid figure-img" width="864">
+<p>The HCRs are defined in terms of the true spawning biomass relative to <span class="math inline">\(SB_0\)</span> and the true fishing mortality. None of these quantities are observed by the CMPs, which only have the catch and the indices of abundance. The CMPs therefore use the <em>shape</em> of each HCR, but the HCR is applied to estimated quantities and its output is not directly a fishing mortality.</p>
+<p><a href="#tbl-hcr-translation" class="quarto-xref">Table&nbsp;<span>5.3</span></a> summarises how each element of the HCR is implemented in each CMP type.</p>
+<div id="tbl-hcr-translation" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure"><figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-hcr-translation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5.3: How the elements of the HCRs are implemented in each CMP type. Cells that span columns apply to each of those CMP types.
+</figcaption><div aria-describedby="tbl-hcr-translation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="table table-sm cell caption-top table-striped small">
+<thead><tr class="header">
+<th data-quarto-table-cell-role="th">HCR element</th>
+<th data-quarto-table-cell-role="th">Index Rate</th>
+<th data-quarto-table-cell-role="th">Index Target</th>
+<th data-quarto-table-cell-role="th">Surplus Production</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Stock status (x-axis)</td>
+<td colspan="2">Mean of the indices relative to their level at \(SB_0\)</td>
+<td>Estimated \(B/K\) of the surplus production model</td>
+</tr>
+<tr class="even">
+<td>HCR output (y-axis)</td>
+<td>Multiplier on the catch/index rate</td>
+<td>Multiplier on the target catch</td>
+<td>Multiplier on the estimated \(F_{\text{MSY}}\)</td>
+</tr>
+<tr class="odd">
+<td>Control points (LRP, ThRP)</td>
+<td colspan="2">Applied directly to the estimated \(SB/SB_0\)</td>
+<td>Converted to \(B/B_{\text{MSY}}\) (\(B_{\text{MSY}}/K\) = 0.5)</td>
+</tr>
+<tr class="even">
+<td>\(F_{\text{target}}\)</td>
+<td colspan="3">Tuning parameter, tuned so that \(P(F \leq F_{\text{target}}) \geq\) 0.5</td>
+</tr>
+<tr class="odd">
+<td>\(F_{\text{min}}\)</td>
+<td>Multiplier of \(F_{\text{min}}\)/\(F_{\text{target}}\) at and below the LRP</td>
+<td>Multiplier of \(F_{\text{min}}\)/\(F_{\text{target}}\) \(\times\) LRP/ThRP at and below the LRP</td>
+<td>Multiplier of \(F_{\text{min}}\)/\(F_{\text{target}}\) at and below the LRP</td>
+</tr>
+</tbody>
+</table>
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-hcrs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;5.1: The harvest control rules used by the CMPs, for each threshold reference point (ThRP), as a function of estimated stock status. The dashed line shows the LRP. The multiplier applies to the fishing intensity (Index Rate and Surplus Production) or to the catch (Index Target). The minimum multiplier of the Index Target CMPs is lower and depends on the ThRP, because it also accounts for the lower biomass at the LRP.
-</figcaption></figure>
+</figure>
 </div>
-</div>
-</div>
-</section><section id="sec-cmps-status" class="level2" data-number="5.2"><h2 data-number="5.2" class="anchored" data-anchor-id="sec-cmps-status">
-<span class="header-section-number">5.2</span> Estimated Stock Status</h2>
-<p>The index-based CMPs estimate stock status from the two Japanese longline indices (S2 and S4; <a href="operating-models.html#sec-om-conditioning" class="quarto-xref"><span>Section 2.1</span></a>). Each index is expressed relative to its level at <span class="math inline">\(SB_0\)</span>, <span class="math inline">\(I_{0,j}\)</span>, calculated from the mean index over 2017–2021 and the mean <span class="math inline">\(SB/SB_0\)</span> over the same years in the Base Case OM (0.345):</p>
-<p><span class="math display">\[
-I_{0,j} = \frac{\bar{I}_{j}}{\overline{SB/SB_0}}
-\]</span></p>
-<p>giving <span class="math inline">\(I_0\)</span> = 1.47 and 0.846 for S2 and S4 respectively.</p>
-<p>The current status of each index, <span class="math inline">\(S_j\)</span>, is the index averaged over the most recent years, after optional loess smoothing (the number of years and the smoothing are CMP settings; <a href="#sec-tuning-methodology" class="quarto-xref"><span>Section 5.7</span></a>).</p>
-<p>The estimated stock status is the mean of the two indices’ status relative to their <span class="math inline">\(I_0\)</span>:</p>
-<p><span class="math display">\[
-x = \frac{1}{2}\sum_{j=1}^{2} \frac{S_j}{I_{0,j}}
-\]</span></p>
-<p>The Surplus Production CMPs estimate stock status as the estimated biomass relative to carrying capacity (<span class="math inline">\(B/K\)</span>) at the start of the year the TAC applies. The control points are specified in units of <span class="math inline">\(B/B_{\text{MSY}}\)</span> by dividing the LRP and ThRP by <span class="math inline">\(B_{\text{MSY}}/K\)</span>, which depends on the shape of the production function (<a href="#sec-cmps-sp" class="quarto-xref"><span>Section 5.5</span></a>).</p>
-</section><section id="sec-cmps-indexrate" class="level2" data-number="5.3"><h2 data-number="5.3" class="anchored" data-anchor-id="sec-cmps-indexrate">
-<span class="header-section-number">5.3</span> Index Rate</h2>
-<p>The Index Rate CMPs set the TAC as a catch/index rate multiplied by the current index. Each index is calibrated into its own catch/index rate, <span class="math inline">\(\hat{r}_j\)</span>: the mean total catch over the last 2 historical years divided by the mean of index <span class="math inline">\(j\)</span> over the same years. The trial TAC is:</p>
-<p><span class="math display">\[
-\text{TrialTAC} = \frac{1}{2}\sum_{j=1}^{2} S_j \times m \times \hat{r}_j \times \theta(x)
-\]</span></p>
-<p>where <span class="math inline">\(m\)</span> is the tuning parameter and <span class="math inline">\(\theta(x)\)</span> is the HCR multiplier (<a href="#fig-hcrs" class="quarto-xref">Figure&nbsp;<span>5.1</span></a>):</p>
+<p>The fishing mortality that results in the OM therefore depends on how well the estimated stock status (from the indices or the surplus production model) and the TAC match the true state of the stock, and can differ from the fishing mortality intended by the HCR.</p>
+<section id="sec-hcr-multiplier" class="level3" data-number="5.2.1"><h3 data-number="5.2.1" class="anchored" data-anchor-id="sec-hcr-multiplier">
+<span class="header-section-number">5.2.1</span> HCR Multiplier</h3>
+<p>In all CMPs, the output of the HCR is a multiplier, <span class="math inline">\(\theta(x)\)</span>, calculated from the estimated stock status, <span class="math inline">\(x\)</span>:</p>
 <p><span class="math display">\[
 \theta(x) =
 \begin{cases}
@@ -408,127 +453,206 @@ x = \frac{1}{2}\sum_{j=1}^{2} \frac{S_j}{I_{0,j}}
 1 &amp; x \ge \text{ThRP}
 \end{cases}
 \]</span></p>
-<p>with <span class="math inline">\(\phi = F_{\text{min}}/F_{\text{TARGET}}\)</span> = 0.1. Because the catch/index rate is calibrated to the recent catch, <span class="math inline">\(m\)</span> = 1 corresponds to the recent catch/index ratio.</p>
-<p>The Index Rate CMPs use HCR 1 (ThRP = 35% <span class="math inline">\(SB_0\)</span>), with current status calculated from the index averaged over the most recent year after loess smoothing (<a href="#sec-tuning-methodology" class="quarto-xref"><span>Section 5.7</span></a>).</p>
-</section><section id="sec-cmps-indextarget" class="level2" data-number="5.4"><h2 data-number="5.4" class="anchored" data-anchor-id="sec-cmps-indextarget">
-<span class="header-section-number">5.4</span> Index Target</h2>
-<p>The Index Target CMPs set the TAC as a reference catch, the mean total catch over the last 5 historical years (<span class="math inline">\(\bar{C}\)</span>), scaled by the tuning parameter and the HCR:</p>
-<p><span class="math display">\[
-\text{TrialTAC} = m \times \bar{C} \times \theta_C(x)
-\]</span></p>
-<p>where <span class="math inline">\(\theta_C(x)\)</span> has the same shape as <span class="math inline">\(\theta(x)\)</span>, with <span class="math inline">\(\phi\)</span> = 0.1 <span class="math inline">\(\times\)</span> LRP/ThRP (<a href="#fig-hcrs" class="quarto-xref">Figure&nbsp;<span>5.1</span></a>). The TAC is therefore constant above the ThRP, so the catch does not increase when the stock is above the ThRP.</p>
-<p>The Index Target CMPs use HCR 1 (ThRP = 35% <span class="math inline">\(SB_0\)</span>), with current status calculated from the index averaged over the most recent year after loess smoothing (<a href="#sec-tuning-methodology" class="quarto-xref"><span>Section 5.7</span></a>).</p>
-</section><section id="sec-cmps-sp" class="level2" data-number="5.5"><h2 data-number="5.5" class="anchored" data-anchor-id="sec-cmps-sp">
-<span class="header-section-number">5.5</span> Surplus Production</h2>
-<p>The Surplus Production CMPs fit a Schaefer surplus production model <span class="citation" data-cites="pella1969">(Pella and Tomlinson 1969)</span> to the annual catch and the four Japanese longline indices (S1–S4), each with its own catchability. <span class="math inline">\(F_{\text{MSY}}\)</span> and MSY are estimated, and the stock is assumed to be unfished at the start of the catch series (1975).</p>
-<p>In each management cycle, the model is fitted to the available data and projected to the start of the year the TAC applies, assuming the catch in the intervening years is the TAC in force. The fishing mortality is:</p>
-<p><span class="math display">\[
-F = m \times \hat{F}_{\text{MSY}} \times \theta\!\left(\hat{B}/\hat{K}\right)
-\]</span></p>
-<p>where <span class="math inline">\(m\)</span> is the tuning parameter and <span class="math inline">\(\theta\)</span> is the HCR multiplier (<a href="#fig-hcrs" class="quarto-xref">Figure&nbsp;<span>5.1</span></a>). The TAC is the mean annual catch when the model is projected at <span class="math inline">\(F\)</span> over the 3-year management cycle. If the model fit fails or does not converge, the previous TAC is kept.</p>
-<p>The Surplus Production CMPs use HCR 1 (ThRP = 35% <span class="math inline">\(SB_0\)</span>) (<a href="#sec-tuning-methodology" class="quarto-xref"><span>Section 5.7</span></a>).</p>
-<div class="callout callout-style-default callout-warning callout-titled" title="Model convergence">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>Model convergence
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>In the projections, the surplus production model failed to converge in 46–60% of the management cycles, depending on the OM, so the previous TAC was kept in these cycles. In 10–20% of the simulations, the model did not converge in any management cycle, so the TAC remained at its initial level throughout the projection period.</p>
-<p>The results for the Surplus Production CMPs are therefore largely determined by how the TAC is set when the model fails, rather than by the model estimates, and should not be considered further without additional analysis of the model fits.</p>
-</div>
-</div>
-</section><section id="sec-cmps-tac-change" class="level2" data-number="5.6"><h2 data-number="5.6" class="anchored" data-anchor-id="sec-cmps-tac-change">
-<span class="header-section-number">5.6</span> TAC Change Limits</h2>
-<p>For all CMPs, the proportional change from the previous TAC is limited to 10%, 20%, 40%, both up and down, and changes smaller than 1% leave the TAC unchanged:</p>
-<p><span class="math display">\[
-\text{TAC} = \text{TAC}_{\text{prev}} \times \min\left(\max\left(\frac{\text{TrialTAC}}{\text{TAC}_{\text{prev}}},\ 1 - \delta\right),\ 1 + \delta\right)
-\]</span></p>
-<p>where <span class="math inline">\(\delta\)</span> is the TAC change limit and <span class="math inline">\(\text{TAC}_{\text{prev}}\)</span> is the TAC in force.</p>
-</section><section id="sec-tuning-methodology" class="level2" data-number="5.7"><h2 data-number="5.7" class="anchored" data-anchor-id="sec-tuning-methodology">
-<span class="header-section-number">5.7</span> Tuning Methodology</h2>
-<p>Each CMP has a single tuning parameter, <span class="math inline">\(m\)</span>, that scales the target fishing intensity: the catch/index rate (Index Rate), the reference catch (Index Target), or <span class="math inline">\(F\)</span> relative to <span class="math inline">\(\hat{F}_{\text{MSY}}\)</span> (Surplus Production).</p>
-<p>The CMPs are tuned for the Base Case OM to maximise the mean annual catch over 2028–2057, subject to the Safety and Status objectives (<a href="performance-metrics.html" class="quarto-xref"><span>Chapter 4</span></a>):</p>
+<p>where <span class="math inline">\(\phi\)</span> is the multiplier at and below the LRP:</p>
 <ul>
 <li>
-<strong>Safety</strong>: the probability that spawning biomass remains above the LRP in every year is at least 0.8;</li>
+<strong>Index Rate and Surplus Production</strong>: <span class="math inline">\(\phi = F_{\text{min}}/F_{\text{target}}\)</span> of the HCR, the ratio of <span class="math inline">\(F_{\text{min}}\)</span> to the F target in the per-recruit analysis of the Base Case OM;</li>
 <li>
-<strong>Status</strong>: the probability that <span class="math inline">\(F \leq F_{40\%}\)</span> is at least 0.5.</li>
+<strong>Index Target</strong>: <span class="math inline">\(\phi = F_{\text{min}}/F_{\text{target}} \times \text{LRP}/\text{ThRP}\)</span>. The multiplier is lower because it applies to a catch rather than to a fishing intensity, and the catch at a given fishing intensity is lower when the stock is smaller.</li>
 </ul>
-<p>The tuning is done in two steps.</p>
-<section id="step-1-cmp-settings" class="level3" data-number="5.7.1"><h3 data-number="5.7.1" class="anchored" data-anchor-id="step-1-cmp-settings">
-<span class="header-section-number">5.7.1</span> Step 1: CMP Settings</h3>
-<p>The HCR and the other settings of each CMP type were selected from a set of candidate values (<a href="#tbl-config-candidates" class="quarto-xref">Table&nbsp;<span>5.3</span></a>):</p>
+<p>For the index-based CMPs, <span class="math inline">\(x\)</span> is the combined status of the indices (<a href="#sec-cmps-combined-status" class="quarto-xref"><span>Section 5.3.4</span></a>), and the LRP and ThRP are applied to it directly. For the Surplus Production CMPs, <span class="math inline">\(x\)</span> is the estimated <span class="math inline">\(B/B_{\text{MSY}}\)</span> of the surplus production model, and the LRP and ThRP are converted from <span class="math inline">\(B/K\)</span>, treated as equivalent to <span class="math inline">\(SB/SB_0\)</span>, to <span class="math inline">\(B/B_{\text{MSY}}\)</span> by dividing them by <span class="math inline">\(B_{\text{MSY}}/K\)</span> (0.5).</p>
+<p>The HCR multiplier, as a function of estimated stock status, is shown for each HCR and CMP type in <a href="#fig-hcrs" class="quarto-xref">Figure&nbsp;<span>5.1</span></a>.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-hcrs" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-hcrs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="management-procedures_files/figure-html/fig-hcrs-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure&nbsp;5.1: The HCR multiplier as a function of estimated stock status for each HCR and CMP type. The dashed line shows the LRP. The multiplier applies to the fishing intensity (Index Rate and Surplus Production) or to the catch (Index Target). For the Surplus Production CMPs, the control points are applied to the estimated B/BMSY after conversion (see text)."><img src="management-procedures_files/figure-html/fig-hcrs-1.png" class="img-fluid figure-img" width="864"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-hcrs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.1: The HCR multiplier as a function of estimated stock status for each HCR and CMP type. The dashed line shows the LRP. The multiplier applies to the fishing intensity (Index Rate and Surplus Production) or to the catch (Index Target). For the Surplus Production CMPs, the control points are applied to the estimated B/BMSY after conversion (see text).
+</figcaption></figure>
+</div>
+</div>
+</div>
+</section></section><section id="sec-cmps-status" class="level2" data-number="5.3"><h2 data-number="5.3" class="anchored" data-anchor-id="sec-cmps-status">
+<span class="header-section-number">5.3</span> Estimated Stock Status</h2>
+<section id="indices" class="level3" data-number="5.3.1"><h3 data-number="5.3.1" class="anchored" data-anchor-id="indices">
+<span class="header-section-number">5.3.1</span> Indices</h3>
+<p>All CMPs use the 4 indices of abundance that continue to the terminal year of the assessment:</p>
+<ul>
+<li>the late-phase Japanese longline indices for Area 1 and Area 2 (S2 and S4);</li>
+<li>the Chinese Taipei distant-water longline index (S5);</li>
+<li>the US shallow-set longline index (S8).</li>
+</ul>
+<p>S5 and S8 were not fitted in the Base Case assessment (lambda = 0), but are simulated in the projections with observation error conditioned on their fit to the OM, as are S2 and S4 (<a href="forward-projections.html" class="quarto-xref"><span>Chapter 3</span></a>). In the index-based CMPs (Index Rate and Index Target), the indices are equally weighted (<a href="#sec-cmps-combined-status" class="quarto-xref"><span>Section 5.3.4</span></a>). In the Surplus Production CMPs, the indices have equal likelihood weights, but their influence on the fit depends on their estimated observation error (<a href="#sec-cmps-sp" class="quarto-xref"><span>Section 5.4.3</span></a>).</p>
+</section><section id="index-level-at-sb_0" class="level3" data-number="5.3.2"><h3 data-number="5.3.2" class="anchored" data-anchor-id="index-level-at-sb_0">
+<span class="header-section-number">5.3.2</span> Index Level at <span class="math inline">\(SB_0\)</span>
+</h3>
+<p>To apply the HCR control points, which are defined in units of <span class="math inline">\(SB/SB_0\)</span>, each index <span class="math inline">\(j\)</span> is expressed relative to its level at <span class="math inline">\(SB_0\)</span>, <span class="math inline">\(I_{0,j}\)</span>.</p>
+<p><span class="math inline">\(I_{0,j}\)</span> is calibrated on the Base Case OM:</p>
+<p><span class="math display">\[
+I_{0,j} = \operatorname*{median}_{s} \left( \frac{\bar{I}_{j,s}}{\overline{SB/SB_0}_{s}} \right)
+\]</span></p>
+<p>where <span class="math inline">\(\bar{I}_{j,s}\)</span> is the mean of the simulated index <span class="math inline">\(j\)</span>, including observation error, in simulation <span class="math inline">\(s\)</span>, and <span class="math inline">\(\overline{SB/SB_0}_{s}\)</span> is the mean <span class="math inline">\(SB/SB_0\)</span> in the same years. <span class="math inline">\(I_{0,j}\)</span> is calculated once, from the Base Case OM, and used with every OM.</p>
+</section><section id="current-status-of-each-index" class="level3" data-number="5.3.3"><h3 data-number="5.3.3" class="anchored" data-anchor-id="current-status-of-each-index">
+<span class="header-section-number">5.3.3</span> Current Status of Each Index</h3>
+<p>The current status of each index, <span class="math inline">\(S_j\)</span>, is the index averaged over the most recent <code>RecentYears</code> years of data (ignoring missing values), after optional loess smoothing. Both settings were selected for each index-based CMP type in Step 1 of the tuning procedure (see <a href="#sec-tuning-configs" class="quarto-xref"><span>Section 5.6.1</span></a>).</p>
+<p>The selected values are:</p>
+<ul>
+<li>
+<strong>Index Rate</strong>: <code>RecentYears</code> = 3 and <code>Smooth</code> = FALSE;</li>
+<li>
+<strong>Index Target</strong>: <code>RecentYears</code> = 1 and <code>Smooth</code> = FALSE.</li>
+</ul></section><section id="sec-cmps-combined-status" class="level3" data-number="5.3.4"><h3 data-number="5.3.4" class="anchored" data-anchor-id="sec-cmps-combined-status">
+<span class="header-section-number">5.3.4</span> Combined Stock Status</h3>
+<p>Both index-based CMP types (Index Rate and Index Target) combine the indices into a single estimate of stock status, <span class="math inline">\(x\)</span>, as the mean of the status of each index relative to its level at <span class="math inline">\(SB_0\)</span>:</p>
+<p><span class="math display">\[
+x = \frac{1}{n}\sum_{j=1}^{n} \frac{S_j}{I_{0,j}}
+\]</span></p>
+<p>where <span class="math inline">\(n\)</span> is the number of indices (4).</p>
+</section></section><section id="technical-description-of-cmps" class="level2" data-number="5.4"><h2 data-number="5.4" class="anchored" data-anchor-id="technical-description-of-cmps">
+<span class="header-section-number">5.4</span> Technical Description of CMPs</h2>
+<section id="sec-cmps-indexrate" class="level3" data-number="5.4.1"><h3 data-number="5.4.1" class="anchored" data-anchor-id="sec-cmps-indexrate">
+<span class="header-section-number">5.4.1</span> Index Rate</h3>
+<p>The Index Rate CMPs set the TAC as a catch/index rate multiplied by the current status of each index, in five steps:</p>
 <ol type="1">
-<li>Each configuration was projected at 5 values of <span class="math inline">\(m\)</span> over 0.25–4, using the first 50 simulations, and the catch at the largest value of <span class="math inline">\(m\)</span> that meets both constraints was interpolated.</li>
-<li>The 2 configurations with the highest catch were then fully tuned (Step 2) on all simulations, and the configuration with the highest catch was selected.</li>
+<li>
+<strong>Calibration.</strong> Each index <span class="math inline">\(j\)</span> is calibrated into its own catch/index rate, <span class="math inline">\(\hat{r}_j\)</span>: the mean total catch over the last 2 historical years divided by the mean of index <span class="math inline">\(j\)</span> over the same years. The calibration is done once, from the historical data (2020–2021), and is the same in every management cycle: <span class="math display">\[
+\hat{r}_j = \frac{\bar{C}_{\text{hist}}}{\bar{I}_{\text{hist},j}}
+\]</span>
+</li>
+<li>
+<strong>Stock status.</strong> The current status of each index, <span class="math inline">\(S_j\)</span>, and the estimated stock status, <span class="math inline">\(x\)</span>, are calculated as described in <a href="#sec-cmps-status" class="quarto-xref"><span>Section 5.3</span></a>.</li>
+<li>
+<strong>HCR.</strong> The HCR multiplier, <span class="math inline">\(\theta(x)\)</span>, is calculated from the estimated stock status (<a href="#sec-hcr-multiplier" class="quarto-xref"><span>Section 5.2.1</span></a>).</li>
+<li>
+<strong>Trial TAC.</strong> Each index’s catch/index rate is scaled by the tuning parameter, <span class="math inline">\(m\)</span>, and the HCR multiplier, and multiplied by the current status of that index, giving the TAC implied by each index. The trial TAC is the mean over the indices: <span class="math display">\[
+\text{TrialTAC} = \frac{1}{n}\sum_{j=1}^{n} S_j \times m \times \hat{r}_j \times \theta(x)
+\]</span> Because the catch/index rate is calibrated to the recent catch, <span class="math inline">\(m\)</span> = 1 with <span class="math inline">\(\theta\)</span> = 1 sets a TAC equal to the calibration catch when the indices are at their calibration level.</li>
+<li>
+<strong>TAC change limit.</strong> The TAC change limit is applied (<a href="#sec-cmps-tac-change" class="quarto-xref"><span>Section 5.5</span></a>).</li>
 </ol>
-<p>The selected HCR and settings were then used for all CMPs of that type.</p>
-<p>The settings include the HCR (<a href="#tbl-hcrs" class="quarto-xref">Table&nbsp;<span>5.1</span></a>), the number of recent years the index is averaged over to calculate current status, whether the index is smoothed (loess) before calculating its status, and the shape parameter of the surplus production model. The calibration period of the Index Rate and Index Target CMPs was not included, because it only scales the catch/index rate or the reference catch, which is also scaled by <span class="math inline">\(m\)</span>.</p>
+<p>The fishing intensity of the Index Rate CMPs is therefore constant (apart from the HCR) and the TAC follows the indices: an increase in the indices increases the TAC in proportion.</p>
+</section><section id="sec-cmps-indextarget" class="level3" data-number="5.4.2"><h3 data-number="5.4.2" class="anchored" data-anchor-id="sec-cmps-indextarget">
+<span class="header-section-number">5.4.2</span> Index Target</h3>
+<p>The Index Target CMPs set the TAC as a target catch (the reference catch scaled by the tuning parameter), reduced when the estimated stock status is below the ThRP, in five steps:</p>
+<ol type="1">
+<li>
+<strong>Reference catch.</strong> The reference catch, <span class="math inline">\(\bar{C}\)</span>, is the mean total catch over the last 5 historical years (2017–2021), and is the same in every management cycle.</li>
+<li>
+<strong>Stock status.</strong> The current status of each index, <span class="math inline">\(S_j\)</span>, and the estimated stock status, <span class="math inline">\(x\)</span>, are calculated as described in <a href="#sec-cmps-status" class="quarto-xref"><span>Section 5.3</span></a>.</li>
+<li>
+<strong>HCR.</strong> The HCR multiplier, <span class="math inline">\(\theta(x)\)</span>, is calculated from the estimated stock status, with the <span class="math inline">\(\phi\)</span> of the Index Target CMPs (<a href="#sec-hcr-multiplier" class="quarto-xref"><span>Section 5.2.1</span></a>).</li>
+<li>
+<strong>Trial TAC.</strong> The trial TAC is the reference catch, scaled by the tuning parameter, <span class="math inline">\(m\)</span>, and the HCR multiplier: <span class="math display">\[
+\text{TrialTAC} = m \times \bar{C} \times \theta(x)
+\]</span>
+</li>
+<li>
+<strong>TAC change limit.</strong> The TAC change limit is applied (<a href="#sec-cmps-tac-change" class="quarto-xref"><span>Section 5.5</span></a>).</li>
+</ol>
+<p>The Index Target CMPs are therefore a constant-catch type of CMP. When the estimated stock status is above the ThRP, the trial TAC does not depend on the level of the indices: it is a fixed target catch, <span class="math inline">\(m \times \bar{C}\)</span>, which is also the maximum TAC of the CMP. The TAC moves to the target catch, within the TAC change limit, and then stays there.</p>
+<p>The indices are used only to reduce the TAC when the estimated stock status falls below the ThRP. Because <span class="math inline">\(m\)</span> is tuned, the target catch is not the same as the reference catch: the tuned <span class="math inline">\(m\)</span> of the Index Target CMPs is 1.14–1.39, so their target catch is 14%–39% above <span class="math inline">\(\bar{C}\)</span>.</p>
+<p>In contrast, the TACs of the Index Rate and Surplus Production CMPs follow the indices or the estimated biomass at all levels of stock status.</p>
+</section><section id="sec-cmps-sp" class="level3" data-number="5.4.3"><h3 data-number="5.4.3" class="anchored" data-anchor-id="sec-cmps-sp">
+<span class="header-section-number">5.4.3</span> Surplus Production</h3>
+<p>The Surplus Production CMPs fit a Schaefer surplus production model to the annual catch and the 4 indices.</p>
+<p>The estimated parameters are <span class="math inline">\(F_{\text{MSY}}\)</span>, MSY, and the initial depletion (<span class="math inline">\(B/K\)</span>) at the start of the first fitted year. The carrying capacity, <span class="math inline">\(K\)</span>, follows from <span class="math inline">\(F_{\text{MSY}}\)</span> and MSY (<span class="math inline">\(K = 2\,\text{MSY}/F_{\text{MSY}}\)</span> for the Schaefer model), and the biomass in each later year is calculated from the initial depletion, <span class="math inline">\(K\)</span>, the productivity, and the observed catches. The biomass in the last data year is projected to the start of the management cycle (see below), and the resulting <span class="math inline">\(B/B_{\text{MSY}}\)</span> is the estimated stock status used in the HCR.</p>
+<p>The catch and indices contain little information on the size of the stock as the catch has been nearly constant since 1975, and the indices have no strong trend or contrast. With biomass fixed at <span class="math inline">\(K\)</span> at the start of the catch series, the estimates of MSY and <span class="math inline">\(K\)</span> ran to their upper bounds and most fits failed. The model is therefore:</p>
+<ul>
+<li>fitted from 1994, the start of the late-phase Japanese longline indices (the early-phase indices, S1 and S3, end in 1993 and are not used), to the last data year;</li>
+<li>fitted with the depletion in 1994 estimated (starting value 0.5);</li>
+<li>fitted with weakly informative lognormal priors on <span class="math inline">\(F_{\text{MSY}}\)</span> (median 0.2, CV 2), depletion in 1994 (median 0.5, CV 0.5), and MSY (median 25,737 t, twice the mean historical catch, CV 1).</li>
+</ul>
+<p>The Surplus Production CMPs set the TAC from the estimated <span class="math inline">\(F_{\text{MSY}}\)</span> and stock status, in five steps:</p>
+<ol type="1">
+<li>
+<strong>Model fit.</strong> The model is fitted to the catch and index data available in the management cycle. Each fit starts from the estimates of the previous management cycle. If the fit fails or does not converge, the previous TAC is kept.</li>
+<li>
+<strong>Stock status.</strong> The fitted model is projected from the last data year to the start of the first year of the management cycle, with the catch in the intervening years equal to the TAC in force. The estimated stock status, <span class="math inline">\(x = \hat{B}/\hat{B}_{\text{MSY}}\)</span>, is the projected biomass relative to <span class="math inline">\(\hat{B}_{\text{MSY}}\)</span> at the start of the management cycle.</li>
+<li>
+<strong>HCR.</strong> The HCR multiplier, <span class="math inline">\(\theta(x)\)</span>, is calculated from the estimated stock status, with the control points converted to <span class="math inline">\(B/B_{\text{MSY}}\)</span> (<a href="#sec-hcr-multiplier" class="quarto-xref"><span>Section 5.2.1</span></a>).</li>
+<li>
+<strong>Trial TAC.</strong> The fishing mortality is the estimated <span class="math inline">\(F_{\text{MSY}}\)</span>, scaled by the tuning parameter, <span class="math inline">\(m\)</span>, and the HCR multiplier: <span class="math display">\[
+F = m \times \hat{F}_{\text{MSY}} \times \theta(x)
+\]</span> The model is projected at <span class="math inline">\(F\)</span> for the 3 years of the management cycle, and the trial TAC is the mean annual catch of this projection.</li>
+<li>
+<strong>TAC change limit.</strong> The TAC change limit is applied (<a href="#sec-cmps-tac-change" class="quarto-xref"><span>Section 5.5</span></a>).</li>
+</ol>
+<p>The fishing mortality of the Surplus Production CMPs is therefore constant relative to the estimated <span class="math inline">\(F_{\text{MSY}}\)</span> (apart from the HCR), and the TAC follows the estimated biomass.</p>
+<p>In the projections, the surplus production model converged in at least 96.9% of the model fits (simulations × management cycles) for every Surplus Production CMP and OM.</p>
+</section></section><section id="sec-cmps-tac-change" class="level2" data-number="5.5"><h2 data-number="5.5" class="anchored" data-anchor-id="sec-cmps-tac-change">
+<span class="header-section-number">5.5</span> TAC Change Limits</h2>
+<p>For all CMPs, the proportional change from the previous TAC is limited to 10% or 20% (the TAC change limit of each CMP), both up and down, and changes smaller than 1% leave the TAC unchanged. With <span class="math inline">\(R = \text{TrialTAC}/\text{TAC}_{\text{prev}}\)</span>, the ratio of the trial TAC to the previous TAC:</p>
+<p><span class="math display">\[
+\text{TAC} = \text{TAC}_{\text{prev}} \times
+\begin{cases}
+1 &amp; \lvert R - 1 \rvert &lt; 0.01 \\[4pt]
+1 - \delta &amp; R &lt; 1 - \delta \\[4pt]
+1 + \delta &amp; R &gt; 1 + \delta \\[4pt]
+R &amp; \text{otherwise}
+\end{cases}
+\]</span></p>
+<p>where <span class="math inline">\(\delta\)</span> is the TAC change limit and <span class="math inline">\(\text{TAC}_{\text{prev}}\)</span> is the TAC in force. In the first management cycle (2028), <span class="math inline">\(\text{TAC}_{\text{prev}}\)</span> is the total catch in the last data year.</p>
+</section><section id="sec-tuning-methodology" class="level2" data-number="5.6"><h2 data-number="5.6" class="anchored" data-anchor-id="sec-tuning-methodology">
+<span class="header-section-number">5.6</span> Tuning Methodology</h2>
+<p>Each CMP has a single tuning parameter, <span class="math inline">\(m\)</span>, that scales the quantity to which the HCR multiplier is applied: the catch/index rate (Index Rate), the reference catch (Index Target), or <span class="math inline">\(F\)</span> relative to <span class="math inline">\(\hat{F}_{\text{MSY}}\)</span> (Surplus Production).</p>
+<p>Each CMP is tuned in the Base Case OM to maximise the mean annual catch over 2028–2057, subject to the Safety and Status objectives (<a href="performance-metrics.html" class="quarto-xref"><span>Chapter 4</span></a>):</p>
+<ul>
+<li>
+<strong>Safety</strong>: the probability that spawning biomass is above the LRP (17% <span class="math inline">\(SB_0\)</span>) in any given year is at least 0.8;</li>
+<li>
+<strong>Status</strong>: the probability that fishing mortality is at or below the <span class="math inline">\(F_{\text{target}}\)</span> of the HCR of the CMP (<span class="math inline">\(F_{40\%}\)</span>, <span class="math inline">\(F_{35\%}\)</span>, or <span class="math inline">\(F_{30\%}\)</span>) is at least 0.5.</li>
+</ul>
+<p>Both probabilities are calculated from the true spawning biomass and fishing mortality in the OM, over all simulations and years.</p>
+<p>The tuning is done in two steps.</p>
+<section id="sec-tuning-configs" class="level3" data-number="5.6.1"><h3 data-number="5.6.1" class="anchored" data-anchor-id="sec-tuning-configs">
+<span class="header-section-number">5.6.1</span> Step 1: CMP Settings</h3>
+<p>The settings of the index-based CMPs that are not set by the HCR or the tuning parameter were selected from a set of candidate values (<a href="#tbl-config-candidates" class="quarto-xref">Table&nbsp;<span>5.4</span></a>), using one CMP of each type: HCR 2 and a 10% TAC change limit.</p>
+<p>Each configuration was projected at 5 values of <span class="math inline">\(m\)</span> over 0.25–4, using the first 50 simulations, and the catch at the largest value of <span class="math inline">\(m\)</span> that meets both constraints was interpolated. The 2 configurations with the highest catch were then fully tuned (Step 2) on all simulations, and the configuration with the highest catch was selected. The selected settings were then used for all CMPs of that type.</p>
 <div class="cell">
 <div id="tbl-config-candidates" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure"><figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-config-candidates-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;5.3: The candidate values of the CMP settings compared in step 1, and the selected values.
+Table&nbsp;5.4: The candidate values of the settings of the index-based CMPs compared in step 1, and the selected values.
 </figcaption><div aria-describedby="tbl-config-candidates-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<table class="table cell caption-top table-sm table-striped small">
+<table class="cell caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 46%">
+<col style="width: 23%">
+<col style="width: 12%">
+</colgroup>
 <thead><tr class="header">
-<th style="text-align: left;" data-quarto-table-cell-role="th">Setting</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Candidate values</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Selected</th>
+<th style="text-align: left;">CMP type</th>
+<th style="text-align: left;">Setting</th>
+<th style="text-align: left;">Candidate values</th>
+<th style="text-align: left;">Selected</th>
 </tr></thead>
 <tbody>
-<tr class="odd" data-grouplength="3">
-<td colspan="3" style="border-bottom: 1px solid"><strong>Index Rate</strong></td>
+<tr class="odd">
+<td style="text-align: left;">Index Rate</td>
+<td style="text-align: left;">Years averaged for current status</td>
+<td style="text-align: left;">1, 3</td>
+<td style="text-align: left;">3</td>
 </tr>
 <tr class="even">
-<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">HCR</td>
-<td style="text-align: left;">1, 2, 3</td>
-<td style="text-align: left;">1</td>
+<td style="text-align: left;">Index Rate</td>
+<td style="text-align: left;">Index smoothing (loess)</td>
+<td style="text-align: left;">yes, no</td>
+<td style="text-align: left;">no</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">Years averaged for current status</td>
+<td style="text-align: left;">Index Target</td>
+<td style="text-align: left;">Years averaged for current status</td>
 <td style="text-align: left;">1, 3</td>
 <td style="text-align: left;">1</td>
 </tr>
 <tr class="even">
-<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">Index smoothing</td>
+<td style="text-align: left;">Index Target</td>
+<td style="text-align: left;">Index smoothing (loess)</td>
 <td style="text-align: left;">yes, no</td>
-<td style="text-align: left;">yes</td>
-</tr>
-<tr class="odd" data-grouplength="3">
-<td colspan="3" style="border-bottom: 1px solid"><strong>Index Target</strong></td>
-</tr>
-<tr class="even">
-<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">HCR</td>
-<td style="text-align: left;">1, 2, 3</td>
-<td style="text-align: left;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">Years averaged for current status</td>
-<td style="text-align: left;">1, 3</td>
-<td style="text-align: left;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">Index smoothing</td>
-<td style="text-align: left;">yes, no</td>
-<td style="text-align: left;">yes</td>
-</tr>
-<tr class="odd" data-grouplength="2">
-<td colspan="3" style="border-bottom: 1px solid"><strong>Surplus Production</strong></td>
-</tr>
-<tr class="even">
-<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">HCR</td>
-<td style="text-align: left;">1, 2, 3</td>
-<td style="text-align: left;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">Production function shape (n)</td>
-<td style="text-align: left;">0.5, 1, 2</td>
-<td style="text-align: left;">2</td>
+<td style="text-align: left;">no</td>
 </tr>
 </tbody>
 </table>
@@ -537,113 +661,508 @@ Table&nbsp;5.3: The candidate values of the CMP settings compared in step 1, and
 </figure>
 </div>
 </div>
-</section><section id="step-2-tuning-parameter" class="level3" data-number="5.7.2"><h3 data-number="5.7.2" class="anchored" data-anchor-id="step-2-tuning-parameter">
-<span class="header-section-number">5.7.2</span> Step 2: Tuning Parameter</h3>
-<p><span class="math inline">\(m\)</span> was then tuned for each of the 9 CMPs. It was first evaluated on a grid of 7 log-spaced values over 0.25–4, which was extended if necessary, and then refined towards the largest value that meets both constraints (or the value with the highest catch, if that is lower), until the range of <span class="math inline">\(m\)</span> is within 1% or the binding constraint is within 0.5% of its minimum.</p>
-<p>For each CMP type, the smallest TAC change limit (10%) gives the most stable TAC, and is always retained. A larger limit is retained only if it increases the mean catch by at least 2% compared with the next smaller retained limit, so the retained CMPs show the trade-off between TAC stability and catch. The 20% variants are also retained, to show the effect of a looser limit (<a href="#tbl-tuning" class="quarto-xref">Table&nbsp;<span>5.4</span></a>).</p>
+</section><section id="step-2-tuning-parameter" class="level3" data-number="5.6.2"><h3 data-number="5.6.2" class="anchored" data-anchor-id="step-2-tuning-parameter">
+<span class="header-section-number">5.6.2</span> Step 2: Tuning Parameter</h3>
+<p><span class="math inline">\(m\)</span> was then tuned for each CMP. It was first evaluated on a grid of 7 log-spaced values over 0.25–4, which was extended if necessary, and then refined towards the largest value that meets both constraints (or the value with the highest catch, if that is lower), until the range of <span class="math inline">\(m\)</span> is within 1% or the binding constraint is within 0.005 of its minimum.</p>
+</section><section id="sec-tuning-results" class="level3" data-number="5.6.3"><h3 data-number="5.6.3" class="anchored" data-anchor-id="sec-tuning-results">
+<span class="header-section-number">5.6.3</span> Tuning Results</h3>
+<p>All 36 CMPs were tuned successfully. For 35 CMPs, the Status constraint determined the tuned value of <span class="math inline">\(m\)</span> (Status 0.498–0.523), and for one CMP (<em>IR_H6_20</em>) the mean catch reached its maximum before either constraint was binding.</p>
+<p>Safety was not limiting for any CMP: the probability that SB &gt; LRP was at least 0.83 for every CMP, above the minimum of 0.8.</p>
+<p>Because the Status constraint determines the tuning, the tuned catch depends mainly on the F target of the HCR (<a href="#fig-tuning" class="quarto-xref">Figure&nbsp;<span>5.2</span></a>; <a href="#tbl-tuning" class="quarto-xref">Table&nbsp;<span>5.5</span></a>). The HCRs with the same F target but different ThRPs give similar results because, in the Base Case OM, the stock is above the ThRP in most years when the CMPs are tuned to the F target (65%–99% of years, depending on the CMP), so the HCR ramp has little effect (<a href="#tbl-status-sb" class="quarto-xref">Table&nbsp;<span>5.6</span></a>).</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-tuning" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-tuning-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="management-procedures_files/figure-html/fig-tuning-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Figure&nbsp;5.2: The mean annual catch in the Base Case OM of the tuned CMPs, by HCR, CMP type, and TAC change limit."><img src="management-procedures_files/figure-html/fig-tuning-1.png" class="img-fluid figure-img" width="864"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-tuning-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.2: The mean annual catch in the Base Case OM of the tuned CMPs, by HCR, CMP type, and TAC change limit.
+</figcaption></figure>
+</div>
+</div>
+</div>
 <div class="cell">
 <div id="tbl-tuning" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure"><figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-tuning-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;5.4: The tuned value of the tuning parameter (m) for each CMP, and the mean annual catch, Safety (probability that SB &gt; LRP in every year), and Status (probability that F &lt;= F40%) in the base case OM, for the retained CMPs and those not retained.
+Table&nbsp;5.5: The tuned value of the tuning parameter (m) for each CMP, and the mean annual catch, Safety (probability that SB &gt; LRP), and Status (probability that F &lt;= F target of the HCR) in the Base Case OM.
 </figcaption><div aria-describedby="tbl-tuning-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<table class="table cell caption-top table-sm table-striped small">
+<table class="cell caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 10%">
+<col style="width: 22%">
+<col style="width: 4%">
+<col style="width: 20%">
+<col style="width: 7%">
+<col style="width: 17%">
+<col style="width: 8%">
+<col style="width: 8%">
+</colgroup>
 <thead><tr class="header">
-<th style="text-align: left;" data-quarto-table-cell-role="th">CMP</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">ThRP</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">TAC change</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">m</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">Mean catch (t)</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">Safety</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">Status</th>
+<th style="text-align: left;">CMP</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: right;">HCR</th>
+<th style="text-align: left;">TAC change limit</th>
+<th style="text-align: right;">m</th>
+<th style="text-align: left;">Mean catch (t)</th>
+<th style="text-align: right;">Safety</th>
+<th style="text-align: right;">Status</th>
 </tr></thead>
 <tbody>
-<tr class="odd" data-grouplength="6">
-<td colspan="7" style="border-bottom: 1px solid"><strong>Retained</strong></td>
+<tr class="odd">
+<td style="text-align: left;">IR_H1_10</td>
+<td style="text-align: left;">Index Rate</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">10%</td>
+<td style="text-align: right;">1.266</td>
+<td style="text-align: left;">12,945</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">0.50</td>
 </tr>
 <tr class="even">
-<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">IR_H1_10</td>
-<td style="text-align: right;">0.35</td>
-<td style="text-align: right;">0.1</td>
-<td style="text-align: right;">2.16</td>
-<td style="text-align: right;">13,631</td>
-<td style="text-align: right;">0.85</td>
+<td style="text-align: left;">IR_H2_10</td>
+<td style="text-align: left;">Index Rate</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">10%</td>
+<td style="text-align: right;">1.263</td>
+<td style="text-align: left;">12,956</td>
+<td style="text-align: right;">1.00</td>
 <td style="text-align: right;">0.50</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">IR_H1_20</td>
-<td style="text-align: right;">0.35</td>
-<td style="text-align: right;">0.2</td>
-<td style="text-align: right;">2.02</td>
-<td style="text-align: right;">13,356</td>
-<td style="text-align: right;">0.80</td>
+<td style="text-align: left;">IR_H3_10</td>
+<td style="text-align: left;">Index Rate</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">10%</td>
+<td style="text-align: right;">1.263</td>
+<td style="text-align: left;">12,957</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">IR_H4_10</td>
+<td style="text-align: left;">Index Rate</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">10%</td>
+<td style="text-align: right;">1.455</td>
+<td style="text-align: left;">13,884</td>
+<td style="text-align: right;">0.99</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">IR_H5_10</td>
+<td style="text-align: left;">Index Rate</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">10%</td>
+<td style="text-align: right;">1.451</td>
+<td style="text-align: left;">13,872</td>
+<td style="text-align: right;">0.99</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">IR_H6_10</td>
+<td style="text-align: left;">Index Rate</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: left;">10%</td>
+<td style="text-align: right;">1.687</td>
+<td style="text-align: left;">14,670</td>
+<td style="text-align: right;">0.94</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">IR_H1_20</td>
+<td style="text-align: left;">Index Rate</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">20%</td>
+<td style="text-align: right;">1.260</td>
+<td style="text-align: left;">12,911</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">IR_H2_20</td>
+<td style="text-align: left;">Index Rate</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">20%</td>
+<td style="text-align: right;">1.251</td>
+<td style="text-align: left;">12,960</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">IR_H3_20</td>
+<td style="text-align: left;">Index Rate</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">20%</td>
+<td style="text-align: right;">1.251</td>
+<td style="text-align: left;">12,963</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">IR_H4_20</td>
+<td style="text-align: left;">Index Rate</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">20%</td>
+<td style="text-align: right;">1.429</td>
+<td style="text-align: left;">13,874</td>
+<td style="text-align: right;">0.99</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">IR_H5_20</td>
+<td style="text-align: left;">Index Rate</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">20%</td>
+<td style="text-align: right;">1.430</td>
+<td style="text-align: left;">13,922</td>
+<td style="text-align: right;">0.99</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">IR_H6_20</td>
+<td style="text-align: left;">Index Rate</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: left;">20%</td>
+<td style="text-align: right;">1.639</td>
+<td style="text-align: left;">14,661</td>
+<td style="text-align: right;">0.92</td>
+<td style="text-align: right;">0.51</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">IT_H1_10</td>
+<td style="text-align: left;">Index Target</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">10%</td>
+<td style="text-align: right;">1.169</td>
+<td style="text-align: left;">12,862</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">0.51</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">IT_H2_10</td>
+<td style="text-align: left;">Index Target</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">10%</td>
+<td style="text-align: right;">1.151</td>
+<td style="text-align: left;">12,847</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">0.51</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">IT_H3_10</td>
+<td style="text-align: left;">Index Target</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">10%</td>
+<td style="text-align: right;">1.150</td>
+<td style="text-align: left;">12,855</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">0.51</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">IT_H4_10</td>
+<td style="text-align: left;">Index Target</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">10%</td>
+<td style="text-align: right;">1.271</td>
+<td style="text-align: left;">13,872</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">IT_H5_10</td>
+<td style="text-align: left;">Index Target</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">10%</td>
+<td style="text-align: right;">1.258</td>
+<td style="text-align: left;">13,833</td>
+<td style="text-align: right;">0.99</td>
 <td style="text-align: right;">0.52</td>
 </tr>
 <tr class="even">
-<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">IT_H1_10</td>
-<td style="text-align: right;">0.35</td>
-<td style="text-align: right;">0.1</td>
-<td style="text-align: right;">1.84</td>
-<td style="text-align: right;">13,563</td>
-<td style="text-align: right;">0.89</td>
-<td style="text-align: right;">0.50</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">IT_H1_20</td>
-<td style="text-align: right;">0.35</td>
-<td style="text-align: right;">0.2</td>
-<td style="text-align: right;">1.79</td>
-<td style="text-align: right;">13,421</td>
-<td style="text-align: right;">0.89</td>
-<td style="text-align: right;">0.50</td>
-</tr>
-<tr class="even">
-<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">SP_H1_10</td>
-<td style="text-align: right;">0.35</td>
-<td style="text-align: right;">0.1</td>
-<td style="text-align: right;">1.87</td>
-<td style="text-align: right;">12,905</td>
-<td style="text-align: right;">0.80</td>
-<td style="text-align: right;">0.74</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">SP_H1_20</td>
-<td style="text-align: right;">0.35</td>
-<td style="text-align: right;">0.2</td>
+<td style="text-align: left;">IT_H6_10</td>
+<td style="text-align: left;">Index Target</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: left;">10%</td>
+<td style="text-align: right;">1.390</td>
+<td style="text-align: left;">14,821</td>
 <td style="text-align: right;">0.91</td>
-<td style="text-align: right;">12,852</td>
-<td style="text-align: right;">0.80</td>
-<td style="text-align: right;">0.74</td>
-</tr>
-<tr class="even" data-grouplength="3">
-<td colspan="7" style="border-bottom: 1px solid"><strong>Not Retained</strong></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">IR_H1_40</td>
-<td style="text-align: right;">0.35</td>
-<td style="text-align: right;">0.4</td>
-<td style="text-align: right;">1.94</td>
-<td style="text-align: right;">12,869</td>
-<td style="text-align: right;">0.80</td>
-<td style="text-align: right;">0.57</td>
-</tr>
-<tr class="even">
-<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">IT_H1_40</td>
-<td style="text-align: right;">0.35</td>
-<td style="text-align: right;">0.4</td>
-<td style="text-align: right;">1.83</td>
-<td style="text-align: right;">13,333</td>
-<td style="text-align: right;">0.87</td>
 <td style="text-align: right;">0.50</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">SP_H1_40</td>
+<td style="text-align: left;">IT_H1_20</td>
+<td style="text-align: left;">Index Target</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">20%</td>
+<td style="text-align: right;">1.160</td>
+<td style="text-align: left;">12,843</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">IT_H2_20</td>
+<td style="text-align: left;">Index Target</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">20%</td>
+<td style="text-align: right;">1.137</td>
+<td style="text-align: left;">12,803</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">0.52</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">IT_H3_20</td>
+<td style="text-align: left;">Index Target</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">20%</td>
+<td style="text-align: right;">1.137</td>
+<td style="text-align: left;">12,821</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">0.51</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">IT_H4_20</td>
+<td style="text-align: left;">Index Target</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">20%</td>
+<td style="text-align: right;">1.244</td>
+<td style="text-align: left;">13,840</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">0.51</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">IT_H5_20</td>
+<td style="text-align: left;">Index Target</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">20%</td>
+<td style="text-align: right;">1.234</td>
+<td style="text-align: left;">13,844</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">0.51</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">IT_H6_20</td>
+<td style="text-align: left;">Index Target</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: left;">20%</td>
+<td style="text-align: right;">1.340</td>
+<td style="text-align: left;">14,820</td>
+<td style="text-align: right;">0.94</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SP_H1_10</td>
+<td style="text-align: left;">Surplus Production</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">10%</td>
+<td style="text-align: right;">0.924</td>
+<td style="text-align: left;">13,026</td>
+<td style="text-align: right;">0.99</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">SP_H2_10</td>
+<td style="text-align: left;">Surplus Production</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">10%</td>
+<td style="text-align: right;">0.924</td>
+<td style="text-align: left;">13,029</td>
+<td style="text-align: right;">0.99</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SP_H3_10</td>
+<td style="text-align: left;">Surplus Production</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">10%</td>
+<td style="text-align: right;">0.924</td>
+<td style="text-align: left;">13,029</td>
+<td style="text-align: right;">0.99</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">SP_H4_10</td>
+<td style="text-align: left;">Surplus Production</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">10%</td>
+<td style="text-align: right;">1.210</td>
+<td style="text-align: left;">14,040</td>
+<td style="text-align: right;">0.95</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SP_H5_10</td>
+<td style="text-align: left;">Surplus Production</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">10%</td>
+<td style="text-align: right;">1.210</td>
+<td style="text-align: left;">14,040</td>
+<td style="text-align: right;">0.95</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">SP_H6_10</td>
+<td style="text-align: left;">Surplus Production</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: left;">10%</td>
+<td style="text-align: right;">1.576</td>
+<td style="text-align: left;">14,816</td>
+<td style="text-align: right;">0.86</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SP_H1_20</td>
+<td style="text-align: left;">Surplus Production</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">20%</td>
+<td style="text-align: right;">0.877</td>
+<td style="text-align: left;">12,881</td>
+<td style="text-align: right;">0.94</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">SP_H2_20</td>
+<td style="text-align: left;">Surplus Production</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">20%</td>
+<td style="text-align: right;">0.877</td>
+<td style="text-align: left;">12,889</td>
+<td style="text-align: right;">0.94</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SP_H3_20</td>
+<td style="text-align: left;">Surplus Production</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">20%</td>
+<td style="text-align: right;">0.877</td>
+<td style="text-align: left;">12,889</td>
+<td style="text-align: right;">0.94</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">SP_H4_20</td>
+<td style="text-align: left;">Surplus Production</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">20%</td>
+<td style="text-align: right;">1.155</td>
+<td style="text-align: left;">13,778</td>
+<td style="text-align: right;">0.90</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SP_H5_20</td>
+<td style="text-align: left;">Surplus Production</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">20%</td>
+<td style="text-align: right;">1.153</td>
+<td style="text-align: left;">13,775</td>
+<td style="text-align: right;">0.90</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">SP_H6_20</td>
+<td style="text-align: left;">Surplus Production</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: left;">20%</td>
+<td style="text-align: right;">1.448</td>
+<td style="text-align: left;">14,367</td>
+<td style="text-align: right;">0.83</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<div class="cell">
+<div id="tbl-status-sb" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure"><figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-status-sb-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5.6: The probability that SB is above the ThRP of the HCR (proportion of years), and the mean SB/SB0, in the projections of the Base Case OM, for the CMPs with a 10% TAC change limit.
+</figcaption><div aria-describedby="tbl-status-sb-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 3%">
+<col style="width: 4%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+</colgroup>
+<thead><tr class="header">
+<th style="text-align: right;">HCR</th>
+<th style="text-align: left;">ThRP</th>
+<th style="text-align: right;">P(SB &gt; ThRP): IR</th>
+<th style="text-align: right;">P(SB &gt; ThRP): IT</th>
+<th style="text-align: right;">P(SB &gt; ThRP): SP</th>
+<th style="text-align: right;">Mean SB/SB0: IR</th>
+<th style="text-align: right;">Mean SB/SB0: IT</th>
+<th style="text-align: right;">Mean SB/SB0: SP</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">35%</td>
+<td style="text-align: right;">0.70</td>
+<td style="text-align: right;">0.73</td>
+<td style="text-align: right;">0.67</td>
+<td style="text-align: right;">0.39</td>
+<td style="text-align: right;">0.39</td>
+<td style="text-align: right;">0.38</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">30%</td>
+<td style="text-align: right;">0.90</td>
+<td style="text-align: right;">0.91</td>
+<td style="text-align: right;">0.86</td>
+<td style="text-align: right;">0.39</td>
+<td style="text-align: right;">0.39</td>
+<td style="text-align: right;">0.38</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">25%</td>
+<td style="text-align: right;">0.98</td>
+<td style="text-align: right;">0.99</td>
+<td style="text-align: right;">0.94</td>
+<td style="text-align: right;">0.39</td>
+<td style="text-align: right;">0.39</td>
+<td style="text-align: right;">0.38</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">30%</td>
+<td style="text-align: right;">0.69</td>
+<td style="text-align: right;">0.73</td>
+<td style="text-align: right;">0.67</td>
+<td style="text-align: right;">0.34</td>
 <td style="text-align: right;">0.35</td>
-<td style="text-align: right;">0.4</td>
-<td style="text-align: right;">0.46</td>
-<td style="text-align: right;">11,430</td>
-<td style="text-align: right;">0.80</td>
-<td style="text-align: right;">0.87</td>
+<td style="text-align: right;">0.34</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">25%</td>
+<td style="text-align: right;">0.89</td>
+<td style="text-align: right;">0.89</td>
+<td style="text-align: right;">0.83</td>
+<td style="text-align: right;">0.34</td>
+<td style="text-align: right;">0.35</td>
+<td style="text-align: right;">0.34</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td style="text-align: left;">25%</td>
+<td style="text-align: right;">0.69</td>
+<td style="text-align: right;">0.71</td>
+<td style="text-align: right;">0.68</td>
+<td style="text-align: right;">0.31</td>
+<td style="text-align: right;">0.31</td>
+<td style="text-align: right;">0.30</td>
 </tr>
 </tbody>
 </table>
@@ -1059,13 +1578,44 @@ Table&nbsp;5.4: The tuned value of the tuning parameter (m) for each CMP, and th
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./references.html" class="pagination-link" aria-label="References">
-        <span class="nav-page-text">References</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./results.html" class="pagination-link" aria-label="Presentation of Results">
+        <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Presentation of Results</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
 </div> <!-- /content -->
-
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
 
 
 </body></html>

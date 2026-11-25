@@ -1,0 +1,11 @@
+---
+suppress-bibliography: true
+---
+
+# Presentation of Results {#sec-results}
+
+The preliminary results of the MSE are available in the [Slick app](https://shiny.bluematterscience.com/app/slick), an interactive tool for exploring the performance of the CMPs across the OMs. 
+
+To view these preliminary results, open Slick in a web browser and select *North Pacific Swordfish* from the **Case Study** drop-down menu. 
+
+The app shows the performance metrics described in @sec-performance-metrics (@tbl-pm-secondary) for every CMP and OM, and allows the CMPs to be compared with a range of plots, including time series of the stock status and catch, trade-off plots, and tables of the performance metrics.
