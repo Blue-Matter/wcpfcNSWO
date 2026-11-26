@@ -14,9 +14,12 @@ TunedCMPs       <- readRDS(file.path(TuneDir, 'TunedCMPs.rds'))
 # 36 CMPs with all the indices (JPN + US + TWN; CMPIndexSets in 05b-Define-CMPs.R)
 SelectedIndexSet <- 'All'
 SelectedCMPs     <- grep(paste0('_', SelectedIndexSet, '_'), names(TunedCMPs), value = TRUE)
-TuneSummary     <- utils::read.csv(file.path(TuneDir, 'Summary.csv'))
-ConfigsFile     <- file.path(TuneDir, 'Configs.rds')
-SelectedConfigs <- if (file.exists(ConfigsFile)) readRDS(ConfigsFile) else list()
+TuneSummary      <- utils::read.csv(file.path(TuneDir, 'Summary.csv'))
+
+# CMPs selected by default in Slick: the HCRs with the highest yield
+# (HCR 5, F35%; HCR 6, F30%) of each MP type, with the 10% TAC change limit
+DefaultHCRs      <- c(5, 6)
+DefaultTACChange <- 0.1
 
 # ---- MP metadata ----
 MP_all <- names(TunedCMPs)
@@ -25,6 +28,9 @@ if (!is.null(SelectedCMPs)) {
     cli::cli_abort("Not tuned CMPs: {.val {setdiff(SelectedCMPs, MP_all)}}.")
   MP_all <- SelectedCMPs
 }
+# ordered by MP type, HCR, and TAC change limit
+MPInfo <- TuneSummary[match(MP_all, TuneSummary$Name), ]
+MP_all <- MP_all[order(match(MPInfo$MP, c('IR', 'IT', 'SP')), MPInfo$HCR, MPInfo$TACChange)]
 nMP    <- length(MP_all)
 MPInfo <- TuneSummary[match(MP_all, TuneSummary$Name), ]
 MPInfo$FTarget <- paste0('F', round(100 * MPInfo$FTargetSPR))
@@ -37,38 +43,46 @@ Groups <- split(MP_all, factor(MPInfo$Group, unique(MPInfo$Group)))
 
 MP_Type <- c(IR = 'Index Rate', IT = 'Index Target', SP = 'Surplus Production')
 IndexSetLabel <- c(JPN = 'JPN', JPNUS = 'JPN + US', JPNTWN = 'JPN + TWN', All = 'JPN + US + TWN')
-IndexSetDescription <- c(
-  JPN    = 'Japanese late longline CPUE (Areas 1 and 2; S2 and S4)',
-  JPNUS  = 'Japanese late longline CPUE (S2 and S4) and US shallow-set longline CPUE (S8)',
-  JPNTWN = 'Japanese late longline CPUE (S2 and S4) and Taiwanese longline CPUE (S5)',
-  All    = 'Japanese late longline CPUE (S2 and S4), US shallow-set longline CPUE (S8), and Taiwanese longline CPUE (S5)'
-)
+
+# Technical Supporting Document (TSD)
+TSD_URL     <- 'https://wcpfcnswo.bluematterscience.com/tsd'
+TSD_CMP_URL <- paste0(TSD_URL, '/management-procedures.html')
+TSD_PM_URL  <- paste0(TSD_URL, '/performance-metrics.html')
+# link that opens in a new tab (only rendered in the Introduction; the app
+# shows the MP and PI descriptions as plain text)
+TSDLink <- function(Text, URL) sprintf('<a href="%s" target="_blank">%s</a>', URL, Text)
 
 MP_TypeDescription <- c(
-  IR = 'Index-based MP: the TAC is a catch/index rate multiplied by the current index. The rate is reduced linearly from the threshold reference point (ThRP) to Fmin (F90%) at the limit reference point (LRP), with stock status as the index relative to its level at SB0.',
-  IT = 'Index-based MP: the TAC is a reference catch, constant above the threshold reference point (ThRP) and reduced linearly to the catch of Fmin (F90%) at the limit reference point (LRP), with stock status as the index relative to its level at SB0.',
-  SP = 'Model-based MP: a surplus production model is fitted to the catch and index, and F is a multiple of the estimated FMSY, reduced linearly from the threshold reference point (ThRP) to Fmin (F90%) at the limit reference point (LRP), with stock status as the estimated B/K.'
+  IR = 'Index Rate: TAC = tuned rate x current index',
+  IT = 'Index Target: TAC = tuned reference catch',
+  SP = 'Surplus Production: F = tuned multiple of the estimated FMSY'
 )
 
-ConfigLabel <- vapply(names(MP_Type), \(mp) {
-  Config <- SelectedConfigs[[mp]]
-  if (!length(Config)) return('')
-  paste0(' Settings: ', paste(names(Config), vapply(Config, deparse, character(1)),
-                              sep = ' = ', collapse = ', '), '.')
-}, character(1))
-
-MP_Code  <- MP_all
-# (the index set is in the label only if the CMPs have more than one)
-MP_Label <- if (length(unique(MPInfo$IndexSet)) > 1) {
-  sprintf('%s HCR%d %s %d%%', MPInfo$MP, MPInfo$HCR, IndexSetLabel[MPInfo$IndexSet], round(100 * MPInfo$TACChange))
-} else {
+# (the index set is in the code and label only if the CMPs have more than one)
+OneIndexSet <- length(unique(MPInfo$IndexSet)) == 1
+MP_Code  <- if (OneIndexSet) sub(paste0('_', MPInfo$IndexSet[1], '_'), '_', MP_all, fixed = TRUE) else MP_all
+MP_Label <- if (OneIndexSet) {
   sprintf('%s HCR%d %d%%', MPInfo$MP, MPInfo$HCR, round(100 * MPInfo$TACChange))
+} else {
+  sprintf('%s HCR%d %s %d%%', MPInfo$MP, MPInfo$HCR, IndexSetLabel[MPInfo$IndexSet], round(100 * MPInfo$TACChange))
 }
-MP_Description <- sprintf(
-  '%s HCR %d: F target = %s%%, ThRP = %d%% SB0 and LRP = %d%% SB0, with TAC changes limited to %d%% between management cycles. Indices: %s%s.%s Tuned in the base case OM to maximise mean catch subject to P(SB > LRP) >= %.2g and P(F <= %s%%) >= %.2g (tunepar = %.3g).',
-  MP_TypeDescription[MPInfo$MP], MPInfo$HCR, MPInfo$FTarget, round(100 * MPInfo$ThRP), round(100 * LRP),
-  round(100 * MPInfo$TACChange), IndexSetDescription[MPInfo$IndexSet], '',
-  ConfigLabel[MPInfo$MP], PI_Min[['Safety']], MPInfo$FTarget, PI_Min[['Status']], MPInfo$tunepar)
+
+# The first CMP of each MP type (and index set) is described in full; the
+# others only by how they differ from it
+HCRText <- sprintf('HCR %d (F target %s%%, ThRP %d%% SB0)', MPInfo$HCR, MPInfo$FTarget, round(100 * MPInfo$ThRP))
+CapText <- sprintf('%d%% TAC change limit', round(100 * MPInfo$TACChange))
+First   <- match(MPInfo$Group, MPInfo$Group)
+MP_Description <- vapply(seq_len(nMP), \(i) {
+  f <- First[i]
+  if (i == f)
+    return(sprintf(
+      '%s. %s; Fmin (F90%%) at the LRP (%d%% SB0); %s. Indices: %s CPUE. Tuned (base case OM) to maximise mean catch with P(SB > LRP) >= %.2g and P(F <= F target) >= %.2g. HCRs: %s#sec-hcrs',
+      MP_TypeDescription[[MPInfo$MP[i]]], HCRText[i], round(100 * LRP), CapText[i],
+      IndexSetLabel[[MPInfo$IndexSet[i]]], PI_Min[['Safety']], PI_Min[['Status_F']], TSD_CMP_URL))
+  Diff <- c(if (MPInfo$HCR[i] != MPInfo$HCR[f]) HCRText[i],
+            if (MPInfo$TACChange[i] != MPInfo$TACChange[f]) paste('a', CapText[i]))
+  sprintf('As %s, with %s.', MP_Code[f], paste(Diff, collapse = ' and '))
+}, character(1))
 
 # ---- OMs with MSE results ----
 OM_Design <- ListSS3Runs() |>
@@ -83,12 +97,21 @@ nOM <- nrow(OM_Design)
 # ---- Performance indicators ----
 # Candidate management objectives (Table 1): Safety, Status, Stability,
 # probability of no management change, and Yield
-StatusNames <- names(StatusFTargetSPR)
-Table1_Codes <- c('Safety', 'Status', 'FTarget_F', 'Status_SB', 'Stability', 'NoChange', names(CatchRefYears))
+StatusNames   <- names(StatusFTargetSPR)
+StatusSBCodes <- paste0('Status_', names(StatusThRP))
+Table1_Codes  <- c('Safety', 'Status_F', StatusSBCodes, 'FTarget_F', 'Stability', 'NoChange', names(CatchRefYears))
 
-PM_Codes <- c(Table1_Codes,
+# (the Status_* metrics together)
+PM_Codes <- c('Safety',
+              'Status_F',
               paste0('Status_', StatusNames),
+              StatusSBCodes,
+              'Status_SB',
+              'FTarget_F',
               paste0('FTarget_F_', StatusNames),
+              'Stability',
+              'NoChange',
+              names(CatchRefYears),
 
               'Yield_All',
               'Yield_Short',
@@ -118,8 +141,9 @@ YearsLabel <- vapply(CatchRefYears, \(yrs) paste(range(yrs), collapse = '-'), ch
 
 PM_Label <- c(
   Safety           = 'Probability SB > LRP',
-  Status           = 'Probability F <= F target (of the HCR)',
+  Status_F         = 'Probability F <= F target (of the HCR)',
   FTarget_F        = 'F target (of the HCR) / F',
+  stats::setNames(paste0('Probability SB > ', round(100 * StatusThRP), '% SB0'), StatusSBCodes),
   Status_SB        = 'Probability SB > ThRP (of the HCR)',
   Stability        = paste0('Catch stability (TAC change <= ', 100 * StabilityThreshold, '%)'),
   NoChange         = 'Probability of no management change',
@@ -156,9 +180,12 @@ Safety_Description <- paste0('Probability that spawning biomass is above the lim
                              '% SB0) in any given year')
 
 PM_Description <- c(
-  Safety           = paste0(Safety_Description, ' of the projection period (proportion of years).'),
-  Status           = 'Probability that fishing mortality is at or below the F target of the HCR of the CMP (F40%, F35%, or F30%), over all projection years.',
+  Safety           = paste0(Safety_Description, ' of the projection period (proportion of simulations and years).'),
+  Status_F         ='Probability that fishing mortality is at or below the F target of the HCR of the CMP (F40%, F35%, or F30%), over all projection years.',
   FTarget_F        = 'Median ratio of the F target of the HCR of the CMP to fishing mortality over the projection years; values above 1 mean F is below the target.',
+  stats::setNames(paste0('Probability that spawning biomass is above ', round(100 * StatusThRP),
+                         '% SB0 (candidate threshold reference point) in any given year of the projection period.'),
+                  StatusSBCodes),
   Status_SB        = 'Probability that spawning biomass is above the threshold reference point of the HCR of the CMP (ThRP; 35%, 30%, or 25% SB0) in any given year of the projection period.',
   Stability        = paste0('Probability that the TAC changes by no more than ', 100 * StabilityThreshold, '% between consecutive management cycles.'),
   NoChange         = paste0('Probability of no management change: the probability that the TAC changes by no more than ', 100 * NoChangeThreshold, '% between consecutive management cycles.'),
@@ -197,9 +224,9 @@ PM_Description <- c(
   Rel_Yield        = 'Mean annual catch (all years) relative to the highest-yielding MP in the same OM.'
 )
 
-Spider_Codes   <- c('Safety', 'Status', 'Stability', 'NoChange', names(CatchRefYears), 'Rel_Yield')
+Spider_Codes   <- c('Safety', 'Status_F', 'Stability', 'NoChange', names(CatchRefYears), 'Rel_Yield')
 Headline_Codes <- c(Table1_Codes, 'Yield_All')
-Tradeoff_Codes <- c('Safety', 'Yield_All', 'Status', 'Stability', 'NoChange', names(CatchRefYears), 'Depletion_All')
+Tradeoff_Codes <- c('Safety', 'Yield_All', 'Status_F', 'Stability', 'NoChange', names(CatchRefYears), 'Depletion_All')
 
 TS_FCodes <- paste0('F_', StatusNames)
 TS_Codes  <- c('SB_SB0', TS_FCodes, 'Yield', 'SB_SBMSY', 'F_FMSY')
@@ -227,7 +254,8 @@ for (i in seq_len(nOM)) {
     File <- file.path(MSEDir, OM_Design$OM[i], paste0(g, '.mse'))
     if (!file.exists(File))
       cli::cli_abort("OM {OM_Design$OM[i]} has no results for {.val {g}}; re-run 06-Run-Projections.R.")
-    MSE <- readRDS(File)
+    # (adds any slots that are new in the installed MSEtool)
+    MSE <- MSEtool::UpdateObject(readRDS(File))
     Missing <- setdiff(Groups[[g]], names(MSE@MPs))
     if (length(Missing))
       cli::cli_abort("OM {OM_Design$OM[i]} has no results for {.val {Missing}}; re-run 06-Run-Projections.R.")
@@ -235,7 +263,7 @@ for (i in seq_len(nOM)) {
     TS    <- Extract_MSE_Timeseries(MSE, FTarget_FMSY = FTarget_FMSY)
     Stats <- Calc_PM_Stats(MSE, Lim = LRP, StabilityThreshold = StabilityThreshold,
                            NoChangeThreshold = NoChangeThreshold, MPFTarget = MPFTarget,
-                           MPThRP = MPThRP, CatchRefYears = CatchRefYears, TS = TS)
+                           ThRP = StatusThRP, MPThRP = MPThRP, CatchRefYears = CatchRefYears, TS = TS)
     Stats <- Stats[Stats$MP %in% Groups[[g]], ]
 
     if (is.null(PM_Value)) {
@@ -289,11 +317,16 @@ rownames(Slick::Design(OMs_obj)) <- OM_Design$OM_Name
 # Preset buttons (rows of Design): the base case (the default, the first
 # preset), each group of sensitivity OMs with the base case, and all OMs. The
 # app shows at most 8 OM presets
-OM_Groups <- c('01' = 'Natural mortality', '02' = 'Natural mortality',
-               '03' = 'Steepness', '04' = 'Steepness',
-               '07' = 'Growth',
-               '08' = 'Maturity', '09' = 'Maturity', '10' = 'Maturity',
-               '20a' = 'Effort creep', '20b' = 'Effort creep')
+OM_Groups <- c('01'  = 'Natural mortality',
+               '02'  = 'Natural mortality',
+               '03'  = 'Steepness',
+               '04'  = 'Steepness',
+               '07'  = 'Growth',
+               '08'  = 'Maturity',
+               '09'  = 'Maturity',
+               '10'  = 'Maturity',
+               '20a' = 'Effort creep',
+               '20b' = 'Effort creep')
 Missing <- setdiff(OM_Design$OM, c('00', names(OM_Groups)))
 if (length(Missing))
   cli::cli_abort("Add OM{?s} {.val {Missing}} to {.var OM_Groups}.")
@@ -308,10 +341,13 @@ if (length(Slick::Preset(OMs_obj)) > 8)
 # ---- MPs ----
 MPs_obj <- Slick::MPs(Code = MP_Code, Label = MP_Label, Description = MP_Description)
 
-# Preset buttons: all CMPs, each MP family, each TAC change limit, and each F
-# target (HCRs 1-3, 4-5, 6). The app shows at most 10 MP presets
+# Preset buttons: the default selection (the first preset), all CMPs, each MP
+# family, each TAC change limit, and each F target (HCRs 1-3, 4-5, 6). The app
+# shows at most 10 MP presets
+DefaultMPs <- which(MPInfo$HCR %in% DefaultHCRs & MPInfo$TACChange == DefaultTACChange)
 Slick::Preset(MPs_obj) <- c(
-  list(All = seq_len(nMP)),
+  list(Default = DefaultMPs,
+       All = seq_len(nMP)),
   split(seq_len(nMP), factor(MP_Type[MPInfo$MP], MP_Type)),
   split(seq_len(nMP), paste0(round(100 * MPInfo$TACChange), '% TAC cap')),
   split(seq_len(nMP), factor(paste0(MPInfo$FTarget, '%'), unique(paste0(MPInfo$FTarget, '%')[order(MPInfo$HCR)])))
@@ -327,7 +363,7 @@ Boxplot_obj <- Slick::Boxplot(Code = PM_Codes, Label = unname(PM_Label[PM_Codes]
                               Description = unname(PM_Description[PM_Codes]),
                               Value = PM_Value)
 
-Prob01_Codes <- c('Safety', 'Safety_Short', 'Safety_Medium', 'Safety_Long', 'Safety_NoBreach', 'Status', 'Status_SB',
+Prob01_Codes <- c('Safety', 'Safety_Short', 'Safety_Medium', 'Safety_Long', 'Safety_NoBreach', 'Status_F', StatusSBCodes, 'Status_SB',
                   paste0('Status_', StatusNames), 'Stability', 'NoChange', names(CatchRefYears),
                   'Kobe_Green')
 
@@ -339,16 +375,28 @@ Quilt_MaxValue <- rep(NA_real_, nPI_quilt)
 Quilt_MinValue[match(Prob01_Codes, Quilt_Codes)] <- 0
 Quilt_MaxValue[match(Prob01_Codes, Quilt_Codes)] <- 1
 
+# Values shown in the app rounded to 2 decimal places, mean catch to whole
+# tonnes. The Quilt gets the mean over simulations in each OM, rounded (the app
+# rounds the mean over the selected OMs to 3 significant figures)
+Yield_Codes <- paste0('Yield_', c('All', 'Short', 'Medium', 'Long'))
+# (PIs in the last dimension of `Arr`)
+RoundPI <- function(Arr) {
+  d      <- dim(Arr)
+  Codes  <- dimnames(Arr)[[length(d)]]
+  Arr[]  <- round(Arr, rep(ifelse(Codes %in% Yield_Codes, 0, 2), each = prod(d[-length(d)])))
+  Arr
+}
+
 Quilt_obj <- Slick::Quilt(Code = Quilt_Codes, Label = unname(PM_Label[Quilt_Codes]),
                           Description = unname(PM_Description[Quilt_Codes]),
-                          Value = PM_Value[, , , Quilt_Codes, drop = FALSE],
+                          Value = RoundPI(apply(PM_Value[, , , Quilt_Codes, drop = FALSE], c(2, 3, 4), mean, na.rm = TRUE)),
                           MinValue = Quilt_MinValue, MaxValue = Quilt_MaxValue)
 
 non_windowed_PM <- c('Depletion_Min', 'AAVY', 'Stability', 'Safety_NoBreach')
 
 WindowPreset <- function(Codes, Keep) {
   list(Summary    = match(intersect(Headline_Codes, Codes), Codes),
-       Status     = match(intersect(c('Status', 'FTarget_F', 'Status_SB', paste0('Status_', StatusNames),
+       Status     = match(intersect(c('Status_F', paste0('Status_', StatusNames), StatusSBCodes, 'Status_SB', 'FTarget_F',
                                       paste0('FTarget_F_', StatusNames)), Codes), Codes),
        All        = seq_along(Codes),
        ShortTerm  = match(c(grep('_Short$',  Codes, value = TRUE), intersect(Keep, Codes)), Codes),
@@ -380,16 +428,16 @@ Spider_Value[, , 'Rel_Yield'] <- Yield_OM_MP / apply(Yield_OM_MP, 1, max, na.rm 
 
 Spider_obj <- Slick::Spider(Code = Spider_Codes, Label = unname(PM_Label[Spider_Codes]),
                             Description = unname(PM_Description[Spider_Codes]),
-                            Value = Spider_Value)
+                            Value = RoundPI(Spider_Value))
 
 Tradeoff_obj <- Slick::Tradeoff(Code = Tradeoff_Codes, Label = unname(PM_Label[Tradeoff_Codes]),
                                 Description = unname(PM_Description[Tradeoff_Codes]),
-                                Value = .Agg_PM(Tradeoff_Codes))
+                                Value = RoundPI(.Agg_PM(Tradeoff_Codes)))
 
 Slick::Preset(Tradeoff_obj) <- list(
   All         = seq_along(Tradeoff_Codes),
   CatchSafety = match(c('Yield_All', 'Safety'), Tradeoff_Codes),
-  CatchStatus = match(c('Yield_All', 'Status'), Tradeoff_Codes)
+  CatchStatus = match(c('Yield_All', 'Status_F'), Tradeoff_Codes)
 )
 
 # ---- Timeseries / Kobe ----
@@ -410,11 +458,13 @@ Kobe_obj <- Slick::Kobe(Code = c('SB_SBMSY', 'F_FMSY'),
 Introduction <- paste0("
 Preliminary results of the management strategy evaluation (MSE) for North Pacific swordfish, developed for the Northern Committee of the Western and Central Pacific Fisheries Commission (WCPFC).
 
-The operating models (OMs) are conditioned on the base case and sensitivity runs of the 2023 ISC stock assessment. The candidate management procedures (CMPs) are two index-based MPs (Index Rate and Index Target) and a model-based MP (Surplus Production), each with the six candidate harvest control rules (HCRs) of the Northern Committee (NC22 Summary Report, Attachment 7): F target = F40% with a threshold reference point (ThRP) of 35%, 30%, or 25% SB0 (HCRs 1-3), F35% with a ThRP of 30% or 25% SB0 (HCRs 4-5), and F30% with a ThRP of 25% SB0 (HCR 6), where SB0 is the equilibrium unfished spawning biomass. Below the limit reference point (LRP = 17% SB0), fishing is reduced to Fmin = F90%. The CMPs use the indices of abundance of all three fleets: the Japanese late longline CPUE (Areas 1 and 2), the US shallow-set longline CPUE, and the Taiwanese longline CPUE (JPN + US + TWN). CMPs with the Japanese CPUE alone, or with the US or the Taiwanese CPUE, were also evaluated; their performance differed little from the CMPs shown here. The TAC change between management cycles is limited to 10% or 20%. Each CMP was tuned in the base case OM to maximise mean catch subject to the Safety (probability of at least ", PI_Min[['Safety']], " that spawning biomass is above the LRP) and Status (probability of at least ", PI_Min[['Status']], " that F is at or below the F target of its HCR) objectives; the Status objective limited the catch of every CMP.
+The operating models (OMs) are conditioned on the base case and sensitivity runs of the 2023 ISC stock assessment. The candidate management procedures (CMPs) are two index-based MPs (Index Rate and Index Target) and a model-based MP (Surplus Production), each with the six candidate harvest control rules (HCRs) of the Northern Committee (NC22 Summary Report, Attachment 7) and a ", round(100 * min(MPInfo$TACChange)), "% or ", round(100 * max(MPInfo$TACChange)), "% limit on TAC changes. CMP codes are MP type, HCR, and TAC change limit (e.g. ", MP_Code[1], ").
 
-Preset buttons select the CMPs of each MP type, TAC change limit (cap), and F target, and the OMs of each group of sensitivities (with the base case). The base case OM is selected by default.
+By default, the base case OM and the ", length(DefaultMPs), " CMPs with the highest-yield HCRs (", paste0('HCR ', DefaultHCRs, collapse = ' and '), ") and the ", round(100 * DefaultTACChange), "% TAC change limit are selected. Preset buttons select the CMPs of each MP type, TAC change limit (cap), and F target, and the OMs of each group of sensitivities (with the base case).
 
-The performance indicators of the candidate management objectives are: Safety, the probability that spawning biomass is above the LRP in any given year of the projection period (the probability that it remains above the LRP in every year is also reported); Status, the probability that F is at or below the F target of the HCR (Status is also reported against each candidate target reference point, F40%, F35%, and F30%), and the probability that spawning biomass is above the threshold reference point of the HCR; Stability, the probability that the TAC changes by no more than 10% between management cycles; the probability of no management change (the TAC changes by no more than 1% between management cycles); and Yield, the probability that the annual catch is at least the mean 2008-2010 catch, and the mean 2016-2021 catch.
+The Technical Supporting Document (", TSDLink('TSD', TSD_URL), ") describes the ", TSDLink('CMPs', TSD_CMP_URL), ", including the ", TSDLink('shapes of the HCRs', paste0(TSD_CMP_URL, '#sec-hcrs')), ", how they are ", TSDLink('implemented in each CMP type', paste0(TSD_CMP_URL, '#tbl-hcr-translation')), ", and the ", TSDLink('tuning', paste0(TSD_CMP_URL, '#sec-tuning-results')), ", and defines the ", TSDLink('performance metrics', TSD_PM_URL), ".
+
+See the ", TSDLink('North Pacific Swordfish MSE homepage', 'https://wcpfcnswo.bluematterscience.com/'), " for more information on this analysis.
 
 **These results are preliminary and do not necessarily reflect the views of the WCPFC or its members.**
 ")
@@ -432,19 +482,23 @@ slick <- Slick::Slick(Title = 'North Pacific Swordfish',
                       Tradeoff = Tradeoff_obj,
                       Timeseries = Timeseries_obj)
 
-print(Slick::Check(slick))
+Slick::Check(slick)
 
 MSEtool::Save(slick, 'objects/slick.rds', overwrite = TRUE)
 # MSEtool::Save(slick, '../SlickLibrary/Slick_Objects/North_Pacific_Swordfish.slick', overwrite = TRUE)
 
 # ---- Run App ----
+slick <- readRDS('objects/slick.rds')
 if (interactive())
   Slick::App(slick = slick)
 
 # ---- Make manual plots ----
-# By CMP group (MP and index set), for all OMs combined and the base case
-OM_Sets <- c(list(All = seq_len(nOM)),
-             if ('00' %in% OM_Design$OM) list(OM00 = match('00', OM_Design$OM)))
+# By CMP group (MP and index set), for all OMs combined and each OM individually
+
+OMs_list <- as.list(seq_along(OM_Design$OM))
+names(OMs_list) <- paste0('OM', OM_Design$OM)
+
+OM_Sets <- c(list(All = seq_len(nOM)), OMs_list)
 
 ## ---- Timeseries ----
 for (g in names(Groups)) {
@@ -487,13 +541,19 @@ Quilt_Extended_Codes <- c(Quilt_Primary_Codes,
                           'Safety_Short', 'Safety_Medium', 'Safety_Long', 'Safety_NoBreach',
                           'Depletion_All', 'Depletion_Long')
 
-Save_Quilt_Table <- function(pi_codes, om_idx, file_stub) {
-  slick_sub <- Slick::FilterSlick(slick, OMs = om_idx, PIs = match(pi_codes, Quilt_Codes), plot = 'Quilt')
-  tbl       <- Slick::plotQuilt(slick_sub, kable = TRUE)
+# (from the unrounded means in each OM, rounded after averaging over the OMs:
+# 2 decimal places, mean catch to whole tonnes)
+# slick_quilt <- slick
+# Slick::Value(slick_quilt@Quilt) <- apply(PM_Value[, , , Quilt_Codes, drop = FALSE], c(2, 3, 4), mean, na.rm = TRUE)
 
-  prob_cols <- intersect(Prob01_Codes, pi_codes)
-  if (length(prob_cols))
-    tbl <- flextable::colformat_double(tbl, j = prob_cols, digits = 2)
+Save_Quilt_Table <- function(pi_codes, om_idx, file_stub) {
+  slick_sub <- Slick::FilterSlick(slick_quilt, OMs = om_idx, PIs = match(pi_codes, Quilt_Codes), plot = 'Quilt')
+  tbl       <- Slick::plotQuilt(slick_sub, kable = TRUE, signif = 10)
+
+  yield_cols <- intersect(Yield_Codes, pi_codes)
+  tbl <- flextable::colformat_double(tbl, j = setdiff(pi_codes, yield_cols), digits = 2)
+  if (length(yield_cols))
+    tbl <- flextable::colformat_double(tbl, j = yield_cols, digits = 0)
 
   dir <- file.path(FigDir, 'Quilt')
   if (!dir.exists(dir)) dir.create(dir, recursive = TRUE)
@@ -505,70 +565,3 @@ for (om_set in names(Quilt_OM_Sets)) {
   Save_Quilt_Table(Quilt_Primary_Codes,  Quilt_OM_Sets[[om_set]], paste0(om_set, '_Primary'))
   Save_Quilt_Table(Quilt_Extended_Codes, Quilt_OM_Sets[[om_set]], paste0(om_set, '_Extended'))
 }
-
-## ---- Comparison across OMs ----
-OM_Colours <- scales::hue_pal()(nOM)
-OM_Colours[OM_Design$OM == '00'] <- 'black'
-names(OM_Colours) <- OM_Design$OM_Name
-
-# Median time series in each OM, one panel per CMP, one figure per CMP group
-TS_Median <- apply(TS_Value, c(2, 3, 4, 5), stats::median, na.rm = TRUE) |>
-  as.data.frame.table(responseName = 'Value', stringsAsFactors = FALSE)
-TS_Median$Time <- as.numeric(TS_Median$Time)
-TS_Median$OM   <- factor(TS_Median$OM, levels = OM_Design$OM_Name)
-
-for (g in names(Groups)) {
-  for (code in TS_Codes) {
-    d <- TS_Median[TS_Median$PI == code & TS_Median$MP %in% Groups[[g]], ]
-    d$MP <- factor(d$MP, levels = Groups[[g]])
-    p <- ggplot2::ggplot(d, ggplot2::aes(Time, Value, colour = OM)) +
-      ggplot2::geom_vline(xintercept = MPStartYear, linetype = 3, colour = 'grey40') +
-      ggplot2::geom_line(linewidth = 0.6) +
-      ggplot2::facet_wrap(~MP, ncol = 4, scales = 'free_y') +
-      ggplot2::scale_colour_manual(values = OM_Colours) +
-      ggplot2::expand_limits(y = 0) +
-      ggplot2::labs(x = NULL, y = TS_Label[[code]], colour = NULL,
-                    caption = 'Median over simulations. Dotted line: first year of MP advice.') +
-      ggplot2::theme_bw() +
-      ggplot2::theme(legend.position = 'bottom')
-    if (!is.na(TS_Target[[code]]))
-      p <- p + ggplot2::geom_hline(yintercept = TS_Target[[code]], linetype = 2, colour = 'darkgreen')
-    if (!is.na(TS_Limit[[code]]))
-      p <- p + ggplot2::geom_hline(yintercept = TS_Limit[[code]], linetype = 2, colour = 'red')
-    ggplot2::ggsave(file.path(FigDir, 'Timeseries', 'ByOM', g, paste0(code, '.png')),
-                    p, width = 14, height = 9, dpi = 300, create.dir = TRUE)
-  }
-}
-
-# Performance indicators of the candidate management objectives in each OM, one figure per CMP group
-Summary_Codes <- c(Table1_Codes, 'Yield_All')
-PI_OM <- apply(PM_Value, c(2, 3, 4), mean, na.rm = TRUE) |>
-  as.data.frame.table(responseName = 'Value', stringsAsFactors = FALSE)
-
-Min <- data.frame(PI = factor(PM_Label[names(PI_Min)], levels = PM_Label[Summary_Codes]), Value = PI_Min)
-for (g in names(Groups)) {
-  d <- PI_OM[PI_OM$PI %in% Summary_Codes & PI_OM$MP %in% Groups[[g]], ]
-  d$PI <- factor(PM_Label[d$PI], levels = PM_Label[Summary_Codes])
-  d$MP <- factor(d$MP, levels = Groups[[g]])
-  d$OM <- factor(d$OM, levels = OM_Design$OM_Name)
-
-  p <- ggplot2::ggplot(d, ggplot2::aes(MP, Value, colour = OM)) +
-    ggplot2::geom_hline(data = Min, ggplot2::aes(yintercept = Value), linetype = 2, colour = 'red') +
-    ggplot2::geom_point(position = ggplot2::position_dodge(width = 0.7), size = 2) +
-    ggplot2::facet_wrap(~PI, ncol = 2, scales = 'free_y', labeller = ggplot2::label_wrap_gen(45)) +
-    ggplot2::scale_colour_manual(values = OM_Colours) +
-    ggplot2::labs(x = NULL, y = NULL, colour = NULL,
-                  caption = 'Mean over simulations. Dashed lines: minimum probabilities of the Safety and Status objectives.') +
-    ggplot2::theme_bw() +
-    ggplot2::theme(legend.position = 'bottom', axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
-  ggplot2::ggsave(file.path(FigDir, 'Summary', paste0('PI_by_OM_', g, '.png')), p, width = 11, height = 12, dpi = 300,
-                  create.dir = TRUE)
-}
-
-# Table: one row per PI and CMP, one column per OM, and the mean and minimum over OMs
-Tab <- stats::reshape(PI_OM, idvar = c('PI', 'MP'), timevar = 'OM', direction = 'wide')
-names(Tab) <- sub('^Value\\.', '', names(Tab))
-Tab <- Tab[order(match(Tab$PI, PM_Codes), match(Tab$MP, MP_all)), ]
-Tab$Mean <- rowMeans(Tab[OM_Design$OM_Name])
-Tab$Min  <- apply(Tab[OM_Design$OM_Name], 1, min)
-utils::write.csv(Tab, file.path(FigDir, 'Summary', 'PI_by_OM.csv'), row.names = FALSE)
